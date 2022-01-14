@@ -22,7 +22,7 @@ function Login()
         var config = 
         {
             method: 'post',
-            url: bp.buildPath('api/login'),	
+            url: bp.buildPath('../../../api/login'),	
             headers: 
             {
                 'Content-Type': 'application/json'
@@ -40,7 +40,7 @@ function Login()
             }
             else 
             {	
-                storage.storeToken(res);
+                storage.storeToken(res.token);
                 var jwt = require('jsonwebtoken');
     
                 var ud = jwt.decode(storage.retrieveToken(),{complete:true});

@@ -15,7 +15,6 @@ function LoggedInName()
 
         localStorage.removeItem("user_data")
         window.location.href = '/';
-
     };    
 
   return(

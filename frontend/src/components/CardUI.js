@@ -32,7 +32,7 @@ function CardUI()
         var config = 
         {
             method: 'post',
-            url: bp.buildPath('api/addcard'),	
+            url: bp.buildPath('../../../api/addcard'),	
             headers: 
             {
                 'Content-Type': 'application/json'
@@ -74,7 +74,7 @@ function CardUI()
         var config = 
         {
             method: 'post',
-            url: bp.buildPath('api/searchcards'),	
+            url: bp.buildPath('../../../api/searchcards'),	
             headers: 
             {
                 'Content-Type': 'application/json'
