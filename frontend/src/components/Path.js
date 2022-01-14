@@ -1,4 +1,4 @@
-const app_name = 'smocklock'
+const app_name = 'smocklock2'
 exports.buildPath = 
 function buildPath(route)
 {
