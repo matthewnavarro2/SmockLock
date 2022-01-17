@@ -15,13 +15,22 @@ function LoggedInName()
 
         localStorage.removeItem("user_data")
         window.location.href = '/';
-    };    
+    };
+    
+    const doCam = event =>
+    {
+      event.preventDefault();
+     
+      window.location.href = '/cam';
+    }
 
   return(
    <div id="loggedInDiv">
    <span id="userName">Logged In As {firstName} {lastName}</span><br />
    <button type="button" id="logoutButton" class="buttons" 
      onClick={doLogout}> Log Out </button>
+    <button type="button" id="cameraButton" class="buttons" 
+    onClick={doCam}> CAM PAGE </button>
    </div>
   );
 };

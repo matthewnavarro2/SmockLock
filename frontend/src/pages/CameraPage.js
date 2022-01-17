@@ -8,7 +8,6 @@ const CameraPage = () =>
 {
     return(
         <div>
-            <PageTitle />
             <LoggedInName />
             <CameraUI />
         </div>
