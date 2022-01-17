@@ -5,7 +5,7 @@ function CameraUI()
 {
    return(
         <div id="CameraUIDiv">
-        <span id="inner-title">PLEASE LOG IN</span><br />
+        <span id="inner-title">This do be the camera page</span><br />
         </div>
    );
 }
