@@ -120,6 +120,11 @@ exports.setApp = function ( app, client )
     
     app.post('/api/register', async (req, res, next) => 
     {
+
+      // incoming: email, firstname, lastname, login, password
+      // outgoing: status, error
+
+
       // connect to db
       const db = client.db();
 
