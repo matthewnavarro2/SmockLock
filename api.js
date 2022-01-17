@@ -263,4 +263,36 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });
     
+    app.post('/api/searchusers', async (req, res, next) => 
+    {
+      var error = '';
+      const { search, jwtToken } = req.body;
+
+      var _search = search.trim();
+
+      const db = client.db();
+      const results = await db.collection('Users').find({"FullName":{$regex:_search+'.', $options:'r'}}).toArray();
+
+      var _resultsarray = [];
+
+      for( var i=0; i<results.length; i++ )
+      {
+        _resultsarray.push( results[i]);
+      }
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken).accessToken;
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+
+      var ret = { results_array : _resultsarray, error: error, jwtToken: refreshedToken }; // fullName:_fullNameArray, email:_emailArray, userId:_userIdArray,
+
+      res.status(200).json(ret);
+    });
 }
+
