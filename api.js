@@ -7,16 +7,17 @@ const bcrypt = require('bcryptjs');
 
 exports.setApp = function ( app, client )
 {
-    app.post('/api/addPic', async (req, res, next) => 
+    app.post('/api/cameraAddPic', async (req, res, next) => 
     {
-      // incoming: pic
+      // incoming: pic, email/userid
       // outgoing: error
 
       // Grabbing picture from parameter
-      const {pic} = req.body;
+      const {/*userId, */pic} = req.body;
 
+      
       // Variable Declaration
-      var newPic = {Pic:pic};
+      var newPic = {/*userId,*/ Pic:pic};
       var error = '';
 
       // Connecting to database and adding a picture
@@ -33,10 +34,113 @@ exports.setApp = function ( app, client )
         console.log(e.message);
       }
       
-      // 
+      // return
       var ret = {error: error};
       
       res.status(200).json(ret);
+    });  
+
+
+
+    app.post('/api/addPic', async (req, res, next) => 
+    {
+      // incoming: pic, email/userid
+      // outgoing: error
+
+      // Grabbing picture from parameter
+      const {userId, pic, jwtToken} = req.body;
+
+      // Checking to see if token has expired
+      try
+      {
+        if( token.isExpired(jwtToken))
+        {
+          var r = {error:'The JWT is no longer valid', jwtToken: ''};
+          res.status(200).json(r);
+          return;
+        }
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      // Variable Declaration
+      var newPic = {UserId:userId, Pic:pic};
+      var error = '';
+
+      // Connecting to database and adding a picture
+      try
+      {
+        const db = client.db();
+        const result = db.collection('Pics').insertOne(newPic);
+
+      }
+      
+      // Prints error if failed
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      
+      // return
+      var ret = {error: error};
+      
+      res.status(200).json(ret);
+    });
+
+    app.post('/api/listPics', async (req, res, next) => 
+    {
+      // incoming: userId, jwtToken
+      // outgoing: picture, error
+
+      // Grabbing picture from parameter
+      const {userId, jwtToken} = req.body;
+
+      // Checking to see if Token Expired
+      try
+      {
+        if( token.isExpired(jwtToken))
+        {
+          var r = {error:'The JWT is no longer valid', jwtToken: ''};
+          res.status(200).json(r);
+          return;
+        }
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+
+
+      // Variable Declaration
+      var newPic = {UserId:userId};
+      var error = '';
+
+      // Connecting to database and searching for Pictures associated with User.
+      try
+      {
+        const db = client.db();
+        const result = await db.collection('Pics').find({"UserId":userId}).toArray();
+        var _resultsarray = [];
+
+        for( var i=0; i<result.length; i++ )
+        {
+        _resultsarray.push( result[i]);
+        }
+        
+      }
+
+      // Prints error if failed
+      catch(e)
+      {
+        
+        console.log(e.message);
+      }
+      
+      // return
+      var ret = {result_array: _resultsarray, error: error};
+      res.status(200).json(ret);
+      console.log(res);
     });
 
     
