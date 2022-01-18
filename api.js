@@ -7,7 +7,39 @@ const bcrypt = require('bcryptjs');
 
 exports.setApp = function ( app, client )
 {
+    app.post('/api/addPic', async (req, res, next) => 
+    {
+      // incoming: pic
+      // outgoing: error
 
+      // Grabbing picture from parameter
+      const {pic} = req.body;
+
+      // Variable Declaration
+      var newPic = {Pic:pic};
+      var error = '';
+
+      // Connecting to database and adding a picture
+      try
+      {
+        const db = client.db();
+        const result = db.collection('Pics').insertOne(newPic);
+
+      }
+      
+      // Prints error if failed
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      
+      // 
+      var ret = {error: error};
+      
+      res.status(200).json(ret);
+    });
+
+    
     app.post('/api/addcard', async (req, res, next) =>
     {
       // incoming: userId, color
