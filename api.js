@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 
 exports.setApp = function ( app, client )
 {
+    // API for
     app.post('/api/cameraAddPic', async (req, res, next) => 
     {
       // incoming: pic, email/userid
@@ -41,7 +42,7 @@ exports.setApp = function ( app, client )
     });  
 
 
-
+    // API for
     app.post('/api/addPic', async (req, res, next) => 
     {
       // incoming: pic, email/userid
@@ -88,6 +89,7 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });
 
+    // API for
     app.post('/api/listPics', async (req, res, next) => 
     {
       // incoming: userId, jwtToken
@@ -138,7 +140,7 @@ exports.setApp = function ( app, client )
       }
       
       // return
-      var ret = {result_array: _resultsarray, error: error};
+      var ret = {result_array: _resultsarray, jwtToken: jwtToken, error: error};
       res.status(200).json(ret);
       console.log(res);
     });
