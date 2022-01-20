@@ -7,6 +7,58 @@ const bcrypt = require('bcryptjs');
 
 exports.setApp = function ( app, client )
 {
+    const {spawn} = require('child_process');
+
+    // API test for python script
+    app.post('/api/pythonScript', (req, res) => {
+ 
+      const {lockId} = req.body;
+      var dataToSend;
+
+      // Connecting to database and searching for Pictures associated with User.
+      try
+      {
+        const db = client.db();
+        const result = await db.collection('Encodings').find("LockID":lockId).toArray();
+        var _resultsarray = [];
+
+        for( var i=0; i<result.length; i++ )
+        {
+        _resultsarray.push( result[i]);
+        }
+      }
+
+      // Prints error if failed
+      catch(e)
+      {
+        
+        console.log(e.message);
+      }
+
+      for (var i = 0;i < _resultsarray.length; i++)
+      {
+        // spawn new child process to call the python script
+        const python = spawn('python', ['esp.py', _resultsarray[i].EncodedImages, ]);
+
+
+      }
+
+      /* collect data from script
+      python.stdout.on('data', function (data) {
+       console.log('Pipe data from python script ...');
+       dataToSend = data.toString();
+      });
+
+      */
+
+      // in close event we are sure that stream from child process is closed
+      python.on('close', (code) => {
+      console.log(`child process close all stdio with code ${code}`);
+
+      });
+
+    });
+
     // API for
     app.post('/api/cameraAddPic', async (req, res, next) => 
     {
