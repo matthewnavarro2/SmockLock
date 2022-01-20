@@ -8,7 +8,7 @@ f_cas= cv2.CascadeClassifier(cv2.data.haarcascades+'haarcascade_frontalface_defa
 eye_cascade=cv2.CascadeClassifier(cv2.data.haarcascades +'haarcascade_eye.xml')
 data = pickle.loads(open('face_enc123', "rb").read())
 
-# This is where pic is grabbed from
+# This is where pic is grabbed from, this pic is going to be passed in as a paramter in base64 format we need to convert to png or figure out a way to encode direct from base64.
 url='http://192.168.0.238/cam-hi.jpg '
 ##'''cam.bmp / cam-lo.jpg /cam-hi.jpg / cam.mjpeg '''
 cv2.namedWindow("Live Transmission", cv2.WINDOW_AUTOSIZE)

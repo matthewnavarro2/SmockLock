@@ -11,6 +11,13 @@ imagePath = list(paths.list_images('RealData'))
 kEncodings = []
 kNames = []
 
+# We need to convert our base 64 images on our database to a png which then encodes
+# we are getting this from the parameters.
+
+
+
+
+
 # loop over the image paths
 for (i, ip) in enumerate(imagePath):
     # extract the person name from the image path

@@ -7,57 +7,80 @@ const bcrypt = require('bcryptjs');
 
 exports.setApp = function ( app, client )
 {
-    const {spawn} = require('child_process');
+    // const {spawn} = require('child_process');
 
-    // API test for python script
-    app.post('/api/pythonScript', (req, res) => {
+    // // API test for python script of create_encoding.py
+    // app.post('/api/pythonScript', (req, res) => {
  
-      const {lockId} = req.body;
-      var dataToSend;
+    //   const {userId, image, jwtToken} = req.body;
+    //   var dataToSend;
 
-      // Connecting to database and searching for Pictures associated with User.
-      try
-      {
-        const db = client.db();
-        const result = await db.collection('Encodings').find("LockID":lockId).toArray();
-        var _resultsarray = [];
+    //   // the create_encoding uses a folder of images. So we can do this all at once. So grab all the images people have associated with them. And it will be one encoding document.
+    //   // creating_encoding assume we are in base64 format
+    //   const python = spawn('python', ['create_encoding.py', image]);
+    //   // collect data from script
+    //   python.stdout.on('data', function (data) {
+    //    console.log('Pipe data from python script ...');
+    //    dataToSend = data.toString();
+    //   });
 
-        for( var i=0; i<result.length; i++ )
-        {
-        _resultsarray.push( result[i]);
-        }
-      }
+      
 
-      // Prints error if failed
-      catch(e)
-      {
+    //   // in close event we are sure that stream from child process is closed
+    //   python.on('close', (code) => {
+    //     console.log(`child process close all stdio with code ${code}`);
+
+    //   newImage = {UserId:userId, Encoding:dataToSend, jwtToken:jwtToken}
+
+    //   // Connecting to database and searching for Pictures associated with User.
+    //   try
+    //   {
+    //     const db = client.db();
+    //     const result = db.collection('Pics').insertOne(newImage);
+
+    //     for( var i=0; i<resultEncodings.length; i++ )
+    //     {
+    //     _resultsarray.push( resultEncodings[i]);
+    //     }
+
+    //     // looking for recent image from the lock itself
+    //     const resultImages = await db.collection('Pics').find().toArray();
+    //     // were only checking the most recent image added to database.
+    //     var arraylength = resultImages.length;
+    //     espImage = resultImages[arraylength].Pic;
+
+    //   }
+
+    //   // Prints error if failed
+    //   catch(e)
+    //   {
         
-        console.log(e.message);
-      }
+    //     console.log(e.message);
+    //   }
 
-      for (var i = 0;i < _resultsarray.length; i++)
-      {
-        // spawn new child process to call the python script
-        const python = spawn('python', ['esp.py', _resultsarray[i].EncodedImages, ]);
+    //   for (var i = 0;i < _resultsarray.length; i++)
+    //   {
+    //     // spawn new child process to call the python script
+    //     const python = spawn('python', ['esp.py', _resultsarray[i].EncodedImages, espImage]);
 
+    //     // collect data from script
+    //     python.stdout.on('data', function (data) {
+    //       console.log('Pipe data from python script ...');
+    //       dataToSend = data.toString();
+    //     });
+ 
+       
+ 
+    //    // in close event we are sure that stream from child process is closed
+    //    python.on('close', (code) => {
+    //     console.log(`child process close all stdio with code ${code}`);
+ 
+    //    });
+    //   }
 
-      }
+      
 
-      /* collect data from script
-      python.stdout.on('data', function (data) {
-       console.log('Pipe data from python script ...');
-       dataToSend = data.toString();
-      });
-
-      */
-
-      // in close event we are sure that stream from child process is closed
-      python.on('close', (code) => {
-      console.log(`child process close all stdio with code ${code}`);
-
-      });
-
-    });
+    // });
 
     // API for
     app.post('/api/cameraAddPic', async (req, res, next) => 
@@ -65,7 +88,7 @@ exports.setApp = function ( app, client )
       // incoming: pic, email/userid
       // outgoing: error
 
-      // Grabbing picture from parameter
+      // Grabbing picture from parameter must be in base64 format
       const {/*userId, */pic} = req.body;
 
       
@@ -79,6 +102,21 @@ exports.setApp = function ( app, client )
         const db = client.db();
         const result = db.collection('Pics').insertOne(newPic);
 
+        // // looking for encoded images associated with the lock
+        // const db = client.db();
+        // const resultEncodings = await db.collection('Encodings').find({"LockID":lockId}).toArray();
+        // var _resultsarray = [];
+
+        // for( var i=0; i<resultEncodings.length; i++ )
+        // {
+        // _resultsarray.push( resultEncodings[i]);
+        // }
+
+        // // looking for recent image from the lock itself
+        // const resultImages = await db.collection('Pics').find().toArray();
+        // // were only checking the most recent image added to database.
+        // var arraylength = resultImages.length;
+        // espImage = resultImages[arraylength].Pic;
       }
       
       // Prints error if failed
@@ -87,6 +125,27 @@ exports.setApp = function ( app, client )
         console.log(e.message);
       }
       
+      // for (var i = 0;i < _resultsarray.length; i++)
+      // {
+      //   // spawn new child process to call the python script
+      //   const python = spawn('python', ['esp.py', _resultsarray[i].EncodedImages, espImage]);
+
+
+      // }
+
+      /* collect data from script
+      python.stdout.on('data', function (data) {
+       console.log('Pipe data from python script ...');
+       dataToSend = data.toString();
+      });
+
+      */
+
+      // // in close event we are sure that stream from child process is closed
+      // python.on('close', (code) => {
+      // console.log(`child process close all stdio with code ${code}`);
+
+      // });
       // return
       var ret = {error: error};
       
