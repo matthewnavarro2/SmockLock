@@ -80,20 +80,21 @@ class _LoginState extends State<Login> {
               username = userController.text;
               pass = passController.text;
               var res = await Api.login(username, pass);
-              print(res.body);
-              Map<String, dynamic> jsonObject = jsonDecode(res.body);
+
+              print(res.statusCode);
 
               if (res.statusCode == 200) { // Success, do login
+                Map<String, dynamic> jsonObject = jsonDecode(res.body);
                 var jwt = jsonObject['token']['accessToken'];
                 await storage.write(key: 'jwt', value: jwt);
                 isLoggedIn = true;
                 Navigator.pushNamed(context, '/home');
               }
-              else { // fail // trying to figure out how to do a dialog popup saying what error it is
-               // var err = jsonObject;
-                //var errTitle = 'Error: ${res.statusCode}';
-               // var errMessage = '$err';
-               // showAlertDialog(context, errTitle , errMessage).showDialog;
+              else if (res.statusCode != 200) { // fail // trying to figure out how to do a dialog popup saying what error it is
+
+                var errTitle = 'Error';
+                var errMessage = '${res.statusCode}';
+                showAlertDialog(context, errTitle , errMessage).showDialog;
 
               }
 
