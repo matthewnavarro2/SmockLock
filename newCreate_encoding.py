@@ -30,25 +30,22 @@ db = client["SmockLock"]
 col = db["UserPics"]
 
 
-# Sets x equal to a document in the collection
-x = col.find()
-# Sets variables equivalent to parameters 1, 2
-print(x)
 
+# Sets variables equivalent to parameters 1, 2
 #pics = sys.argv[2].Pic
 #names = sys.argv[2].Name # names = []
 
 # Sets x equal to a document in the collection
-x = col.find_one()
+# x = col.find_one()
 
 # Variable Declaration
 kEncodings = []
 kNames = []
 record = []
 
-for key in x:
-    pic = str(pics[key])
-    name = str(names[key])
+for x in col.find({}, {"_id":0, "Name": 1, "Pic": 1 }):
+    pic = (x["Pic"])
+    name = (x["Name"])
 
     image = imageio.imread(io.BytesIO(base64.b64decode(pic)))
     rgb = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -61,39 +58,16 @@ for key in x:
     for encoding in encodings:
         kEncodings.append(encoding)
         kNames.append(name)
-#save emcodings along with their names in dictionary data
+# Save emcodings along with their names in dictionary data
 data = {"encodings": Binary(pickle.dumps(kEncodings, protocol=2), subtype = 128), "names": kNames}
-# Grabs the name from the db document
-# name = x["Name"]
+print(data)
+if client["SmockLock"]["EncodedPics"].find_one() != "" :
+    client["SmockLock"]["EncodedPics"].delete_one({})
 
-# Grabs the base64 string from the document
-# imgString = x["Pic"]
+# Delete old collection
 
-# Converts the base 64 string into an image (ndarray)
-#image = imageio.imread(io.BytesIO(base64.b64decode(imgString)))
-
-# Creates the cv2 image for facial recognition
-#rgb = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
-# Shows the image that was grabbed
-#cv2.imshow("pic", rgb)
-#cv2.waitKey(0)
-#cv2.destroyAllWindows()
-
-# Determines the location of faces in the image
-#boxes = face_recognition.face_locations(rgb,model='hog')
-
-# Creates encodings for all of the ffaces that were found in the image
-#encodings = face_recognition.face_encodings(rgb, boxes)
-
-#save encodings along with their names in dictionary data
-#data = {"encoding": Binary(pickle.dumps(encodings, protocol=2), subtype = 128), "names": name}
 
 # Inserts the encoding and name into the database
 client["SmockLock"]["EncodedPics"].insert_one(data)
 
-# grabs the document that we just inserted
-#y = col1.find_one()
 
-# prints the ndarray of the encoding
-# print(pickle.loads(y["encoding"]))

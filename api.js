@@ -1,6 +1,8 @@
 var token = require('./createJWT.js');
 const bcrypt = require('bcryptjs');
 let {PythonShell} = require('python-shell')
+// var $ = require('jquery');
+
 //load user model
 // const User = require("./models/user.js");
 // //load card model
@@ -101,7 +103,7 @@ exports.setApp = function ( app, client )
       try
       {
         const db = client.db();
-        const result = db.collection('LockPics').insertOne(newPic);
+        const result = db.collection('CameraPics').insertOne(newPic);
 
         // // looking for encoded images associated with the lock
         // const db = client.db();
@@ -178,7 +180,7 @@ exports.setApp = function ( app, client )
       // outgoing: error
 
       // Grabbing picture from parameter
-      const {userId, pic, jwtToken} = req.body;
+      const {name, pic, jwtToken} = req.body;
 
       // Checking to see if token has expired
       try
@@ -195,20 +197,21 @@ exports.setApp = function ( app, client )
         console.log(e.message);
       }
       // Variable Declaration
-      var newPic = {UserId:userId, Pic:pic};
+      var newPic = {Name:name, Pic:pic};
       var error = '';
 
       // Connecting to database and adding a picture
       try
       {
         const db = client.db();
-        const result = db.collection('UserPics').insertOne(newPic);
+        const result = await db.collection('UserPics').insertOne(newPic);
         // this script looks at all the pictures in the User Pics once a new picture has been added
         // it then removes the old encoded document and adds a new encoded document
-        PythonShell.run("newCreate_encoding.py", null, function(err,results){
-          console.log(results);
-          console.log("Python script finished");
-        })
+
+        // PythonShell.run("newCreate_encoding.py", null, function(err,results){
+        //   console.log(results);
+        //   console.log("Python script finished");
+        // })
 
       }
       
