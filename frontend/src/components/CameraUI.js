@@ -21,6 +21,11 @@ function CameraUI()
     var lastName = ud.lastName;
     var picBase64 = '';
 
+    const recievePics = async event =>
+    {
+        
+    }
+
     const addPics = async event => 
     {
       event.preventDefault();
