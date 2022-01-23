@@ -12,8 +12,6 @@ class Intro extends StatefulWidget {
 class _IntroState extends State<Intro> {
   @override
   void initState() {
-    DeviceInfo(context);
-    print(DeviceInfo.width);
     super.initState();
   }
 
@@ -23,34 +21,39 @@ class _IntroState extends State<Intro> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/images/Capturessss.PNG"),
+        color: const Color.fromRGBO(32, 31, 30, 1),
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/images/image5.PNG"),
+            ),
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: (){
-                    Navigator.pushNamed(context, '/register');
-                  },
-                  child: const Text('Sign Up'),
-                ),
-                TextButton(
-                  onPressed: (){
-                    Navigator.pushNamed(context, '/login');
-                  },
-                  child: const Text('Login'),
-                ),
-              ],
-            )
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: (){
+                      Navigator.pushNamed(context, '/register');
+                    },
+                    child: const Text('Sign Up'),
+                  ),
+                  TextButton(
+                    onPressed: (){
+                      Navigator.pushNamed(context, '/login');
+                    },
+                    child: const Text('Login'),
+                  ),
+                ],
+              )
 
-          ],
+            ],
 
+          ),
         ),
       ),
     );

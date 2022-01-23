@@ -42,67 +42,81 @@ class _LoginState extends State<Login> {
 
       ),
       backgroundColor: Colors.white,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            'Username',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: const Color.fromRGBO(32, 31, 30, 1),
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/images/image5.PNG"),
             ),
           ),
-         TextField(
-            controller: userController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Username',
-            ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Username',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+
+                ),
+              ),
+             TextField(
+                controller: userController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Username',
+                ),
+              ),
+              const Text(
+                'Password',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+
+                ),
+              ),
+              TextField(
+                controller: passController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+
+                  labelText: 'Password',
+                ),
+              ),
+              TextButton(
+                onPressed: () async {
+                  String username = '', pass = '';
+                  username = userController.text;
+                  pass = passController.text;
+                  var res = await Api.login(username, pass);
+
+                  print(res.statusCode);
+
+                  if (res.statusCode == 200) { // Success, do login
+                    Map<String, dynamic> jsonObject = jsonDecode(res.body);
+                    var jwt = jsonObject['token']['accessToken'];
+                    await storage.write(key: 'jwt', value: jwt);
+                    isLoggedIn = true;
+                    Navigator.pushNamed(context, '/home');
+                  }
+                  else if (res.statusCode != 200) { // fail // trying to figure out how to do a dialog popup saying what error it is
+
+                    var errTitle = 'Error';
+                    var errMessage = '${res.statusCode}';
+                    showAlertDialog(context, errTitle , errMessage).showDialog;
+
+                  }
+
+                },
+                child: const Text('Login'),
+              ),
+            ],
+
           ),
-          const Text(
-            'Password',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-
-            ),
-          ),
-          TextField(
-            controller: passController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-
-              labelText: 'Password',
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              String username = '', pass = '';
-              username = userController.text;
-              pass = passController.text;
-              var res = await Api.login(username, pass);
-
-              print(res.statusCode);
-
-              if (res.statusCode == 200) { // Success, do login
-                Map<String, dynamic> jsonObject = jsonDecode(res.body);
-                var jwt = jsonObject['token']['accessToken'];
-                await storage.write(key: 'jwt', value: jwt);
-                isLoggedIn = true;
-                Navigator.pushNamed(context, '/home');
-              }
-              else if (res.statusCode != 200) { // fail // trying to figure out how to do a dialog popup saying what error it is
-
-                var errTitle = 'Error';
-                var errMessage = '${res.statusCode}';
-                showAlertDialog(context, errTitle , errMessage).showDialog;
-
-              }
-
-            },
-            child: const Text('Login'),
-          ),
-        ],
-
+        ),
       )
     );
   }
