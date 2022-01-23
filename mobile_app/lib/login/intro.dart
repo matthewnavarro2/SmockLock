@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_app/API/device_info.dart';
 
 class Intro extends StatefulWidget {
   const Intro({Key? key}) : super(key: key);
@@ -9,6 +10,13 @@ class Intro extends StatefulWidget {
 }
 
 class _IntroState extends State<Intro> {
+  @override
+  void initState() {
+    DeviceInfo(context);
+    print(DeviceInfo.width);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

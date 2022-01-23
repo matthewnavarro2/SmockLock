@@ -8,6 +8,7 @@ import 'login/intro.dart';
 
 const SERVER_IP = 'http://smocklock2.herokuapp.com/api';
 final storage = FlutterSecureStorage();
+
 bool isLoggedIn = false;
 
 void main() => runApp(MaterialApp(
