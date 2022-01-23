@@ -152,7 +152,23 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });  
 
+    app.post('/api/recivefromESP32', async (req, res, next) =>
+    {
+      //incoming 64bit encoding of pic
+      //outgoing 64bit encoding of pic
 
+      const picEncoding = req.body;
+
+      try
+      {
+        const db = client.db();
+        const result = db.collection('CameraPics').insertOne(picEncoding);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+    });
     // API for
     app.post('/api/addPic', async (req, res, next) => 
     {
