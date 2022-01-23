@@ -35,8 +35,8 @@ x = col.find()
 # Sets variables equivalent to parameters 1, 2
 print(x)
 
-pics = sys.argv[2].Pic
-names = sys.argv[2].Name # names = []
+#pics = sys.argv[2].Pic
+#names = sys.argv[2].Name # names = []
 
 # Sets x equal to a document in the collection
 x = col.find_one()
@@ -46,7 +46,7 @@ kEncodings = []
 kNames = []
 record = []
 
-for key in pics:
+for key in x:
     pic = str(pics[key])
     name = str(names[key])
 
