@@ -1,36 +1,45 @@
-extern "C" {
-#include "crypto/base64.h"
-}
 #include "esp_camera.h"
 #include <WiFi.h>
+#include "Arduino.h"
+#include "soc/soc.h"           // Disable brownour problems
+#include "soc/rtc_cntl_reg.h"  // Disable brownour problems
+#include "driver/rtc_io.h"
+#include "img_converters.h"
 
 #define CAMERA_MODEL_AI_THINKER
 
-#include "camera_pins.h"
+#define PWDN_GPIO_NUM     32
+#define RESET_GPIO_NUM    -1
+#define XCLK_GPIO_NUM      0
+#define SIOD_GPIO_NUM     26
+#define SIOC_GPIO_NUM     27
+
+#define Y9_GPIO_NUM       35
+#define Y8_GPIO_NUM       34
+#define Y7_GPIO_NUM       39
+#define Y6_GPIO_NUM       36
+#define Y5_GPIO_NUM       21
+#define Y4_GPIO_NUM       19
+#define Y3_GPIO_NUM       18
+#define Y2_GPIO_NUM        5
+#define VSYNC_GPIO_NUM    25
+#define HREF_GPIO_NUM     23
+#define PCLK_GPIO_NUM     22
 
 const char* ssid = "Coutostoyou";
 const char* password = "Chaos357-";
-String Servername = "https://smocklock2.herokuapp.com"
-String ServerPath = "/api/recievefromESP32"
+String Servername = "https://smocklock2.herokuapp.com";
+String ServerPath = "/api/recievefromESP32";
+WiFiClient client;
+const int serverPort = 80;
 
 void setup() {
-  Serial.begin(115200);
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); 
 
-  WiFi.mode(WIFI_STA);
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-  WiFi.begin(ssid, password);  
+  Serial.begin(115200);
+  //Serial.setDebugOutput(true);
+  //Serial.println();
   
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(500);
-  }
-  Serial.println();
-  Serial.print("ESP32-CAM IP Address: ");
-  Serial.println(WiFi.localIP());
-
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -51,10 +60,10 @@ void setup() {
   config.pin_pwdn = PWDN_GPIO_NUM;
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
-  config.pixel_format = PIXFORMAT_JPEG;
-
+  config.pixel_format = PIXFORMAT_JPEG; 
+  
   if(psramFound()){
-    config.frame_size = FRAMESIZE_UXGA;
+    config.frame_size = FRAMESIZE_UXGA; // FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA
     config.jpeg_quality = 10;
     config.fb_count = 2;
   } else {
@@ -62,13 +71,27 @@ void setup() {
     config.jpeg_quality = 12;
     config.fb_count = 1;
   }
-
-  // camera init
+  
+  // Init Camera
   esp_err_t err = esp_camera_init(&config);
   if (err != ESP_OK) {
     Serial.printf("Camera init failed with error 0x%x", err);
     return;
   }
+
+  WiFi.mode(WIFI_STA);
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);  
+  
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println();
+  Serial.print("ESP32-CAM IP Address: ");
+  Serial.println(WiFi.localIP());
 
   sendPhoto();
 }
@@ -83,9 +106,9 @@ String sendPhoto() {
     Serial.println("Camera capture failed");
   }
 
-  Serial.println("Connecting to server: " + serverName);
+  Serial.println("Connecting to server: " + Servername);
 
-  if (client.connect(serverName.c_str(), serverPort)) {
+  if (client.connect(Servername.c_str(), serverPort)) {
     Serial.println("Connection successful!");    
     String head = "--RandomNerdTutorials\r\nContent-Disposition: form-data; name=\"imageFile\"; filename=\"esp32-cam.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n";
     String tail = "\r\n--RandomNerdTutorials--\r\n";
@@ -94,8 +117,8 @@ String sendPhoto() {
     uint32_t extraLen = head.length() + tail.length();
     uint32_t totalLen = imageLen + extraLen;
   
-    client.println("POST " + serverPath + " HTTP/1.1");
-    client.println("Host: " + serverName);
+    client.println("POST " + ServerPath + " HTTP/1.1");
+    client.println("Host: " + Servername);
     client.println("Content-Length: " + String(totalLen));
     client.println("Content-Type: multipart/form-data; boundary=RandomNerdTutorials");
     client.println();
@@ -123,7 +146,7 @@ String sendPhoto() {
   }
   else 
   {
-    getBody = "Connection to " + serverName +  " failed.";
+    getBody = "Connection to " + Servername +  " failed.";
     Serial.println(getBody);
   }
 
@@ -133,6 +156,6 @@ String sendPhoto() {
   
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  delay(10000);
 
 }
