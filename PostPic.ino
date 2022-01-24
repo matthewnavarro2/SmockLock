@@ -1,3 +1,6 @@
+extern "C" {
+#include "crypto/base64.h"
+}
 #include "esp_camera.h"
 #include <WiFi.h>
 
@@ -8,10 +11,11 @@
 const char* ssid = "Coutostoyou";
 const char* password = "Chaos357-";
 String Servername = "https://smocklock2.herokuapp.com"
-String ServerPath = "/api/recivefromESP32"
+String ServerPath = "/api/recievefromESP32"
 
 void setup() {
   Serial.begin(115200);
+  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); 
 
   WiFi.mode(WIFI_STA);
   Serial.println();
@@ -77,8 +81,6 @@ String sendPhoto() {
   fb = esp_camera_fb_get();
   if(!fb) {
     Serial.println("Camera capture failed");
-    delay(1000);
-    ESP.restart();
   }
 
   Serial.println("Connecting to server: " + serverName);
@@ -98,7 +100,7 @@ String sendPhoto() {
     client.println("Content-Type: multipart/form-data; boundary=RandomNerdTutorials");
     client.println();
     client.print(head);
-  
+
     uint8_t *fbBuf = fb->buf;
     size_t fbLen = fb->len;
     for (size_t n=0; n<fbLen; n=n+1024) {
@@ -115,33 +117,16 @@ String sendPhoto() {
     
     esp_camera_fb_return(fb);
     
-    int timoutTimer = 10000;
-    long startTimer = millis();
-    boolean state = false;
-    
-    while ((startTimer + timoutTimer) > millis()) {
-      Serial.print(".");
-      delay(100);      
-      while (client.available()) {
-        char c = client.read();
-        if (c == '\n') {
-          if (getAll.length()==0) { state=true; }
-          getAll = "";
-        }
-        else if (c != '\r') { getAll += String(c); }
-        if (state==true) { getBody += String(c); }
-        startTimer = millis();
-      }
-      if (getBody.length()>0) { break; }
-    }
     Serial.println();
     client.stop();
     Serial.println(getBody);
   }
-  else {
+  else 
+  {
     getBody = "Connection to " + serverName +  " failed.";
     Serial.println(getBody);
   }
+
   return getBody;
 }
 
