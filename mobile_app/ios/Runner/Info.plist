@@ -4,6 +4,8 @@
 <dict>
     <key>NSCameraUsageDescription</key>
     <string>Camera is required to add photos for facial recognition.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Microphone used to capture audio to send to microcontroller.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
