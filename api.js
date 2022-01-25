@@ -156,22 +156,27 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });  
 
-    app.post('/api/recivefromESP32', async (req, res, next) =>
+    app.post('/api/recievefromESP32', async (req, res, next) =>
     {
       //incoming 64bit encoding of pic
       //outgoing 64bit encoding of pic
 
-      const picEncoding = req.body;
+      const {picEncoding, bufferlen} = req.body;
+
+      //encode
+      var encodedStringBtoA = btoa(picEncoding);
+
 
       try
       {
         const db = client.db();
-        const result = db.collection('CameraPics').insertOne(picEncoding);
+        const result = db.collection('CameraPics').insertOne(encodedStringBtoA);
       }
       catch(e)
       {
         console.log(e.message);
       }
+
     });
     // API for
     app.post('/api/addPic', async (req, res, next) => 

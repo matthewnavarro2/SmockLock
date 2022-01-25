@@ -93,37 +93,45 @@ void setup() {
   Serial.print("ESP32-CAM IP Address: ");
   Serial.println(WiFi.localIP());
 
-  sendPhoto();
-}
-
-String sendPhoto() {
-  String getAll;
-  String getBody;
-
-  camera_fb_t * fb = NULL;
-  fb = esp_camera_fb_get();
-  if(!fb) {
-    Serial.println("Camera capture failed");
-  }
-
   Serial.println("Connecting to server: " + Servername);
 
   if (client.connect(Servername.c_str(), serverPort)) {
     Serial.println("Connection successful!");    
     String head = "--RandomNerdTutorials\r\nContent-Disposition: form-data; name=\"imageFile\"; filename=\"esp32-cam.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n";
     String tail = "\r\n--RandomNerdTutorials--\r\n";
-
-    uint32_t imageLen = fb->len;
-    uint32_t extraLen = head.length() + tail.length();
-    uint32_t totalLen = imageLen + extraLen;
   
     client.println("POST " + ServerPath + " HTTP/1.1");
     client.println("Host: " + Servername);
-    client.println("Content-Length: " + String(totalLen));
     client.println("Content-Type: multipart/form-data; boundary=RandomNerdTutorials");
     client.println();
     client.print(head);
 
+  }
+
+  else 
+  {
+    String getBody;
+
+    getBody = "Connection to " + Servername +  " failed.";
+    Serial.println(getBody);
+  }
+
+  
+
+  sendPhoto();
+}
+
+String sendPhoto() {
+  String getAll;
+  String getBody;
+  String tail = "\r\n--RandomNerdTutorials--\r\n";
+
+  camera_fb_t * fb = NULL;
+  fb = esp_camera_fb_get();
+  if(!fb) {
+    Serial.println("Camera capture failed");
+  }
+  
     uint8_t *fbBuf = fb->buf;
     size_t fbLen = fb->len;
     for (size_t n=0; n<fbLen; n=n+1024) {
@@ -143,12 +151,6 @@ String sendPhoto() {
     Serial.println();
     client.stop();
     Serial.println(getBody);
-  }
-  else 
-  {
-    getBody = "Connection to " + Servername +  " failed.";
-    Serial.println(getBody);
-  }
 
   return getBody;
 }
@@ -156,6 +158,6 @@ String sendPhoto() {
   
 
 void loop() {
+  Serial.println(sendPhoto());
   delay(10000);
-
 }
