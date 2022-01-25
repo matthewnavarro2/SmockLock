@@ -132,7 +132,7 @@ function CameraUI()
       var config = 
       {
           method: 'POST',
-          url: 'https://face-rec751.herokuapp.com/postLockPicture',	
+          url: 'http://face-rec751.herokuapp.com/postLockPicture',	
           headers: 
           {
             
