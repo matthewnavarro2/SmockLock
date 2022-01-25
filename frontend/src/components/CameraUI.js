@@ -7,6 +7,8 @@ function CameraUI()
     var storage = require('../tokenStorage.js');
     const jwt = require("jsonwebtoken");
     
+
+    
     
     let image;
     
@@ -86,7 +88,7 @@ function CameraUI()
               'Content-Type': 'application/json'
           },
           data: js
-      };
+      }
   
       axios(config)
           .then(function (response) 
@@ -118,6 +120,44 @@ function CameraUI()
       
 
     }
+
+    const pythonAPI = async event => 
+    {
+        event.preventDefault();
+
+      var tok = storage.retrieveToken();
+     var obj = {};
+     var js = JSON.stringify(obj);
+      image = new Image();
+      var config = 
+      {
+          method: 'POST',
+          url: 'https://face-rec751.herokuapp.com/',	
+          headers: 
+          {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"
+          },
+          data: js
+      };
+      axios(config)
+          .then(function (response) 
+      {
+          var res = response.data;
+          console.log(res);
+  
+          if( res.error.length > 0 )
+          {
+              setMessage( "API Error:" + res.error );
+              
+          }
+          
+      })
+      .catch(function (error) 
+      {
+          console.log(error);
+      });
+    }
    return(
         <div id="CameraUIDiv">
         <span id="inner-title">This do be the camera page</span><br />
@@ -132,6 +172,9 @@ function CameraUI()
             onClick={listPics}> List Pics</button><br />
         <span id="cardSearchResult">{image}</span>
         <p>{image}</p>
+        <br />
+        <button type="button" id="TestPythonApi" class="buttons" 
+            onClick={pythonAPI}> Python API</button><br />
         </div>
    );
 }

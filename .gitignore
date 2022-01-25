@@ -1,3 +1,6 @@
 node_modules
 .env
 
+.idea/modules.xml
+.idea/SmockLock.iml
+.idea/vcs.xml
