@@ -46,7 +46,9 @@ record = []
 for x in col.find({}, {"_id":0, "Name": 1, "Pic": 1 }):
     pic = (x["Pic"])
     name = (x["Name"])
-
+    print(name)
+    print(pic)
+    
     image = imageio.imread(io.BytesIO(base64.b64decode(pic)))
     rgb = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     boxes = face_recognition.face_locations(rgb,model='hog')
