@@ -1,6 +1,7 @@
 var token = require('./createJWT.js');
 const bcrypt = require('bcryptjs');
 let {PythonShell} = require('python-shell')
+import axios from 'axios';
 // var $ = require('jquery');
 
 //load user model
@@ -141,7 +142,6 @@ exports.setApp = function ( app, client )
         // it then removes the old encoded document and adds a new encoded document
         var obj = {};
         var js = JSON.stringify(obj);
-        image = new Image();
         var config = 
         {
           method: 'POST',
