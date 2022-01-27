@@ -156,8 +156,8 @@ exports.setApp = function ( app, client )
         axios(config)
         .then(function (response) 
         {
-          res = response.data;
-          console.log(res);
+          resp = response.data;
+          console.log(resp);
         })
         .catch(function (error)
         {
@@ -177,7 +177,7 @@ exports.setApp = function ( app, client )
       }
       
       // return
-      var ret = {error: error};
+      var ret = {resp: resp, error: error};
       
       res.status(200).json(ret);
     });
