@@ -1,7 +1,7 @@
 var token = require('./createJWT.js');
 const bcrypt = require('bcryptjs');
 let {PythonShell} = require('python-shell')
-import axios from 'axios';
+
 // var $ = require('jquery');
 
 //load user model
@@ -140,34 +140,11 @@ exports.setApp = function ( app, client )
         const result = await db.collection('UserPics').insertOne(newPic);
         // this script looks at all the pictures in the User Pics once a new picture has been added
         // it then removes the old encoded document and adds a new encoded document
-        var obj = {};
-        var js = JSON.stringify(obj);
-        var config = 
-        {
-          method: 'POST',
-          url: 'http://face-rec751.herokuapp.com/encodeUserPictures',	
-          headers: 
-          {
-            
-          },
-          data: js
-        };
         
-        axios(config)
-        .then(function (response) 
-        {
-          var resp = response.data;
-          console.log(resp);
-        })
-        .catch(function (error)
-        {
-
-        });
         // PythonShell.run("newCreate_encoding.py", null, function(err,results){
         //   console.log(results);
         //   console.log("Python script finished");
         // })
-
       }
       
       // Prints error if failed
@@ -177,7 +154,7 @@ exports.setApp = function ( app, client )
       }
       
       // return
-      var ret = {resp: resp, error: error};
+      var ret = {error: error};
       
       res.status(200).json(ret);
     });
