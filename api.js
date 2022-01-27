@@ -156,7 +156,7 @@ exports.setApp = function ( app, client )
         axios(config)
         .then(function (response) 
         {
-          resp = response.data;
+          var resp = response.data;
           console.log(resp);
         })
         .catch(function (error)
