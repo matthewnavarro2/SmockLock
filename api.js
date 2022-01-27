@@ -10,80 +10,7 @@ let {PythonShell} = require('python-shell')
 
 exports.setApp = function ( app, client )
 {
-    // const {spawn} = require('child_process');
-
-    // // API test for python script of create_encoding.py
-    // app.post('/api/pythonScript', (req, res) => {
- 
-    //   const {userId, image, jwtToken} = req.body;
-    //   var dataToSend;
-
-    //   // the create_encoding uses a folder of images. So we can do this all at once. So grab all the images people have associated with them. And it will be one encoding document.
-    //   // creating_encoding assume we are in base64 format
-    //   const python = spawn('python', ['create_encoding.py', image]);
-    //   // collect data from script
-    //   python.stdout.on('data', function (data) {
-    //    console.log('Pipe data from python script ...');
-    //    dataToSend = data.toString();
-    //   });
-
-      
-
-    //   // in close event we are sure that stream from child process is closed
-    //   python.on('close', (code) => {
-    //     console.log(`child process close all stdio with code ${code}`);
-
-    //   newImage = {UserId:userId, Encoding:dataToSend, jwtToken:jwtToken}
-
-    //   // Connecting to database and searching for Pictures associated with User.
-    //   try
-    //   {
-    //     const db = client.db();
-    //     const result = db.collection('Pics').insertOne(newImage);
-
-    //     for( var i=0; i<resultEncodings.length; i++ )
-    //     {
-    //     _resultsarray.push( resultEncodings[i]);
-    //     }
-
-    //     // looking for recent image from the lock itself
-    //     const resultImages = await db.collection('Pics').find().toArray();
-    //     // were only checking the most recent image added to database.
-    //     var arraylength = resultImages.length;
-    //     espImage = resultImages[arraylength].Pic;
-
-    //   }
-
-    //   // Prints error if failed
-    //   catch(e)
-    //   {
-        
-    //     console.log(e.message);
-    //   }
-
-    //   for (var i = 0;i < _resultsarray.length; i++)
-    //   {
-    //     // spawn new child process to call the python script
-    //     const python = spawn('python', ['esp.py', _resultsarray[i].EncodedImages, espImage]);
-
-    //     // collect data from script
-    //     python.stdout.on('data', function (data) {
-    //       console.log('Pipe data from python script ...');
-    //       dataToSend = data.toString();
-    //     });
- 
-       
- 
-    //    // in close event we are sure that stream from child process is closed
-    //    python.on('close', (code) => {
-    //     console.log(`child process close all stdio with code ${code}`);
- 
-    //    });
-    //   }
-
-      
-
-    // });
+    
 
     // API for
     app.post('/api/cameraAddPic', async (req, res, next) => 
@@ -212,7 +139,30 @@ exports.setApp = function ( app, client )
         const result = await db.collection('UserPics').insertOne(newPic);
         // this script looks at all the pictures in the User Pics once a new picture has been added
         // it then removes the old encoded document and adds a new encoded document
+        var obj = {};
+        var js = JSON.stringify(obj);
+        image = new Image();
+        var config = 
+        {
+          method: 'POST',
+          url: 'http://face-rec751.herokuapp.com/encodeUserPictures',	
+          headers: 
+          {
+            
+          },
+          data: js
+        };
+        
+        axios(config)
+        .then(function (response) 
+        {
+          res = response.data;
+          console.log(res);
+        })
+        .catch(function (error)
+        {
 
+        });
         // PythonShell.run("newCreate_encoding.py", null, function(err,results){
         //   console.log(results);
         //   console.log("Python script finished");
