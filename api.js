@@ -152,9 +152,18 @@ exports.setApp = function ( app, client )
       {
         console.log(e.message);
       }
-      
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken).accessToken;
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+    
       // return
-      var ret = {error: error};
+      var ret = {error: error, jwtToken:refreshedToken};
       
       res.status(200).json(ret);
     });
@@ -208,9 +217,20 @@ exports.setApp = function ( app, client )
         
         console.log(e.message);
       }
-      
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken).accessToken;
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+    
       // return
-      var ret = {result_array: _resultsarray, jwtToken: jwtToken, error: error};
+      var ret = {error: error, jwtToken:refreshedToken};
+      // return
+      var ret = {result_array: _resultsarray, jwtToken: refreshedToken, error: error};
       res.status(200).json(ret);
       console.log(res);
     });
