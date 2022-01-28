@@ -201,7 +201,7 @@ exports.setApp = function ( app, client )
       try
       {
         const db = client.db();
-        const result = await db.collection('Pics').find({"UserId":userId}).toArray();
+        const result = await db.collection('UserPics').find().toArray();
         var _resultsarray = [];
 
         for( var i=0; i<result.length; i++ )
