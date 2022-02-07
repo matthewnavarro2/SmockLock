@@ -89,9 +89,9 @@ exports.setApp = function ( app, client )
       //incoming 64bit encoding of pic
       //outgoing 64bit encoding of pic
 
-      const {encode} = req.body;
+      const {type, encode} = req.body;
 
-      var newEncode = {Encode:encode};
+      var newEncode = {Type:type,Encode:encode};
 
       try
       {
