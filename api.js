@@ -89,7 +89,7 @@ exports.setApp = function ( app, client )
       //incoming 64bit encoding of pic
       //outgoing 64bit encoding of pic
 
-      const {picEncoding, bufferlen} = req.body;
+      const {picEncoding, bufferlen} = Buffer.from(req.body, 'binary').toString('base64');
 
       //encode
       var encodedStringBtoA = btoa(picEncoding);
