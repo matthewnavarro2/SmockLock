@@ -8,6 +8,7 @@
 #include <EEPROM.h> // read and write from flash memory
 #include <HTTPClient.h>
 #include <WiFi.h>
+#include <base64.h>
 // define the number of bytes you want to access
 #define EEPROM_SIZE 1
 
@@ -115,7 +116,9 @@ void setup()
 
   Serial.print("[HTTP] POST...\n");
   // start connection and send HTTP header
-  int httpCode = http.sendRequest("POST", fb->buf, fb->len); // we simply put the whole image in the post body.
+
+  String encoded = base64::encode(fb->buf, fb->len);
+  int httpCode = http.sendRequest("POST", encoded); // we simply put the whole image in the post body.
 
   // httpCode will be negative on error
   if (httpCode > 0)

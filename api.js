@@ -89,6 +89,8 @@ exports.setApp = function ( app, client )
       //incoming 64bit encoding of pic
       //outgoing 64bit encoding of pic
 
+      //post commands from the esp needed
+
       const {type, encode} = req.body;
 
       var newEncode = {Type:type,Encode:encode};
