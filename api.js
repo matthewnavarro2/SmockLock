@@ -89,16 +89,14 @@ exports.setApp = function ( app, client )
       //incoming 64bit encoding of pic
       //outgoing 64bit encoding of pic
 
-      const {picEncoding, bufferlen} = Buffer.from(req.body, 'binary').toString('base64');
+      const {encode} = req.body;
 
-      //encode
-      var encodedStringBtoA = btoa(picEncoding);
-
+      var newEncode = {Encode:encode};
 
       try
       {
         const db = client.db();
-        const result = db.collection('CameraPics').insertOne(encodedStringBtoA);
+        const result = db.collection('CameraPics').insertOne(newEncode);
       }
       catch(e)
       {
