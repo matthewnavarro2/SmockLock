@@ -91,12 +91,11 @@ exports.setApp = function ( app, client )
 
       //post commands from the esp needed
 
-      const {buffer, len} = req.body;
+      const {buffer} = req.body;
 
       var error = '';
 
       var newBuffer = {Buffer:buffer};
-      var newLen = {Len:len};
 
       newBuffer = newBuffer.toString('base64');
 
