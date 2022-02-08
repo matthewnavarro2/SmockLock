@@ -91,9 +91,9 @@ exports.setApp = function ( app, client )
 
       //post commands from the esp needed
 
-      const {type, encode} = req.body;
+      const {encode} = req.body;
 
-      var newEncode = {Type:type,Encode:encode};
+      var newEncode = {Encode:encode};
 
       try
       {
@@ -104,6 +104,10 @@ exports.setApp = function ( app, client )
       {
         console.log(e.message);
       }
+
+      var ret = {error: error};
+      
+      res.status(200).json(ret);
 
     });
     // API for
