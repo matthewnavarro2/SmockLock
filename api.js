@@ -97,8 +97,6 @@ exports.setApp = function ( app, client )
 
       var newBuffer = {Buffer:buffer};
 
-      newBuffer = newBuffer.toString('base64');
-
       try
       {
         const db = client.db();
