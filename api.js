@@ -91,16 +91,19 @@ exports.setApp = function ( app, client )
 
       //post commands from the esp needed
 
-      const {encode} = req.body;
+      const {buffer, len} = req.body;
 
       var error = '';
 
-      var newEncode = {Encode:encode};
+      var newBuffer = {Buffer:buffer};
+      var newLen = {Len:len};
+
+      newBuffer = newBuffer.toString('base64');
 
       try
       {
         const db = client.db();
-        const result = db.collection('CameraPics').insertOne(newEncode);
+        const result = db.collection('CameraPics').insertOne(newBuffer);
       }
       catch(e)
       {
