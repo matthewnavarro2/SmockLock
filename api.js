@@ -93,6 +93,8 @@ exports.setApp = function ( app, client )
 
       const {encode} = req.body;
 
+      var error = '';
+
       var newEncode = {Encode:encode};
 
       try
