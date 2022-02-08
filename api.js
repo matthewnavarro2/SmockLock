@@ -97,6 +97,9 @@ exports.setApp = function ( app, client )
 
       var newBuffer = {Buffer:buffer};
 
+      console.log(newBuffer);
+      console.log("im gay");
+
       try
       {
         const db = client.db();
