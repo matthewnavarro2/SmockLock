@@ -75,7 +75,13 @@ class _HomeState extends State<Home> {
                   Icons.camera,
                   //size: DeviceInfo.width,
                 ),
-              )
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/ekey');
+                },
+                child: const Text('Create an e-key'),
+              ),
             ],
           ),
         ),
