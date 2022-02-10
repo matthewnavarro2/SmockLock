@@ -9,6 +9,7 @@
 #include <HTTPClient.h>
 #include <WiFi.h>
 #include <base64.h>
+#include "base64.hpp"
 // define the number of bytes you want to access
 #define EEPROM_SIZE 1
 
@@ -78,7 +79,7 @@ void setup()
 
   if (psramFound())
   {
-    config.frame_size = FRAMESIZE_UXGA; // FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA
+    config.frame_size = FRAMESIZE_CIF; // FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA
     config.jpeg_quality = 10;
     config.fb_count = 2;
   }
@@ -117,8 +118,22 @@ void setup()
   Serial.print("[HTTP] POST...\n");
   // start connection and send HTTP header
 
-  String encoded = base64::encode(fb->buf, fb->len);
-  int httpCode = http.sendRequest("POST", encoded); // we simply put the whole image in the post body.
+  Serial.println();
+
+  size_t size = fb->len;
+  String buffer = base64::encode((uint8_t *) fb->buf, fb->len);
+
+  String imgPayload = "{\"inputs\": [{ \"data\": {\"image\": {\"base64\": \"" + buffer + "\"}}}]}";
+
+  //buffer = "";
+  // Uncomment this if you want to show the payload
+  Serial.println(imgPayload);
+
+  esp_camera_fb_return(fb);
+
+  http.addHeader("Content-Type", "application/json");
+
+  int httpCode = http.POST("{\"buffer\":\"" + buffer + "\"}"); // we simply put the whole image in the post body.
 
   // httpCode will be negative on error
   if (httpCode > 0)
