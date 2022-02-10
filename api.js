@@ -265,7 +265,6 @@ exports.setApp = function ( app, client )
       }
     
       // return
-      var ret = {error: error, jwtToken:refreshedToken};
       // return
       var ret = {result_array: _resultsarray, jwtToken: refreshedToken, error: error};
       res.status(200).json(ret);
