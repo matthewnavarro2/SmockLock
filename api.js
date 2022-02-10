@@ -114,11 +114,32 @@ exports.setApp = function ( app, client )
         console.log(e.message);
       }
 
-      var ret = {error: error};``
+      var ret = {error: error};
       
       res.status(200).json(ret);
 
     });
+
+    app.post('/api/sendTier', async (req, res, next) =>
+    {
+      var error = '';
+    
+      try
+      {
+        const db = client.db();
+        const result = db.collection('DBSecurity').find();   
+        var sTier = result.sTier;    
+      }
+      catch(e)
+      {
+        error = e.toString();
+      }
+    
+      var ret = { error: error, sTier:sTier};
+      
+      res.status(200).json(ret);
+    });
+
     // API for
     app.post('/api/addPic', async (req, res, next) => 
     {

@@ -1,7 +1,5 @@
 #include "esp_camera.h"
 #include "Arduino.h"
-#include "FS.h"               // SD Card ESP32
-#include "SD_MMC.h"           // SD Card ESP32
 #include "soc/soc.h"          // Disable brownour problems
 #include "soc/rtc_cntl_reg.h" // Disable brownour problems
 #include "driver/rtc_io.h"
@@ -9,7 +7,6 @@
 #include <HTTPClient.h>
 #include <WiFi.h>
 #include <base64.h>
-#include "base64.hpp"
 // define the number of bytes you want to access
 #define EEPROM_SIZE 1
 
