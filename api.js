@@ -128,8 +128,8 @@ exports.setApp = function ( app, client )
       try
       {
         const db = client.db();
-        const result = await db.collection('DBSecurity').find();   
-        sTier = result.sTier;    
+        const result = await db.collection('DBSecurity').find().toArray();   
+        sTier = result[0].sTier;    
       }
       catch(e)
       {
