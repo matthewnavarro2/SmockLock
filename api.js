@@ -123,12 +123,13 @@ exports.setApp = function ( app, client )
     app.post('/api/sendTier', async (req, res, next) =>
     {
       var error = '';
+      var sTier = 0;
     
       try
       {
         const db = client.db();
         const result = db.collection('DBSecurity').find();   
-        var sTier = result.sTier;    
+        sTier = result.sTier;    
       }
       catch(e)
       {
