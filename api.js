@@ -135,6 +135,8 @@ exports.setApp = function ( app, client )
       {
         error = e.toString();
       }
+
+      console.log(sTier);
     
       var ret = { error: error, sTier:sTier};
       
