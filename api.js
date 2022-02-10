@@ -128,7 +128,7 @@ exports.setApp = function ( app, client )
       try
       {
         const db = client.db();
-        const result = db.collection('DBSecurity').find();   
+        const result = await db.collection('DBSecurity').find();   
         sTier = result.sTier;    
       }
       catch(e)
