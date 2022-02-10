@@ -12,74 +12,79 @@ let {PythonShell} = require('python-shell')
 exports.setApp = function ( app, client )
 {
     
+    app.post('/api/deleteEKey', async (req, res, next) => 
+    {
+
+    });
 
     // API for
-    app.post('/api/cameraAddPic', async (req, res, next) => 
+    app.post('/api/createEKey', async (req, res, next) => 
     {
       // incoming: pic, email/userid
       // outgoing: error
 
       // Grabbing picture from parameter must be in base64 format
-      const {/*userId, */pic} = req.body;
-
-      
+      const {userId, tgo} = req.body;
+      var guestId = 0;
       // Variable Declaration
-      var newPic = {/*userId,*/ Pic:pic};
+      var resultsArray = [];
       var error = '';
+      var expoDate = new Date();
+      var timetogo = new Date();
+      var time = new Date(tgo);
+      // time in milliseconds
+      expoDate.setTime(expoDate.getTime() + time.getTime());
 
+     
+      console.log(expoDate);
+      timetogo.setTime(expoDate.getTime() - timetogo.getTime());
+      // const time_remaining = (timetogo) => new Date(expoDate) - new Date();
+      // const time_remaining = new Date(expoDate) - new Date();
+      let timeOuts = [];
       // Connecting to database and adding a picture
       try
       {
         const db = client.db();
-        const result = db.collection('CameraPics').insertOne(newPic);
+        const check = await db.collection('EKey').find({"guestId":guestId}).toArray();
+        const eKeyResult = db.collection('EKey').find().toArray();
+        // console.log(eKeyResult);
+        if (check) 
+        {
+          var _ret = [];
+          for( var i=0; i<eKeyResult.length; i++ )
+          {
+            _ret.push( eKeyResult[i].guestId);
+          }
+          guestId = Math.max(_ret) + 1;
 
-        // // looking for encoded images associated with the lock
-        // const db = client.db();
-        // const resultEncodings = await db.collection('Encodings').find({"LockID":lockId}).toArray();
-        // var _resultsarray = [];
-
-        // for( var i=0; i<resultEncodings.length; i++ )
-        // {
-        // _resultsarray.push( resultEncodings[i]);
-        // }
-
-        // // looking for recent image from the lock itself
-        // const resultImages = await db.collection('Pics').find().toArray();
-        // // were only checking the most recent image added to database.
-        // var arraylength = resultImages.length;
-        // espImage = resultImages[arraylength].Pic;
+          var newKey = {guestId:guestId, userId:userId, tgo:timetogo};
+        
+          const result1 =  db.collection('EKey').insertOne(newKey);
+        }
+        else{
+          newKey = {guestId:guestId, userId:userId, tgo:timetogo};
+        
+          const result2 = db.collection('EKey').insertOne(newKey);
+        }
+        
+        
+        
+        
+        const timer = setTimeout( () => db.collection('EKey').deleteOne(newKey), timetogo.getTime());
+        timeOuts.push(timer);
         
       }
       
       // Prints error if failed
       catch(e)
       {
+        // console.log(eKeyResult);
+        // console.log(resultsArray);
         console.log(e.message);
       }
       
-      // for (var i = 0;i < _resultsarray.length; i++)
-      // {
-      //   // spawn new child process to call the python script
-      //   const python = spawn('python', ['esp.py', _resultsarray[i].EncodedImages, espImage]);
-
-
-      // }
-
-      /* collect data from script
-      python.stdout.on('data', function (data) {
-       console.log('Pipe data from python script ...');
-       dataToSend = data.toString();
-      });
-
-      */
-
-      // // in close event we are sure that stream from child process is closed
-      // python.on('close', (code) => {
-      // console.log(`child process close all stdio with code ${code}`);
-
-      // });
-      // return
-      var ret = {error: error};
+      var current = new Date();
+      var ret = {currentTime:current, results:newKey, error: error};
       
       res.status(200).json(ret);
     });  
@@ -98,7 +103,6 @@ exports.setApp = function ( app, client )
       var newBuffer = {Buffer:buffer};
 
       console.log(newBuffer);
-      console.log("im gay");
 
       try
       {
@@ -110,7 +114,7 @@ exports.setApp = function ( app, client )
         console.log(e.message);
       }
 
-      var ret = {error: error};
+      var ret = {error: error};``
       
       res.status(200).json(ret);
 
