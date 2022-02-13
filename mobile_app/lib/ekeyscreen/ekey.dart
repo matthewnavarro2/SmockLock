@@ -10,6 +10,8 @@ class Ekeyscreen extends StatefulWidget {
 
 class _EkeyscreenState extends State<Ekeyscreen> {
   String dropdownValue = 'One';
+  DateTime _myDateTime = DateTime.now();
+  String time = '';
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +23,23 @@ class _EkeyscreenState extends State<Ekeyscreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Text(time),
+          ElevatedButton(
+              onPressed: () async {
+                setState(() {
+                  final now = DateTime.now();
+                  time = _myDateTime.toString();
+                });
+
+                _myDateTime = (await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(2030),
+                ))!;
+              },
+              child: const Text('Expiration Date')
+          ),
           Text('Create an eKey'),
           Text('Expiration Date'),
           DropdownButton<String>(
