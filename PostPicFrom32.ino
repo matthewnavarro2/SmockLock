@@ -1,5 +1,7 @@
 #include "esp_camera.h"
 #include "Arduino.h"
+#include "FS.h"               // SD Card ESP32
+#include "SD_MMC.h"           // SD Card ESP32
 #include "soc/soc.h"          // Disable brownour problems
 #include "soc/rtc_cntl_reg.h" // Disable brownour problems
 #include "driver/rtc_io.h"
@@ -7,6 +9,8 @@
 #include <HTTPClient.h>
 #include <WiFi.h>
 #include <base64.h>
+#include "base64.hpp"
+#include "fd_forward.h"
 // define the number of bytes you want to access
 #define EEPROM_SIZE 1
 
@@ -74,6 +78,8 @@ void setup()
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
 
+  mtmn_config_t mtmn_config = {0};
+
   if (psramFound())
   {
     config.frame_size = FRAMESIZE_CIF; // FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA
@@ -105,52 +111,63 @@ void setup()
     return;
   }
 
-  HTTPClient http;
+  //detect if face is in cam
+  mtmn_config = mtmn_init_config();
+  dl_matrix3du_t *image_matrix = dl_matrix3du_alloc(1, fb->width, fb->height, 3);
+  fmt2rgb888(fb->buf, fb->len, fb->format, image_matrix->item);
 
-  Serial.print("[HTTP] begin...\n");
-  // configure traged server and url
+  box_array_t *boxes = face_detect(image_matrix, &mtmn_config);
 
-  http.begin(post_url); //HTTP
+  if(boxes != NULL)
+  {
+    HTTPClient http;
 
-  Serial.print("[HTTP] POST...\n");
-  // start connection and send HTTP header
+    Serial.print("[HTTP] begin...\n");
+    // configure traged server and url
 
-  Serial.println();
+   http.begin(post_url); //HTTP
 
-  size_t size = fb->len;
-  String buffer = base64::encode((uint8_t *) fb->buf, fb->len);
+   Serial.print("[HTTP] POST...\n");
+   // start connection and send HTTP header
 
-  String imgPayload = "{\"inputs\": [{ \"data\": {\"image\": {\"base64\": \"" + buffer + "\"}}}]}";
+   Serial.println();
 
-  //buffer = "";
-  // Uncomment this if you want to show the payload
-  Serial.println(imgPayload);
+   size_t size = fb->len;
+   String buffer = base64::encode((uint8_t *) fb->buf, fb->len);
 
-  esp_camera_fb_return(fb);
+   String imgPayload = "{\"inputs\": [{ \"data\": {\"image\": {\"base64\": \"" + buffer + "\"}}}]}";
 
-  http.addHeader("Content-Type", "application/json");
+   //buffer = "";
+   // Uncomment this if you want to show the payload
+   Serial.println(imgPayload);
 
-  int httpCode = http.POST("{\"buffer\":\"" + buffer + "\"}"); // we simply put the whole image in the post body.
+   http.addHeader("Content-Type", "application/json");
+
+   int httpCode = http.POST("{\"buffer\":\"" + buffer + "\"}"); // we simply put the whole image in the post body.
 
   // httpCode will be negative on error
-  if (httpCode > 0)
-  {
-    // HTTP header has been send and Server response header has been handled
-    Serial.printf("[HTTP] POST... code: %d\n", httpCode);
-
-    // file found at server
-    if (httpCode == HTTP_CODE_OK)
+    if (httpCode > 0)
     {
-      String payload = http.getString();
-      Serial.println(payload);
-    }
-  }
-  else
-  {
-    Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
-  }
+      // HTTP header has been send and Server response header has been handled
+      Serial.printf("[HTTP] POST... code: %d\n", httpCode);
 
-  http.end();
+      // file found at server
+      if (httpCode == HTTP_CODE_OK)
+      {
+       String payload = http.getString();
+       Serial.println(payload);
+      }
+    }
+    else
+    {
+      Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
+    }
+   http.end(); 
+   }
+   else
+   {
+      Serial.printf("Camera Failed to capture Face");
+   }
 
   esp_camera_fb_return(fb);
 
@@ -158,7 +175,6 @@ void setup()
   Serial.println("Going to sleep now");
   delay(2000);
   esp_deep_sleep_start();
-  Serial.println("This will never be printed");
 }
 
 void loop()
