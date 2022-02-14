@@ -10,6 +10,10 @@ class Ekeyscreen extends StatefulWidget {
 
 class _EkeyscreenState extends State<Ekeyscreen> {
   String dropdownValue = 'One';
+  DateTime _myDateTime = DateTime.now();
+  TimeOfDay _myTimeOfDay = TimeOfDay.now();
+  String time = '';
+  String timeOfDay = '';
 
   @override
   Widget build(BuildContext context) {
@@ -21,30 +25,31 @@ class _EkeyscreenState extends State<Ekeyscreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('Create an eKey'),
-          Text('Expiration Date'),
-          DropdownButton<String>(
-            value: dropdownValue,
-            icon: const Icon(Icons.arrow_downward),
-            elevation: 16,
-            style: const TextStyle(color: Colors.deepPurple),
-            underline: Container(
-              height: 2,
-              color: Colors.deepPurpleAccent,
-            ),
-            onChanged: (String? newValue) {
-              setState(() {
-                dropdownValue = newValue!;
+          Text(time),
+          Text(timeOfDay),
+          ElevatedButton(
+              onPressed: () async {
 
-              });
+
+                _myDateTime = (await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(2030),
+                ))!;
+                _myTimeOfDay = (await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.now(),
+                ))!;
+                setState(() {
+                  final now = DateTime.now();
+                  time = _myDateTime.toString();
+                  timeOfDay = _myTimeOfDay.toString();
+                });
+
+
               },
-            items: <String>['One', 'Two', 'Free', 'Four']
-                .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
+              child: const Text('Expiration Date')
           ),
         ],
       ),
