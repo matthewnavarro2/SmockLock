@@ -1,6 +1,9 @@
 var token = require('./createJWT.js');
 const bcrypt = require('bcryptjs');
 let {PythonShell} = require('python-shell')
+//var cron = require('node-cron');
+//Install node-cron using npm: $ npm install --save node-cron
+//https://www.npmjs.com/package/node-cron
 
 // var $ = require('jquery');
 
@@ -11,7 +14,15 @@ let {PythonShell} = require('python-shell')
 
 exports.setApp = function ( app, client )
 {
-    
+    //cron.schedule('*/1 * * * *', () => {
+    //  app.post('/api/checkEKey', async (req, res, next) => 
+    //  {
+    //    console.log('running a task 5 minutes');
+    //  });
+    //});
+
+
+
     app.post('/api/deleteEKey', async (req, res, next) => 
     {
 
@@ -89,7 +100,7 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });  
 
-    app.post('/api/receivefromESP32', async (req, res, next) =>
+    app.post('/api/recievefromESP32', async (req, res, next) =>
     {
       //incoming 64bit encoding of pic
       //outgoing 64bit encoding of pic
@@ -107,12 +118,11 @@ exports.setApp = function ( app, client )
       try
       {
         const db = client.db();
-        const result = await db.collection('CameraPics').insertOne(newBuffer);
+        const result = db.collection('CameraPics').insertOne(newBuffer);
       }
       catch(e)
       {
         console.log(e.message);
-        error = e.message;
       }
 
       var ret = {error: error};
