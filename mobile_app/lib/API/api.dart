@@ -84,6 +84,24 @@ class Api {
     return res;
   }
 
+  static Future createEKey(String dateTime) async {
+    var jwt = await storage.read(key:"jwt");
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
+    var userId = decodedToken["userId"];
+
+    var res = await http.post(
+        Uri.parse('$SERVER_IP/createEKey'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'userId': userId,
+          'tgo': dateTime
+        })
+
+    );
+    return res;
+  }
 
   static Future<int> encodeForFacial() async {
 

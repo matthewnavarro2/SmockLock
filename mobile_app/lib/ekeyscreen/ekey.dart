@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:mobile_app/API/api.dart';
 
 class Ekeyscreen extends StatefulWidget {
   const Ekeyscreen({Key? key}) : super(key: key);
@@ -25,7 +27,7 @@ class _EkeyscreenState extends State<Ekeyscreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(time),
+          //Text(time),
           Text(timeOfDay),
           ElevatedButton(
               onPressed: () async {
@@ -43,10 +45,15 @@ class _EkeyscreenState extends State<Ekeyscreen> {
                 ))!;
                 setState(() {
                   final now = DateTime.now();
-                  time = _myDateTime.toString();
-                  timeOfDay = _myTimeOfDay.toString();
-                });
+                  //time = DateFormat('yyyy-MM-ddTHms').format(_myDateTime);
+                  //time = _myDateTime.toString();
 
+                  timeOfDay = formatTimeOfDay(_myDateTime, _myTimeOfDay);
+
+                  //TimeOfDayFormat _timeOfDayFormat = T
+                });
+                var res = await Api.createEKey(timeOfDay);
+                print("bitch ${res.body}");
 
               },
               child: const Text('Expiration Date')
@@ -55,4 +62,12 @@ class _EkeyscreenState extends State<Ekeyscreen> {
       ),
     );
   }
+
+  String formatTimeOfDay(DateTime time, TimeOfDay tod) {
+    final now = DateTime.now();
+    final dt = DateTime(time.year, time.month, time.day, tod.hour, tod.minute);
+    final format = DateFormat('yyyy-MM-ddTH:mm:ss').format(dt);  //"2022-02-17-T17:05:00"
+    return format;
+  }
+
 }
