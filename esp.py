@@ -14,12 +14,15 @@ url='http://192.168.0.238/cam-hi.jpg '
 cv2.namedWindow("Live Transmission", cv2.WINDOW_AUTOSIZE)
 
 while True:
-    img_resp=urllib.request.urlopen(url)
+    img_resp=urllib.request.urlopen(url) 
     imgnp=np.array(bytearray(img_resp.read()),dtype=np.uint8)
     img=cv2.imdecode(imgnp,-1)
+    # Converting the image to RGB and GrayScale
     gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    # Detects faces based on the cascade classifier
     face=f_cas.detectMultiScale(gray,scaleFactor=1.1,minNeighbors=5)
+    # Draws rectangles around the faces
     for x,y,w,h in face:
         cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),3)
         roi_gray = gray[y:y+h, x:x+w]
@@ -29,7 +32,9 @@ while True:
             #cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
  
     # the facial embeddings for face in input
+    # the locations of the faces on the image
     loc = face_recognition.face_locations(rgb)
+    # creates an encoding from the location of the face
     encodings = face_recognition.face_encodings(rgb, loc)
 
     names = []
@@ -41,8 +46,10 @@ while True:
         matches = face_recognition.compare_faces(data["encodings"], encoding)
         #set name =unknown if no encoding matches
         name = "Unknown"
-    
+
+        # Tells us how similar the faces are based on euclidian distance
         face_distances = face_recognition.face_distance(data["encodings"], encoding)
+        # looking
         best_match_index = np.argmin(face_distances)
         if matches[best_match_index]:
             name = data["names"][best_match_index]
