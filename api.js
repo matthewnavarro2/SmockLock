@@ -1,7 +1,7 @@
 var token = require('./createJWT.js');
 const bcrypt = require('bcryptjs');
 let {PythonShell} = require('python-shell')
-//var cron = require('node-cron');
+var cron = require('node-cron');
 //Install node-cron using npm: $ npm install --save node-cron
 //https://www.npmjs.com/package/node-cron
 
@@ -14,12 +14,44 @@ let {PythonShell} = require('python-shell')
 
 exports.setApp = function ( app, client )
 {
-    //cron.schedule('*/1 * * * *', () => {
-    //  app.post('/api/checkEKey', async (req, res, next) => 
-    //  {
-    //    console.log('running a task 5 minutes');
-    //  });
-    //});
+    cron.schedule('*/1 * * * *', async () => 
+    {
+      var date = new Date();
+      var temp = new Date();
+      
+      array = []
+      error = '';
+      
+      try {
+        const eKeyResult = await db.collection('EKey').find({}).toArray();
+
+        for( var i=0; i<eKeyResult.length; i++ )
+        {
+          var time = new Date(eKeyResult[i].tgo);
+          temp.setTime(time.getTime() - date.getTime());
+          var delTime = {tgo:eKeyResult[i].tgo};
+          
+          array.push(time);
+          if ((temp < 60000))
+          {
+            const deleteResult = db.collection('EKey').deleteOne({delTime});
+          }
+        }
+      } 
+      catch (e) {
+        console.log(e.message);
+        error = e.message;
+      }
+      
+
+      
+
+
+      var ret = {results:delTime, error: error};
+      
+      res.status(200).json(ret);
+     
+    });
 
 
 
@@ -51,13 +83,12 @@ exports.setApp = function ( app, client )
       timetogo.setTime(expoDate.getTime() - timetogo.getTime());
       // const time_remaining = (timetogo) => new Date(expoDate) - new Date();
       // const time_remaining = new Date(expoDate) - new Date();
-      let timeOuts = [];
       // Connecting to database and adding a picture
       try
       {
         const db = client.db();
         const check = await db.collection('EKey').find({"guestId":guestId}).toArray();
-        const eKeyResult = db.collection('EKey').find().toArray();
+        const eKeyResult = await db.collection('EKey').find().toArray();
         // console.log(eKeyResult);
         if (check) 
         {
@@ -70,19 +101,13 @@ exports.setApp = function ( app, client )
 
           var newKey = {guestId:guestId, userId:userId, tgo:timetogo};
         
-          const result1 =  db.collection('EKey').insertOne(newKey);
+          const result1 =  await db.collection('EKey').insertOne(newKey);
         }
         else{
           newKey = {guestId:guestId, userId:userId, tgo:timetogo};
         
-          const result2 = db.collection('EKey').insertOne(newKey);
+          const result2 = await db.collection('EKey').insertOne(newKey);
         }
-        
-        
-        
-        
-        const timer = setTimeout( () => db.collection('EKey').deleteOne(newKey), timetogo.getTime());
-        timeOuts.push(timer);
         
       }
       
