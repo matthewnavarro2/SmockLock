@@ -20,7 +20,7 @@ exports.setApp = function ( app, client )
       var date = new Date();
       var temp = new Date();
       
-      array = []
+      array = [];
       error = '';
       
       try {
