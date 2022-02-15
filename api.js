@@ -37,6 +37,10 @@ exports.setApp = function ( app, client )
           console.log(date.getTime());
 
           temp.setTime(time.getTime() - date.getTime());
+          console.log("temp.getTime()");
+          console.log(temp.getTime());
+          console.log("temp");
+          console.log(temp);
           time.setTime(time.getTime());
           var delTime = {tgo:time};
           
