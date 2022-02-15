@@ -31,6 +31,7 @@ exports.setApp = function ( app, client )
           var time = new Date(eKeyResult[i].tgo);
           console.log(eKeyResult[i].tgo);
           temp.setTime(time.getTime() - date.getTime());
+          time.setTime(time.getTime());
           var delTime = {tgo:time};
           
           array.push(time);
