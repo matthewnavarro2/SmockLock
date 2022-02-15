@@ -1,7 +1,8 @@
 var token = require('./createJWT.js');
 const bcrypt = require('bcryptjs');
 let {PythonShell} = require('python-shell')
-var cron = require('node-cron');
+// var cron = require('node-cron');
+import { MongoCron } from 'mongodb-cron';
 //Install node-cron using npm: $ npm install --save node-cron
 //https://www.npmjs.com/package/node-cron
 
@@ -30,6 +31,11 @@ exports.setApp = function ( app, client )
         {
           var time = new Date(eKeyResult[i].tgo);
           console.log(eKeyResult[i].tgo);
+          console.log(i);
+          console.log(time.getTime());
+          console.log(i);
+          console.log(date.getTime());
+
           temp.setTime(time.getTime() - date.getTime());
           time.setTime(time.getTime());
           var delTime = {tgo:time};
@@ -91,7 +97,9 @@ exports.setApp = function ( app, client )
       try
       {
         const db = client.db();
+        
         const eKeyResult = await db.collection('EKey').find().toArray();
+        
         // console.log(eKeyResult);
         
         var _ret = [];
@@ -104,7 +112,6 @@ exports.setApp = function ( app, client )
         var newKey = {guestId:guestId, userId:userId, tgo:timetogo};
       
         const result1 =  await db.collection('EKey').insertOne(newKey);
-        
       }
       
       // Prints error if failed
