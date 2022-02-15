@@ -23,6 +23,7 @@ exports.setApp = function ( app, client )
       error = '';
       
       try {
+        const db = client.db();
         const eKeyResult = await db.collection('EKey').find({}).toArray();
 
         for( var i=0; i<eKeyResult.length; i++ )
