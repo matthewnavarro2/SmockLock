@@ -41,7 +41,7 @@ exports.setApp = function ( app, client )
           
           if ((temp.getTime() < 60000))
           {
-            const deleteResult = db.collection('EKey').deleteOne({delTime});
+            const deleteResult = db.collection('EKey').deleteOne(delTime);
           }
         }
       } 
