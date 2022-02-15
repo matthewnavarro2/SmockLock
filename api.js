@@ -31,22 +31,15 @@ exports.setApp = function ( app, client )
         {
           var time = new Date(eKeyResult[i].tgo);
           console.log(eKeyResult[i].tgo);
-          console.log(i);
-          console.log(time.getTime());
-          console.log(i);
-          console.log(date.getTime());
 
           temp.setTime(time.getTime() - date.getTime());
-          console.log("temp.getTime()");
-          console.log(temp.getTime());
-          console.log("temp");
-          console.log(temp);
+          
           time.setTime(time.getTime());
           var delTime = {tgo:time};
           
           array.push(time);
           
-          if ((temp < 60000))
+          if ((temp.getTime() < 60000))
           {
             const deleteResult = db.collection('EKey').deleteOne({delTime});
           }
