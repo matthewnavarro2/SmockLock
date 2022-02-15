@@ -1,2 +1,2 @@
-web: npm start python test1.py
+web: npm start
 worker: python test1.py 
