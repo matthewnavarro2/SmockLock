@@ -28,10 +28,12 @@ exports.setApp = function ( app, client )
         for( var i=0; i<eKeyResult.length; i++ )
         {
           var time = new Date(eKeyResult[i].tgo);
+          console.log(eKeyResult[i].tgo);
           temp.setTime(time.getTime() - date.getTime());
           var delTime = {tgo:eKeyResult[i].tgo};
           
           array.push(time);
+          
           if ((temp < 60000))
           {
             const deleteResult = db.collection('EKey').deleteOne({delTime});
@@ -46,7 +48,7 @@ exports.setApp = function ( app, client )
 
       
 
-
+      console.log(array);
       var ret = {results:delTime, error: error};
       
       res.status(200).json(ret);
@@ -87,27 +89,19 @@ exports.setApp = function ( app, client )
       try
       {
         const db = client.db();
-        const check = await db.collection('EKey').find({"guestId":guestId}).toArray();
         const eKeyResult = await db.collection('EKey').find().toArray();
         // console.log(eKeyResult);
-        if (check) 
+        
+        var _ret = [];
+        for( var i=0; i<eKeyResult.length; i++ )
         {
-          var _ret = [];
-          for( var i=0; i<eKeyResult.length; i++ )
-          {
-            _ret.push( eKeyResult[i].guestId);
-          }
-          guestId = Math.max(_ret) + 1;
+          _ret.push( eKeyResult[i].guestId);
+        }
+        guestId = Math.max(_ret) + 1;
 
-          var newKey = {guestId:guestId, userId:userId, tgo:timetogo};
-        
-          const result1 =  await db.collection('EKey').insertOne(newKey);
-        }
-        else{
-          newKey = {guestId:guestId, userId:userId, tgo:timetogo};
-        
-          const result2 = await db.collection('EKey').insertOne(newKey);
-        }
+        var newKey = {guestId:guestId, userId:userId, tgo:timetogo};
+      
+        const result1 =  await db.collection('EKey').insertOne(newKey);
         
       }
       
