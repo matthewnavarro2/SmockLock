@@ -1,8 +1,8 @@
 var token = require('./createJWT.js');
 const bcrypt = require('bcryptjs');
 let {PythonShell} = require('python-shell')
-// var cron = require('node-cron');
-import { MongoCron } from 'mongodb-cron';
+var cron = require('node-cron');
+// import { MongoCron } from 'mongodb-cron';
 //Install node-cron using npm: $ npm install --save node-cron
 //https://www.npmjs.com/package/node-cron
 
