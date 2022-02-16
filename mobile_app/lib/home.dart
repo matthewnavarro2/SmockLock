@@ -82,6 +82,12 @@ class _HomeState extends State<Home> {
                 },
                 child: const Text('Create an e-key'),
               ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/listekeys');
+                },
+                child: const Text('List EKEYS'),
+              ),
             ],
           ),
         ),

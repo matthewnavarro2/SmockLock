@@ -68,6 +68,74 @@ exports.setApp = function ( app, client )
     });
 
     // API for
+    app.post('/api/listEKeys', async (req, res, next) => 
+    {
+      // incoming: userId, jwtToken
+      // outgoing: picture, error
+
+      // Grabbing picture from parameter
+      const {userId, jwtToken} = req.body;
+
+      // Checking to see if Token Expired
+      try
+      {
+        if( token.isExpired(jwtToken))
+        {
+          var r = {error:'The JWT is no longer valid', jwtToken: ''};
+          res.status(200).json(r);
+          return;
+        }
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+
+
+      // Variable Declaration
+      var user = {userId:userId};
+      var error = '';
+
+      // Connecting to database and searching for Pictures associated with User.
+      try
+      {
+        const db = client.db();
+        const result = await db.collection('EKey').find(user).toArray();
+        var _resultsarray = [];
+
+        for( var i=0; i<result.length; i++ )
+        {
+        _resultsarray.push( result[i]);
+        }
+        
+      }
+
+      // Prints error if failed
+      catch(e)
+      {
+        
+        console.log(e.message);
+      }
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken).accessToken;
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+    
+      // return
+      // return
+      var ret = {result_array: _resultsarray, jwtToken: refreshedToken, error: error};
+      res.status(200).json(ret);
+      console.log(res);
+    });
+
+
+
+    // API for
     app.post('/api/createEKey', async (req, res, next) => 
     {
       // incoming: pic, email/userid

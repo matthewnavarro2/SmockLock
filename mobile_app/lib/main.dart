@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile_app/ekeyscreen/ekey.dart';
+import 'package:mobile_app/ekeyscreen/listekey.dart';
 import 'package:mobile_app/login/login.dart';
 import 'package:mobile_app/login/register.dart';
 
@@ -40,6 +41,7 @@ Future<void> main() async {
             //'/location': (context) => ChooseLocation(),
             '/picture': (context) => TakePictureScreen(camera: cameras.first),
             '/ekey': (context) => const Ekeyscreen(),
+            '/listekeys': (context) => const ListEKeys(),
       }
 
   ));
