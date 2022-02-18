@@ -270,9 +270,38 @@ exports.setApp = function ( app, client )
 
     app.post('/api/tierRequest', async (req, res, next) => 
     {
+      const {macAdd} = req.body;
+      
+      var mac = {MACAddress:macAdd};
+      var err = '';
+      var tier;
 
+      try
+      {
+        const db = client.db();
+        
+        const eKeyResult = await db.collection('Lock').find(mac);
+        
+    
+        tier = eKeyResult.TierLevel;
+      }
+      
+      // Prints error if failed
+      catch(e)
+      {
+        error = e.message;
+        console.log(e.message);
+      }
+      
+      var ret = {tier: tier, error: error};
+      
+      res.status(200).json(ret);
     });
 
+    // Start
+    // the bottom stuff all will be added to users collection so make do with those variabbles
+    // its also possible that when comparing fingers we have multiple fingers so make sure to do an array and check both.
+    // now we dont need to make enroll fingers have multiple fingers to send we can do one at time.
     app.post('/api/compareFinger', async(req, res, next) => 
     {
 
@@ -292,7 +321,11 @@ exports.setApp = function ( app, client )
     {
       
     });
-
+    // 
+    //
+    // 
+    // End
+    
     app.post('/api/recievefromESP32', async (req, res, next) =>
     {
       //incoming 64bit encoding of pic
