@@ -201,6 +201,31 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });  
 
+    app.post('/api/tierRequest', async (req, res, next) => 
+    {
+
+    });
+
+    app.post('/api/compareFinger', async(req, res, next) => 
+    {
+
+    });
+
+    app.post('/api/enrollFinger', async(req, res, next) => 
+    {
+
+    });
+
+    app.post('/api/enrollRFID', async(req, res, next) => 
+    {
+
+    });
+
+    app.post('/api/compareRFID', async(req, res, next) => 
+    {
+      
+    });
+
     app.post('/api/recievefromESP32', async (req, res, next) =>
     {
       //incoming 64bit encoding of pic

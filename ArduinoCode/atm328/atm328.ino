@@ -1,5 +1,16 @@
 #include <SoftwareSerial.h>
 #include <Adafruit_Fingerprint.h>
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 32 // OLED display height, in pixels
+#define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
 
 // pin A0 is IN from fSensor (GREEN wire)
 // pin A1 is OUT from fSensor (WHITE wire)
@@ -17,14 +28,20 @@ String str;
 int pirPin = 5;
 int pirStat = 0;
 
-/
 int esp32_inPin = A2;
 int esp32_outPin = A3;
 
 int speakerPin = 6;
 
+
+
 void setup() {
-  
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) 
+  {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;); // Don't proceed, loop forever
+  }
+  printOLED("WELCOME");
   pinMode(pirPin, INPUT);
   pinMode(3, INPUT);
   pinMode(4,OUTPUT);
@@ -32,7 +49,7 @@ void setup() {
   pinMode(esp32_outPin, OUTPUT);
  
 
-  fingerInitialize();
+  //fingerInitialize();
 }
 
 // This will eventually be the main loop function
@@ -52,7 +69,7 @@ void mainLoop()
     fingerID = getFingerprintIDez();
     
     // send fingerprint to server and wait for response
-    sendFinger(fingerID);
+    //sendFinger(fingerID);
     
     // ask user to place RFID key near sensor
 
@@ -61,14 +78,14 @@ void mainLoop()
 
 void loop() {
   // put your main code here, to run repeatedly:
-  Serial.begin(9600);
-  delay(50);
-  fingerID = getFingerprintIDez();
-  delay(100);
-  Serial.end();
-  esp8266.begin(115200);
-  esp8266.print(fingerID);
-  esp8266.end();
+  //Serial.begin(9600);
+  //delay(50);
+  //fingerID = getFingerprintIDez();
+  //delay(100);
+  //Serial.end();
+  //esp8266.begin(115200);
+  //esp8266.print(fingerID);
+  //esp8266.end();
 }
 
 // Function to send fingerprint to ESP8266
@@ -77,13 +94,31 @@ void sendFinger()
 {
   esp8266.begin(9600);
   esp8266.print(fingerID);
-  esp8266.end()
+  esp8266.end();
+  printOLED("Fingerprint Sent");
+}
+
+// Function to print to the OLED screen
+void printOLED(String statement)
+{
+  display.clearDisplay();
+
+  display.setTextSize(2);      // Normal 1:1 pixel scale
+  display.setTextColor(SSD1306_WHITE); // Draw white text
+  display.setCursor(0, 0);     // Start at top-left corner
+  display.cp437(true);         // Use full 256 char 'Code Page 437' font
+
+  // Not all the characters will fit on the display. This is normal.
+  // Library will draw what it can and the rest will be clipped.
+  display.write(statement.c_str());
+  display.display();
+  delay(2000);
 }
 
 // Function to activate ESP32-CAM
 void esp32Wake()
 {
-  digitalWrite(outputPin, HIGH);
+  digitalWrite(esp32_outPin, HIGH);
   while(true)
   {
     if(digitalRead(esp32_inPin) == HIGH)
@@ -108,7 +143,7 @@ void fingerInitalize()
   }
   finger.getTemplateCount();
   Serial.print("Sensor contains "); Serial.print(finger.templateCount); Serial.println(" templates");
-  Serial.end()
+  Serial.end();
 }
 
 // PIR wake function
@@ -143,8 +178,8 @@ int enrollFinger()
   if (id == 0) {// ID #0 not allowed, try again!
      return;
   }
-  Serial.print("Enrolling ID #");
-  Serial.println(id);
+  printOLED("Enrolling ID #");
+  printOLED(String(id));
   getFingerprintEnroll();
 }
 
