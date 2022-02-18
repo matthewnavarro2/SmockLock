@@ -97,8 +97,8 @@ class Api {
         body: jsonEncode({
           'userId': userId,
           'tgo': dateTime,
-          'firstname': fn,
-          'lastname': ln,
+          'fn': fn,
+          'ln': ln,
           'email': email,
 
         })

@@ -120,6 +120,7 @@ class _EkeyscreenState extends State<Ekeyscreen> {
 
 
                 var res = await Api.createEKey(timeOfDay, email, fn, ln);
+                print(res.body);
 
               },
               child: const Text('Expiration Date')
