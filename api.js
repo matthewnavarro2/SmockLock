@@ -174,7 +174,7 @@ exports.setApp = function ( app, client )
         }
         guestId = Math.max(..._ret) + 1;
 
-        var newKey = {guestId:guestId, firstname:fn, lastname:ln, userId:userId, Email:email, tgo:timetogo};
+        var newKey = {guestId:guestId, firstname:fn, lastname:ln, userId:userId, email:email, tgo:timetogo};
       
         const result1 =  await db.collection('EKey').insertOne(newKey);
       }
