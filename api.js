@@ -172,7 +172,15 @@ exports.setApp = function ( app, client )
         {
           _ret.push( eKeyResult[i].guestId);
         }
-        guestId = Math.max(..._ret) + 1;
+        if(Math.max(...ret) > 0) 
+        {
+          guestId = Math.max(..._ret) + 1;
+        }
+        else
+        {
+          guestId = 0;
+        }
+        
 
         var newKey = {guestId:guestId, firstname:fn, lastname:ln, userId:userId, email:email, tgo:timetogo};
       
