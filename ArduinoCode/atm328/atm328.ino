@@ -41,7 +41,7 @@ void setup() {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
-  printOLED("WELCOME");
+  printOLED("Welcome to SMOCK Lock");
   pinMode(pirPin, INPUT);
   pinMode(3, INPUT);
   pinMode(4,OUTPUT);
