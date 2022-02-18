@@ -172,13 +172,13 @@ exports.setApp = function ( app, client )
         {
           _ret.push( eKeyResult[i].guestId);
         }
-        if(Math.max(..._ret) > 0) 
+        if(Math.max(..._ret) < 0) 
         {
-          guestId = Math.max(..._ret) + 1;
+          guestId = 0;
         }
         else
         {
-          guestId = 0;
+          guestId = Math.max(..._ret) + 1;
         }
         
 
