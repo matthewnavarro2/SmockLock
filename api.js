@@ -64,6 +64,56 @@ exports.setApp = function ( app, client )
 
     app.post('/api/deleteEKey', async (req, res, next) => 
     {
+        const {email, jwtToken} = req.body;
+
+        try
+        {
+          if( token.isExpired(jwtToken))
+          {
+            var r = {error:'The JWT is no longer valid', jwtToken: ''};
+            res.status(200).json(r);
+            return;
+          }
+        }
+        catch(e)
+        {
+          console.log(e.message);
+        }
+
+        // Variable Declaration
+        var email = {email:email};
+        var error = '';
+
+        // Connecting to database and searching for Pictures associated with User.
+        try
+        {
+          const db = client.db();
+          const result = await db.collection('EKey').deleteOne(email).toArray();
+        }
+
+        // Prints error if failed
+        catch(e)
+        {
+          
+          console.log(e.message);
+        }
+        
+        var refreshedToken = null;
+        try
+        {
+          refreshedToken = token.refresh(jwtToken).accessToken;
+        }
+        catch(e)
+        {
+          console.log(e.message);
+        }
+      
+        // return
+        // return
+        var ret = {Email:email, jwtToken: refreshedToken, error: error};
+        res.status(200).json(ret);
+        console.log(res);
+
 
     });
 
@@ -91,7 +141,24 @@ exports.setApp = function ( app, client )
         console.log(e.message);
       }
 
+      if( results.length > 0 )
+      {
+        id = results[0].UserId;
+        fn = results[0].FirstName;
+        ln = results[0].LastName;
 
+
+        try
+        {
+          const token = require("./createJWT.js");
+           ret = {token: token.createToken( fn, ln, id )};
+           // var ret = { results:_ret, error: error, jwtToken: refreshedToken };
+        }
+        catch(e)
+        {
+          ret = {error:e.message};
+        }
+      }
       // Variable Declaration
       var user = {userId:userId};
       var error = '';
