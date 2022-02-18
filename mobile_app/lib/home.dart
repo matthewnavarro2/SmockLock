@@ -100,17 +100,9 @@ class _HomeState extends State<Home> {
 
                   try{
                     /* first ekey info */
-                    var guestId = resultObjs[0].guestId;
-                    var guestId2 = resultObjs[1].guestId;
-                    var guestId3 = resultObjs[2].guestId;
-                    var userId = resultObjs[0].userId;
-                    var tgo = resultObjs[0].tgo;
+                   
                     ////////////////////
-                    print(guestId);
-                    print(guestId2);
-                    print(guestId3);
-                    print(resultObjs.length);
-                    print(userId);
+
 
                     /*maybe length of ekeys returned from certain user*/
                     var resultlength = resultObjs.length;
