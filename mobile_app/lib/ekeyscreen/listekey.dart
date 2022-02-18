@@ -9,61 +9,55 @@ class ListEKeys extends StatefulWidget {
 }
 
 class _ListEKeysState extends State<ListEKeys> {
-
-  Future<List> getEKeys() async {
-    var res = await Api.listEKey();
-
-
-
-    return res;
-  }
+  var res;
+  var listylength = 0;
+  var resultObjs;
 
   @override
   Widget build(BuildContext context) {
+
+    final arguments = ModalRoute.of(context)!.settings.arguments as Map;
+    resultObjs = arguments['resultObjs'];
     return Scaffold(
         appBar: AppBar(),
-        body: ElevatedButton(
-          onPressed: () async {
-            var res = getEKeys();
-            print(res);
-          },
-          child: const Text('list'),
+        body: Column(
+          children: [
+            ElevatedButton(
+              onPressed: () async {
+                res = await Api.listEKey();
+                listylength = res.body[0].length;
+              },
+              child: const Text('list'),
+            ),
+            ListView.builder(
+                itemCount: resultObjs.length,
+                itemBuilder: (context, index){
+                  return Card(
+                    child: ListTile(
+                      onTap: () {
+
+                      },
+                      tileColor: Colors.lightBlueAccent.shade700,
+                      minVerticalPadding: (MediaQuery.of(context).size.height) * .025,
+                      title: const FittedBox(
+                        fit: BoxFit.fill,
+                        child: Text('fdgf'),
+                      ),
+                      //leading: Text((index+1).toString(),style: const TextStyle(
+                      // fontSize: 30.0,
+                      // fontWeight: FontWeight.bold,
+                      // ),),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+
+
+                    ),
+                  );
+                }
+            ),
+
+          ],
         ),
-     /* body: Container(
-        //height: ,
-        child: ListView.builder(
-            itemCount: GlobalData.resultObjs.length,
-            itemBuilder: (context, index){
-              return Card(
-                child: ListTile(
-                  onTap: () {
-                    RunData.index = index;
-                    print(index);
 
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => OldRun2()));
-
-                  },
-                  tileColor: Colors.lightBlueAccent.shade700,
-                  minVerticalPadding: (MediaQuery.of(context).size.height) * .025,
-                  title: FittedBox(
-                    fit: BoxFit.fill,
-                    child: Text('${GlobalData.resultObjs[index].runName}           ${GlobalData.resultObjs[index].dateCreated}',style: const TextStyle(
-                      fontSize: 20.7,
-                      fontWeight: FontWeight.bold,
-                    ),),
-                  ),
-                  //leading: Text((index+1).toString(),style: const TextStyle(
-                  // fontSize: 30.0,
-                  // fontWeight: FontWeight.bold,
-                  // ),),
-                  trailing: Icon(Icons.arrow_forward_ios),
-
-
-                ),
-              );
-            }
-        ),
-      ),,*/
 
 
     );

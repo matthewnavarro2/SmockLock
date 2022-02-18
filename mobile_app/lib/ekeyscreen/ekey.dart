@@ -53,7 +53,6 @@ class _EkeyscreenState extends State<Ekeyscreen> {
                   //TimeOfDayFormat _timeOfDayFormat = T
                 });
                 var res = await Api.createEKey(timeOfDay);
-                print("bitch ${res.body}");
 
               },
               child: const Text('Expiration Date')
@@ -66,7 +65,7 @@ class _EkeyscreenState extends State<Ekeyscreen> {
   String formatTimeOfDay(DateTime time, TimeOfDay tod) {
     final now = DateTime.now();
     final dt = DateTime(time.year, time.month, time.day, tod.hour, tod.minute);
-    final format = DateFormat('yyyy-MM-ddTH:mm:ss').format(dt);  //"2022-02-17-T17:05:00"
+    final format = DateFormat('yyyy-MM-ddTHH:mm:ss').format(dt);  //"2022-02-17-T17:05:00"
     return format;
   }
 

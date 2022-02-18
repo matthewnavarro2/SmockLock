@@ -109,7 +109,7 @@ class Api {
     var userId = decodedToken["userId"];
 
     var res = await http.post(
-        Uri.parse('$SERVER_IP/createEKey'),
+        Uri.parse('$SERVER_IP/listEKeys'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

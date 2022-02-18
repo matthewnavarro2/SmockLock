@@ -1,7 +1,11 @@
 
+import 'dart:convert';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_app/API/api.dart';
 import 'package:mobile_app/camerascreen/takepicturescreen.dart';
+import 'package:mobile_app/ekeyscreen/parse_json_ekey.dart';
 import 'package:mobile_app/main.dart';
 
 import 'API/device_info.dart';
@@ -83,8 +87,36 @@ class _HomeState extends State<Home> {
                 child: const Text('Create an e-key'),
               ),
               TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/listekeys');
+                onPressed: () async {
+
+
+
+                  var res = await Api.listEKey();
+                  var resultObjsJson = jsonDecode(res.body)['results'] as List;
+                  List<GetResults> resultObjs = resultObjsJson.map((resultJson) => GetResults.fromJson(resultJson)).toList();
+                  try{
+                    /* first ekey info */
+                    var guestId = resultObjs[0].guestId;
+                    var userId = resultObjs[0].userId;
+                    var tgo = resultObjs[0].tgo;
+                    ////////////////////
+
+                    /*maybe length of ekeys returned from certain user*/
+                    var resultlength = resultObjs.length;
+                    ////////////////////////
+
+
+                    Navigator.pushNamed(
+                      context,
+                      '/listekeys',
+                      arguments: {'resultObjs' : resultObjs},
+
+                    );
+
+                  }catch(e){
+                    print(e);
+                  }
+
                 },
                 child: const Text('List EKEYS'),
               ),
