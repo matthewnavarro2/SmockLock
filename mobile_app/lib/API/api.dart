@@ -84,7 +84,7 @@ class Api {
     return res;
   }
 
-  static Future createEKey(String dateTime) async {
+  static Future createEKey(String dateTime, String email, String fn, String ln) async {
     var jwt = await storage.read(key:"jwt");
     Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
     var userId = decodedToken["userId"];
@@ -96,7 +96,11 @@ class Api {
         },
         body: jsonEncode({
           'userId': userId,
-          'tgo': dateTime
+          'tgo': dateTime,
+          'firstname': fn,
+          'lastname': ln,
+          'email': email,
+
         })
 
     );

@@ -41,7 +41,9 @@ class _ListEKeysState extends State<ListEKeys> {
                             children: [
                               Text('${resultObjs[index].guestId}    '),
                               Text(resultObjs[index].tgo),
-                              Text('   email@email.com'),
+                              Text(resultObjs[index].firstname),
+                              Text(resultObjs[index].lastname),
+                              Text(resultObjs[index].email),
 
                             ],
                           ),

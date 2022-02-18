@@ -142,7 +142,7 @@ exports.setApp = function ( app, client )
       // outgoing: error
 
       // Grabbing picture from parameter must be in base64 format
-      const {userId, tgo} = req.body;
+      const {userId, fn, ln, email, tgo} = req.body;
       var guestId = 0;
       // Variable Declaration
       var resultsArray = [];
@@ -174,7 +174,7 @@ exports.setApp = function ( app, client )
         }
         guestId = Math.max(..._ret) + 1;
 
-        var newKey = {guestId:guestId, userId:userId, tgo:timetogo};
+        var newKey = {guestId:guestId, firstname:fn, lastname:ln, userId:userId, Email:email, tgo:timetogo};
       
         const result1 =  await db.collection('EKey').insertOne(newKey);
       }

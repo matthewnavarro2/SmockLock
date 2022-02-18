@@ -16,6 +16,24 @@ class _EkeyscreenState extends State<Ekeyscreen> {
   TimeOfDay _myTimeOfDay = TimeOfDay.now();
   String time = '';
   String timeOfDay = '';
+  final emailController = TextEditingController(); // controller for password textfield
+  final fnController = TextEditingController();
+  final lnController = TextEditingController();
+
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+
+  @override
+  void dispose(){
+    emailController.dispose();
+    fnController.dispose();
+    lnController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +47,49 @@ class _EkeyscreenState extends State<Ekeyscreen> {
         children: [
           //Text(time),
           Text(timeOfDay),
+          const Text(
+            'Email',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+
+            ),
+          ),
+          TextField(
+            controller: emailController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Email',
+            ),
+          ),
+          const Text(
+            'First Name',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+
+            ),
+          ),
+          TextField(
+            controller: fnController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'First Name',
+            ),
+          ),
+          const Text(
+            'Last Name',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+
+            ),
+          ),
+          TextField(
+            controller: lnController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Last Name',
+            ),
+          ),
+
           ElevatedButton(
               onPressed: () async {
 
@@ -52,7 +113,13 @@ class _EkeyscreenState extends State<Ekeyscreen> {
 
                   //TimeOfDayFormat _timeOfDayFormat = T
                 });
-                var res = await Api.createEKey(timeOfDay);
+
+                var fn = fnController.text;
+                var ln = lnController.text;
+                var email = emailController.text;
+
+
+                var res = await Api.createEKey(timeOfDay, email, fn, ln);
 
               },
               child: const Text('Expiration Date')
