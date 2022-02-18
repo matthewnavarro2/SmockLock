@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/API/api.dart';
+import 'package:mobile_app/ekeyscreen/parse_json_ekey.dart';
 
 class ListEKeys extends StatefulWidget {
   const ListEKeys({Key? key}) : super(key: key);
@@ -11,7 +12,7 @@ class ListEKeys extends StatefulWidget {
 class _ListEKeysState extends State<ListEKeys> {
   var res;
   var listylength = 0;
-  var resultObjs;
+  late List<GetResults> resultObjs;
 
   @override
   Widget build(BuildContext context) {
@@ -22,37 +23,40 @@ class _ListEKeysState extends State<ListEKeys> {
         appBar: AppBar(),
         body: Column(
           children: [
-            ElevatedButton(
-              onPressed: () async {
-                res = await Api.listEKey();
-                listylength = res.body[0].length;
-              },
-              child: const Text('list'),
-            ),
-            ListView.builder(
-                itemCount: resultObjs.length,
-                itemBuilder: (context, index){
-                  return Card(
-                    child: ListTile(
-                      onTap: () {
+            SizedBox(
+              height: (MediaQuery.of(context).size.height) * .5,
+              child: ListView.builder(
+                  itemCount: resultObjs.length,
+                  itemBuilder: (context, index){
+                    return Card(
+                      child: ListTile(
+                        onTap: () {
 
-                      },
-                      tileColor: Colors.lightBlueAccent.shade700,
-                      minVerticalPadding: (MediaQuery.of(context).size.height) * .025,
-                      title: const FittedBox(
-                        fit: BoxFit.fill,
-                        child: Text('fdgf'),
+                        },
+                        tileColor: Colors.lightBlueAccent.shade700,
+                        minVerticalPadding: (MediaQuery.of(context).size.height) * .025,
+                        title:  FittedBox(
+                          fit: BoxFit.fill,
+                          child: Row(
+                            children: [
+                              Text('${resultObjs[index].guestId}    '),
+                              Text(resultObjs[index].tgo),
+                              Text('   email@email.com'),
+
+                            ],
+                          ),
+                        ),
+                        //leading: Text((index+1).toString(),style: const TextStyle(
+                        // fontSize: 30.0,
+                        // fontWeight: FontWeight.bold,
+                        // ),),
+                        trailing:  const Icon(Icons.arrow_forward_ios),
+
+
                       ),
-                      //leading: Text((index+1).toString(),style: const TextStyle(
-                      // fontSize: 30.0,
-                      // fontWeight: FontWeight.bold,
-                      // ),),
-                      trailing: const Icon(Icons.arrow_forward_ios),
-
-
-                    ),
-                  );
-                }
+                    );
+                  }
+              ),
             ),
 
           ],
