@@ -64,6 +64,56 @@ exports.setApp = function ( app, client )
 
     app.post('/api/deleteEKey', async (req, res, next) => 
     {
+        const {email, jwtToken} = req.body;
+
+        try
+        {
+          if( token.isExpired(jwtToken))
+          {
+            var r = {error:'The JWT is no longer valid', jwtToken: ''};
+            res.status(200).json(r);
+            return;
+          }
+        }
+        catch(e)
+        {
+          console.log(e.message);
+        }
+
+        // Variable Declaration
+        var email = {email:email};
+        var error = '';
+
+        // Connecting to database and searching for Pictures associated with User.
+        try
+        {
+          const db = client.db();
+          const result = await db.collection('EKey').deleteOne(email).toArray();
+        }
+
+        // Prints error if failed
+        catch(e)
+        {
+          
+          console.log(e.message);
+        }
+        
+        var refreshedToken = null;
+        try
+        {
+          refreshedToken = token.refresh(jwtToken).accessToken;
+        }
+        catch(e)
+        {
+          console.log(e.message);
+        }
+      
+        // return
+        // return
+        var ret = {Email:email, jwtToken: refreshedToken, error: error};
+        res.status(200).json(ret);
+        console.log(res);
+
 
     });
 
@@ -91,7 +141,24 @@ exports.setApp = function ( app, client )
         console.log(e.message);
       }
 
+      if( results.length > 0 )
+      {
+        id = results[0].UserId;
+        fn = results[0].FirstName;
+        ln = results[0].LastName;
 
+
+        try
+        {
+          const token = require("./createJWT.js");
+           ret = {token: token.createToken( fn, ln, id )};
+           // var ret = { results:_ret, error: error, jwtToken: refreshedToken };
+        }
+        catch(e)
+        {
+          ret = {error:e.message};
+        }
+      }
       // Variable Declaration
       var user = {userId:userId};
       var error = '';
@@ -201,6 +268,64 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });  
 
+    app.post('/api/tierRequest', async (req, res, next) => 
+    {
+      const {macAdd} = req.body;
+      
+      var mac = {MACAddress:macAdd};
+      var err = '';
+      var tier;
+
+      try
+      {
+        const db = client.db();
+        
+        const eKeyResult = await db.collection('Lock').find(mac);
+        
+    
+        tier = eKeyResult.TierLevel;
+      }
+      
+      // Prints error if failed
+      catch(e)
+      {
+        error = e.message;
+        console.log(e.message);
+      }
+      
+      var ret = {tier: tier, error: error};
+      
+      res.status(200).json(ret);
+    });
+
+    // Start
+    // the bottom stuff all will be added to users collection so make do with those variabbles
+    // its also possible that when comparing fingers we have multiple fingers so make sure to do an array and check both.
+    // now we dont need to make enroll fingers have multiple fingers to send we can do one at time.
+    app.post('/api/compareFinger', async(req, res, next) => 
+    {
+
+    });
+
+    app.post('/api/enrollFinger', async(req, res, next) => 
+    {
+
+    });
+
+    app.post('/api/enrollRFID', async(req, res, next) => 
+    {
+
+    });
+
+    app.post('/api/compareRFID', async(req, res, next) => 
+    {
+      
+    });
+    // 
+    //
+    // 
+    // End
+    
     app.post('/api/recievefromESP32', async (req, res, next) =>
     {
       //incoming 64bit encoding of pic
