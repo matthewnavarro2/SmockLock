@@ -52,7 +52,21 @@ class _ListEKeysState extends State<ListEKeys> {
                         // fontSize: 30.0,
                         // fontWeight: FontWeight.bold,
                         // ),),
-                        trailing:  const Icon(Icons.arrow_forward_ios),
+                        trailing:  IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/editekeys',
+                              arguments: {
+                                'resultObjs' : resultObjs,
+                                'index' : index,
+                              },
+
+                            );
+                          },
+
+                        ),
 
 
                       ),

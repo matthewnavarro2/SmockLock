@@ -7,6 +7,7 @@ import 'package:mobile_app/login/login.dart';
 import 'package:mobile_app/login/register.dart';
 
 import 'camerascreen/takepicturescreen.dart';
+import 'ekeyscreen/editekey.dart';
 import 'home.dart';
 import 'login/intro.dart';
 
@@ -42,6 +43,7 @@ Future<void> main() async {
             '/picture': (context) => TakePictureScreen(camera: cameras.first),
             '/ekey': (context) => const Ekeyscreen(),
             '/listekeys': (context) => const ListEKeys(),
+            '/editekeys' : (context) => const EditEKeys(),
       }
 
   ));

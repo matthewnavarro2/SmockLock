@@ -9,7 +9,7 @@ class GetResults {
   late String email;
 
 
-  GetResults(this.userId, this.guestId, this.tgo, this.firstname, this.lastname, this.email);
+  GetResults(this.userId, this.guestId, this.firstname, this.lastname, this.email, this.tgo);
 
 
   factory GetResults.fromJson(dynamic json) {
