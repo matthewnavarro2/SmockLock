@@ -34,6 +34,7 @@
 #define PCLK_GPIO_NUM 22
 
 int pictureNumber = 0;
+int counter = 0;
 
 const char *ssid = "Coutostoyou";
 const char *password = "Chaos357-";
@@ -78,8 +79,6 @@ void setup()
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
 
-  mtmn_config_t mtmn_config = {0};
-
   if (psramFound())
   {
     config.frame_size = FRAMESIZE_CIF; // FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA
@@ -100,9 +99,12 @@ void setup()
     Serial.printf("Camera init failed with error 0x%x", err);
     return;
   }
+}
 
+void takePic()
+{
   camera_fb_t *fb = NULL;
-
+  
   // Take Picture with Camera
   fb = esp_camera_fb_get();
   if (!fb)
@@ -112,6 +114,7 @@ void setup()
   }
 
   //detect if face is in cam
+  mtmn_config_t mtmn_config = {0};
   mtmn_config = mtmn_init_config();
   dl_matrix3du_t *image_matrix = dl_matrix3du_alloc(1, fb->width, fb->height, 3);
   fmt2rgb888(fb->buf, fb->len, fb->format, image_matrix->item);
@@ -170,15 +173,21 @@ void setup()
    }
 
   esp_camera_fb_return(fb);
-
-  delay(2000);
-  Serial.println("Going to sleep now");
-  delay(2000);
-  esp_deep_sleep_start();
 }
 
 void loop()
 {
+  counter++;
+  takePic();
+  //10 sec delay may need to change
+  delay(10000);
+
+  if(counter == 5)
+  {
+    Serial.println("Going to sleep now");
+    delay(2000);
+    esp_deep_sleep_start();
+  }
 }
 
 
