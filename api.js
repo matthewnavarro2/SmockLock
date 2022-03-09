@@ -81,14 +81,14 @@ exports.setApp = function ( app, client )
         }
 
         // Variable Declaration
-        var email = {email:email};
+        var emailObj = {email:email};
         var error = '';
 
         // Connecting to database and searching for Pictures associated with User.
         try
         {
           const db = client.db();
-          const result = await db.collection('EKey').deleteOne(email).toArray();
+          const result = await db.collection('EKey').deleteOne(emailObj).toArray();
         }
 
         // Prints error if failed
