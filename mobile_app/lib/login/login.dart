@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:mobile_app/API/api.dart';
 import 'package:mobile_app/main.dart';
 class Login extends StatefulWidget {
@@ -39,6 +40,12 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text(
+          'Login',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
 
       ),
       backgroundColor: Colors.white,
@@ -46,76 +53,105 @@ class _LoginState extends State<Login> {
         width: double.infinity,
         height: double.infinity,
         color: const Color.fromRGBO(32, 31, 30, 1),
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/images/image5.PNG"),
+        child: Stack(
+          //alignment: AlignmentDirectional.topCenter,
+          children: [
+            SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: (MediaQuery.of(context).size.height) * .05),
+
+                  Container(
+
+                    width: (MediaQuery.of(context).size.width) * 1,
+                    height: (MediaQuery.of(context).size.height) * .5,
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage("assets/images/smock_lock_bg.PNG"),
+                      ),
+                    ),
+                  ),
+
+                  TextField(
+
+                    controller: userController,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.zero),
+                      ),
+                      label: Text(
+                        'Username',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      fillColor: Color.fromRGBO(255, 255, 255, 1),
+                      filled: true,
+                    ),
+                  ),
+                  SizedBox(height: (MediaQuery.of(context).size.height) * .02),
+                  TextField(
+                    controller: passController,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.zero),
+                      ),
+                      label: Text(
+                        'Password',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      //labelText:
+                      fillColor: Color.fromRGBO(255, 255, 255, 1),
+                      filled: true,
+                    ),
+                  ),
+                  SizedBox(height: (MediaQuery.of(context).size.height) * .02),
+
+                  TextButton(
+                    onPressed: () async {
+                      String username = '', pass = '';
+                      username = userController.text;
+                      pass = passController.text;
+                      var res = await Api.login(username, pass);
+
+                      if (res.statusCode == 200) { // Success, do login
+                        Map<String, dynamic> jsonObject = jsonDecode(res.body);
+                        var jwt = jsonObject['token']['accessToken'];
+                        await storage.write(key: 'jwt', value: jwt);
+                        isLoggedIn = true;
+                        Navigator.pushNamed(context, '/home');
+                      }
+
+                      else if (res.statusCode != 200) { // fail // trying to figure out how to do a dialog popup saying what error it is
+                        var errTitle = 'Error';
+                        var errMessage = '${res.statusCode}';
+                        showAlertDialog(context, errTitle , errMessage).showDialog;
+                      }
+                    },
+                    child: Container(
+                      alignment: AlignmentDirectional.center,
+                      height: (MediaQuery.of(context).size.height) * .04,
+                      width: (MediaQuery.of(context).size.width) * .3,
+                      decoration: const BoxDecoration(
+                        color: const Color.fromRGBO(150, 150, 150, 1),
+
+                      ),
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(
+                          color: Color.fromRGBO(0, 0, 0, 1),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Username',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-
-                ),
-              ),
-             TextField(
-                controller: userController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Username',
-                ),
-              ),
-              const Text(
-                'Password',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-
-                ),
-              ),
-              TextField(
-                controller: passController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-
-                  labelText: 'Password',
-                ),
-              ),
-              TextButton(
-                onPressed: () async {
-                  String username = '', pass = '';
-                  username = userController.text;
-                  pass = passController.text;
-                  var res = await Api.login(username, pass);
-
-                  print(res.statusCode);
-
-                  if (res.statusCode == 200) { // Success, do login
-                    Map<String, dynamic> jsonObject = jsonDecode(res.body);
-                    var jwt = jsonObject['token']['accessToken'];
-                    await storage.write(key: 'jwt', value: jwt);
-                    isLoggedIn = true;
-                    Navigator.pushNamed(context, '/home');
-                  }
-                  else if (res.statusCode != 200) { // fail // trying to figure out how to do a dialog popup saying what error it is
-
-                    var errTitle = 'Error';
-                    var errMessage = '${res.statusCode}';
-                    showAlertDialog(context, errTitle , errMessage).showDialog;
-
-                  }
-
-                },
-                child: const Text('Login'),
-              ),
-            ],
-
-          ),
+          ],
         ),
       )
     );

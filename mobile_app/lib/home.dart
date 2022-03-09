@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:camera/camera.dart';
@@ -25,108 +24,111 @@ class _HomeState extends State<Home> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        color: const Color.fromRGBO(32, 31, 30, 1),
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/images/image.PNG"),
-            ),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: [
+                Color.fromRGBO(234, 234, 234, 1),
+                Color.fromRGBO(178, 229, 190, 1),
+              ]
           ),
-          child: Column(
-            children: [
-              SizedBox(height: MediaQuery.of(context).size.height * .06),
-              TextButton(
-                  onPressed: () async {
-                    isLoggedIn = false;
-                    await storage.deleteAll();
-                    Navigator.popUntil(context, ModalRoute.withName('/'));
-                  },
-                  child: const Text('Logout'),
-              ),
-              IconButton(
-                  onPressed: (){},
-                  icon: const Icon(
-                    Icons.settings,
-                    //size: DeviceInfo.width,
-                  ),
-              ),
-              IconButton(
-                onPressed: () async {
-                  // Ensure that plugin services are initialized so that `availableCameras()`
-                  // can be called before `runApp()`
-                  WidgetsFlutterBinding.ensureInitialized();
+        ),
+        child: Column(
+          children: [
+            SizedBox(height: MediaQuery
+                .of(context)
+                .size
+                .height * .06),
+            TextButton(
+              onPressed: () {},
+              child: const CircleAvatar(
 
-                  // Obtain a list of the available cameras on the device.
-                  final cameras = await availableCameras();
-                  final firstCamera = cameras[0];
-                  //navigator blah blah takepicturescreen(camera: firstCamera)
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                isLoggedIn = false;
+                await storage.deleteAll();
+                Navigator.popUntil(context, ModalRoute.withName('/'));
+              },
+              child: const Text('Logout'),
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(
+                Icons.settings,
+                //size: DeviceInfo.width,
+              ),
+            ),
+
+            IconButton(
+              onPressed: () async {
+                // Ensure that plugin services are initialized so that `availableCameras()`
+                // can be called before `runApp()`
+                WidgetsFlutterBinding.ensureInitialized();
+
+                // Obtain a list of the available cameras on the device.
+                final cameras = await availableCameras();
+                final firstCamera = cameras[0];
+                //navigator blah blah takepicturescreen(camera: firstCamera)
+
+                Navigator.pushNamed(
+                  context,
+                  '/picture',
+                  arguments: TakePictureScreen(
+                    camera: cameras[0],
+                  ),
+                );
+              },
+              icon: const Icon(
+                Icons.camera,
+                //size: DeviceInfo.width,
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/ekey');
+              },
+              child: const Text('Create an e-key'),
+            ),
+            TextButton(
+              onPressed: () async {
+                var res = await Api.listEKey();
+                print(res.body);
+
+                var resultObjsJson = jsonDecode(
+                    res.body)['result_array'] as List;
+                List<GetResults> resultObjs = resultObjsJson.map((resultJson) =>
+                    GetResults.fromJson(resultJson)).toList();
+
+
+                try {
+                  /* first ekey info */
+
+                  ////////////////////
+
+
+                  /*maybe length of ekeys returned from certain user*/
+                  var resultlength = resultObjs.length;
+                  ////////////////////////
+
 
                   Navigator.pushNamed(
                     context,
-                    '/picture',
-                    arguments: TakePictureScreen(
-                      camera: cameras[0],
-                    ),
+                    '/listekeys',
+                    arguments: {'resultObjs': resultObjs},
+
                   );
-
-
-
-
-                },
-                icon: const Icon(
-                  Icons.camera,
-                  //size: DeviceInfo.width,
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/ekey');
-                },
-                child: const Text('Create an e-key'),
-              ),
-              TextButton(
-                onPressed: () async {
-
-
-
-                  var res = await Api.listEKey();
-                  print(res.body);
-
-                  var resultObjsJson = jsonDecode(res.body)['result_array'] as List;
-                  List<GetResults> resultObjs = resultObjsJson.map((resultJson) => GetResults.fromJson(resultJson)).toList();
-
-
-                  try{
-                    /* first ekey info */
-                   
-                    ////////////////////
-
-
-                    /*maybe length of ekeys returned from certain user*/
-                    var resultlength = resultObjs.length;
-                    ////////////////////////
-
-
-                    Navigator.pushNamed(
-                      context,
-                      '/listekeys',
-                      arguments: {'resultObjs' : resultObjs},
-
-                    );
-
-                  }catch(e){
-                    print(e);
-                  }
-
-                },
-                child: const Text('List EKEYS'),
-              ),
-            ],
-          ),
+                } catch (e) {
+                  print(e);
+                }
+              },
+              child: const Text('List EKEYS'),
+            ),
+          ],
         ),
-      )
+      ),
     );
   }
 }

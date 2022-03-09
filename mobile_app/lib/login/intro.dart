@@ -22,38 +22,68 @@ class _IntroState extends State<Intro> {
         width: double.infinity,
         height: double.infinity,
         color: const Color.fromRGBO(32, 31, 30, 1),
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/images/image5.PNG"),
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                SizedBox(height: (MediaQuery.of(context).size.height) * .1),
+                Container(
+                  width: (MediaQuery.of(context).size.width) * 1,
+                  height: (MediaQuery.of(context).size.height) * .8,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage("assets/images/smock_lock_bg.PNG"),
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/register');
+                      },
+                      child: Container(
+                        alignment: AlignmentDirectional.center,
+                        height: (MediaQuery.of(context).size.height) * .04,
+                        width: (MediaQuery.of(context).size.width) * .3,
+                        decoration: const BoxDecoration(
+                          color: const Color.fromRGBO(150, 150, 150, 1),
+                        ),
+                        child: const Text(
+                          'Register',
+                          style: TextStyle(
+                            color: Color.fromRGBO(0, 0, 0, 1),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/login');
+                      },
+                      child: Container(
+                        alignment: AlignmentDirectional.center,
+                        height: (MediaQuery.of(context).size.height) * .04,
+                        width: (MediaQuery.of(context).size.width) * .3,
+                        decoration: const BoxDecoration(
+                          color: const Color.fromRGBO(150, 150, 150, 1),
+                        ),
+                        child: const Text(
+                          'Login',
+                          style: TextStyle(
+                            color: Color.fromRGBO(0, 0, 0, 1),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
             ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: (){
-                      Navigator.pushNamed(context, '/register');
-                    },
-                    child: const Text('Sign Up'),
-                  ),
-                  TextButton(
-                    onPressed: (){
-                      Navigator.pushNamed(context, '/login');
-                    },
-                    child: const Text('Login'),
-                  ),
-                ],
-              )
-
-            ],
-
-          ),
+          ],
         ),
       ),
     );
