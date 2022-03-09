@@ -268,12 +268,94 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });  
 
+    // since we know what lock is associated with which userId, we need to search for approved users 
+    // ...
+    // ...
+    // ...
+    // ...
+    // ...
+    // ...
+    // ...
+    // end
+
+
+    app.post('/api/updateIP', async (req, res, next) => 
+    {
+      const {macAdd, ip} = req.body;
+
+      
+      try
+      {
+        const db = client.db();
+
+
+        const ipResult = await db.collection('Lock').Update({MACAddress: macAdd}, {$set: {IP: ip}});
+        error = 'success';
+      }
+      catch(e)
+      {
+        error = e.message;
+      }
+      var ret = {error: error};
+      
+      res.status(200).json(ret);
+
+
+    });
+
+
+    app.post('/api/updateTier', async (req, res, next) =>
+    {
+
+    });
+    // 
+    app.post('/api/linkLock', async (req, res, next) =>
+    {
+      const {macAdd, userId} = req.body;
+
+      var IP = '';
+      var tier = '';
+      var auth = [];
+      var lockCollection = {MACAddress:macAdd, TierLevel:tier, MasterUserId:userId, IP: IP};
+
+      try
+      {
+        const db = client.db();
+
+
+        // lets search for the authorized users, and add it as a field in the lock collection. ( we can do this by search the userId passed and finding his collection and uploading their authorized users array
+        // since their authorized users array will contain everyone.) make separate api for this.
+        // ...
+        // ...
+        // const authResult = await db.collection('Users').find({UserId:userId});
+        // auth = authResult.AuthorizedUsers;
+        // ...
+        // ...
+        // ...
+        // ...
+        // end
+
+
+        const tierResult = await db.collection('Lock').insertOne(lockCollection);
+      }
+      catch(e)
+      {
+        error = e.message;
+      }
+
+      var ret = {lockCollection: lockCollection, error: error};
+      
+      res.status(200).json(ret);
+    });
+
+
+    // called by lock
     app.post('/api/tierRequest', async (req, res, next) => 
     {
       const {macAdd} = req.body;
       
       var mac = {MACAddress:macAdd};
-      var err = '';
+      var error = '';
       var tier;
 
       try
@@ -663,8 +745,9 @@ exports.setApp = function ( app, client )
 
       // create a new user 
       const fullname = firstname + ' ' + lastname;
+      var auth = [];
       const newUser = {Email:email, UserId: arraylength + 1, FirstName:firstname, LastName:lastname, FullName:fullname,
-         Login:login, Password:password }; // add userid UserId:userId
+         Login:login, Password:password, AuthorizedUsers:auth}; // add userid UserId:userId
 
       
       // check if email is taken,
