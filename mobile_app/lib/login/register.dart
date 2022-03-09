@@ -20,59 +20,115 @@ class _RegisterState extends State<Register> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-
+          title: const Text(
+            'Register',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
         backgroundColor: Colors.white,
         body: Container(
           width: double.infinity,
           height: double.infinity,
           color: const Color.fromRGBO(32, 31, 30, 1),
-          child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("assets/images/image5.PNG"),
-              ),
-            ),
+          child: SingleChildScrollView(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextField(
-                  controller: emailController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Email',
-                  ),
-                ),
-                TextField(
-                  controller: fnController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'First Name',
-                  ),
-                ),
-                TextField(
-                  controller: lnController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Last Name',
+                Container(
+                  width: (MediaQuery.of(context).size.width) * 1,
+                  height: (MediaQuery.of(context).size.height) * .2,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage("assets/images/smock_lock_bg_no_text.PNG"),
+                    ),
                   ),
                 ),
                 TextField(
                   controller: userController,
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Username',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.zero),
+                    ),
+                    label: Text(
+                      'Username',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    fillColor: Color.fromRGBO(255, 255, 255, 1),
+                    filled: true,
                   ),
                 ),
+                SizedBox(height: (MediaQuery.of(context).size.height) * .03),
                 TextField(
                   controller: passController,
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Password',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.zero),
+                    ),
+                    label: Text(
+                      'Password',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    fillColor: Color.fromRGBO(255, 255, 255, 1),
+                    filled: true,
                   ),
                 ),
+                SizedBox(height: (MediaQuery.of(context).size.height) * .03),
+                TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.zero),
+                    ),
+                    label: Text(
+                      'Email',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    fillColor: Color.fromRGBO(255, 255, 255, 1),
+                    filled: true,
+                  ),
+                ),
+                SizedBox(height: (MediaQuery.of(context).size.height) * .03),
+                TextField(
+                  controller: fnController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.zero),
+                    ),
+                    label: Text(
+                      'First Name',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    fillColor: Color.fromRGBO(255, 255, 255, 1),
+                    filled: true,
+                  ),
+                ),
+                SizedBox(height: (MediaQuery.of(context).size.height) * .03),
+                TextField(
+                  controller: lnController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.zero),
+                    ),
+                    label: Text(
+                      'Last Name',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    fillColor: Color.fromRGBO(255, 255, 255, 1),
+                    filled: true,
+                  ),
+                ),
+                SizedBox(height: (MediaQuery.of(context).size.height) * .03),
                 TextButton(
                   onPressed: () async {
                     var email = emailController.text.trim();
@@ -84,7 +140,22 @@ class _RegisterState extends State<Register> {
                     var res = await Api.register(email, fn, ln, user, pass);
 
                   },
-                  child: const Text('Register'),
+                  child: Container(
+                    alignment: AlignmentDirectional.center,
+                    height: (MediaQuery.of(context).size.height) * .04,
+                    width: (MediaQuery.of(context).size.width) * .3,
+                    decoration: const BoxDecoration(
+                      color: const Color.fromRGBO(255, 255, 255, 1),
+
+                    ),
+                    child: const Text(
+                      'Register',
+                      style: TextStyle(
+                        color: Color.fromRGBO(0, 0, 0, 1),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
               ],
 
