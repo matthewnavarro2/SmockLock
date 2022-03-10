@@ -289,7 +289,7 @@ exports.setApp = function ( app, client )
         const db = client.db();
 
 
-        const ipResult = await db.collection('Lock').Update({MACAddress: macAdd}, {$set: {IP: ip}});
+        const ipResult = await db.collection('Lock').update({MACAddress: macAdd}, {$set: {IP: ip}});
         error = 'success';
       }
       catch(e)
