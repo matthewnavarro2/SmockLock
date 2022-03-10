@@ -288,8 +288,11 @@ exports.setApp = function ( app, client )
       
       try{
         const db = client.db();
-        hostResult = await db.collection('Lock').find({MACAddress:macAdd});
-        host = hostResult.IP;
+        hostResult = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
+        host = hostResult[0].IP;
+        console.log(hostResult[0]);
+        console.log(host);
+        
         // Create a new TCP client.
         const Sclient = new Net.Socket();
         // Send a connection request to the server.
