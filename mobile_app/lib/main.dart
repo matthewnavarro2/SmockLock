@@ -5,6 +5,7 @@ import 'package:mobile_app/ekeyscreen/ekey.dart';
 import 'package:mobile_app/ekeyscreen/listekey.dart';
 import 'package:mobile_app/login/login.dart';
 import 'package:mobile_app/login/register.dart';
+import 'package:mobile_app/settingscreen/settings.dart';
 
 import 'camerascreen/takepicturescreen.dart';
 import 'ekeyscreen/editekey.dart';
@@ -44,6 +45,7 @@ Future<void> main() async {
             '/ekey': (context) => const Ekeyscreen(),
             '/listekeys': (context) => const ListEKeys(),
             '/editekeys' : (context) => const EditEKeys(),
+            '/settings' : (context) => const Settings(),
       }
 
   ));

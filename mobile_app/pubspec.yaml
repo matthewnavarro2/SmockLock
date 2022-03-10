@@ -64,14 +64,13 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/images/Capturessss.PNG
-    - assets/images/image.PNG
-    - assets/images/image2.PNG
-    - assets/images/image3.PNG
-    - assets/images/image4.PNG
-    - assets/images/image5.PNG
+    - assets/images/housekey.PNG
     - assets/images/smock_lock_bg.PNG
     - assets/images/smock_lock_bg_no_text.PNG
+    - assets/images/lock.PNG
+    - assets/images/camera.PNG
+    - assets/images/unlocked.PNG
+    - assets/images/authorizedusers.PNG
   fonts:
     - family: LeagueGothic
       fonts:
