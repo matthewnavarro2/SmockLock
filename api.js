@@ -303,10 +303,16 @@ exports.setApp = function ( app, client )
 
             // The client can now send data to the server by writing to its socket.
             Sclient.write('Hello, server.');
-            Sclient.end();
+            
         });
 
-       
+        // The client can also receive data from the server by reading from its socket.
+        Sclient.on('data', function(chunk) {
+            console.log(`Data received from the server: ${chunk.toString()}.`);
+            
+            // Request an end to the connection after the data has been received.
+            
+        });
 
         Sclient.on('end', function() {
             console.log('Requested an end to the TCP connection');
