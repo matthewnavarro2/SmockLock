@@ -2,6 +2,8 @@ var token = require('./createJWT.js');
 const bcrypt = require('bcryptjs');
 let {PythonShell} = require('python-shell')
 var cron = require('node-cron');
+const Net = require('net');
+
 // import { MongoCron } from 'mongodb-cron';
 //Install node-cron using npm: $ npm install --save node-cron
 //https://www.npmjs.com/package/node-cron
@@ -277,7 +279,50 @@ exports.setApp = function ( app, client )
     // ...
     // ...
     // end
+    app.post('/api/socketTest', async (req, res, next) => 
+    {
+      const {macAdd} = req.body;
+      const port = 80;
+      var host = '';
+      var error = '';
+      
+      try{
+        const db = client.db();
+        hostResult = await db.collection('Lock').find({MACAddress:macAdd});
+        host = hostResult.IP;
+        // Create a new TCP client.
+        const Sclient = new Net.Socket();
+        // Send a connection request to the server.
+        Sclient.connect({ port: port, host: host }, function() {
+            // If there is no error, the server has accepted the request and created a new 
+            // socket dedicated to us.
+            console.log('TCP connection established with the server.');
 
+            // The client can now send data to the server by writing to its socket.
+            Sclient.write('Hello, server.');
+        });
+
+        // The client can also receive data from the server by reading from its socket.
+        Sclient.on('data', function(chunk) {
+            console.log(`Data received from the server: ${chunk.toString()}.`);
+            
+            // Request an end to the connection after the data has been received.
+            Sclient.end();
+        });
+
+        Sclient.on('end', function() {
+            console.log('Requested an end to the TCP connection');
+        }); 
+        error = 'success';
+      }
+      catch(e)
+      {
+        error = e.message;
+      }
+      var ret = {error: error};
+      
+      res.status(200).json(ret);
+    });
 
     app.post('/api/updateIP', async (req, res, next) => 
     {
