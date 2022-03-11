@@ -98,7 +98,10 @@ class _SettingsState extends State<Settings> {
           ),
           const Divider(thickness: 2),
           TextButton(
-            onPressed: (){},
+            onPressed: (){
+              Navigator.pushNamed(context, '/setup');
+
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [

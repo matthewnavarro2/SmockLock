@@ -136,7 +136,24 @@ class Api {
     return res.statusCode;
   }
 
+  static Future linklock(String mac) async {
+    var jwt = await storage.read(key:"jwt");
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
+    var userId = decodedToken["userId"];
 
+    var res = await http.post(
+        Uri.parse('$SERVER_IP/linkLock'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'userId': userId,
+          'macAdd': mac
+        })
+
+    );
+    return res;
+  }
 
 // if(res.statusCode == 200){
 //  Map<String, dynamic> jsonObject = jsonDecode(res.body);
