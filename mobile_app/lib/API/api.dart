@@ -136,13 +136,35 @@ class Api {
     return res.statusCode;
   }
 
-  static Future linklock(String mac) async {
+  static Future linklock( mac) async {
     var jwt = await storage.read(key:"jwt");
+    var mac = await storage.read(key:"mac");
     Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
     var userId = decodedToken["userId"];
 
     var res = await http.post(
         Uri.parse('$SERVER_IP/linkLock'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'userId': userId,
+          'macAdd': mac
+        })
+
+    );
+    return res;
+  }
+
+  static Future checkWifiStatus() async {
+    var jwt = await storage.read(key:"jwt");
+    var mac = await storage.read(key:"mac");
+
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
+    var userId = decodedToken["userId"];
+
+    var res = await http.post(
+        Uri.parse('$SERVER_IP/checkWifiStatus'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

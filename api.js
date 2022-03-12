@@ -402,7 +402,7 @@ exports.setApp = function ( app, client )
     app.post('/api/linkLock', async (req, res, next) =>
     {
       const {macAdd, userId} = req.body;
-
+      var error = '';
       var IP = '';
       var tier = '';
       var auth = [];
