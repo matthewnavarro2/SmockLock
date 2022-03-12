@@ -331,7 +331,7 @@ exports.setApp = function ( app, client )
     app.post('/api/updateIP', async (req, res, next) => 
     {
       const {macAdd, ip} = req.body;
-
+      var error = '';
       
       try
       {
@@ -357,7 +357,48 @@ exports.setApp = function ( app, client )
     {
 
     });
-    // 
+
+    app.post('/api/updateWifiStatus', async (req, res, next) =>
+    {
+      const {status, macAdd, userId} = req.body;
+      try
+      {
+        const db = client.db();
+
+        const Result = await db.collection('Lock').update({MACAddress: macAdd}, {$set: {wifiStatus: status}});
+        error = 'success';
+      }
+      catch(e)
+      {
+        error = e.message;
+      }
+      var ret = {error: error};
+      
+      res.status(200).json(ret);
+
+    });
+
+    app.post('/api/checkWifiStatus', async (req, res, next) =>
+    {
+      var error = '';
+      var status;
+      const {macAdd, userId} = req.body;
+      try
+      {
+        const db = client.db();
+        hostResult = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
+        status = hostResult[0].wifiStatus;
+      }
+      catch(e)
+      {
+        error = e.message;
+      }
+    
+      var ret = {status: status, error: error};
+      res.status(200).json(ret);
+
+    });
+
     app.post('/api/linkLock', async (req, res, next) =>
     {
       const {macAdd, userId} = req.body;
@@ -365,7 +406,9 @@ exports.setApp = function ( app, client )
       var IP = '';
       var tier = '';
       var auth = [];
-      var lockCollection = {MACAddress:macAdd, TierLevel:tier, MasterUserId:userId, IP: IP};
+      var wifiStatus = 0;
+
+      var lockCollection = {MACAddress:macAdd, TierLevel:tier, MasterUserId:userId, IP: IP, wifiStatus: wifiStatus};
 
       try
       {
