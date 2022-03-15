@@ -414,20 +414,6 @@ exports.setApp = function ( app, client )
       {
         const db = client.db();
 
-
-        // lets search for the authorized users, and add it as a field in the lock collection. ( we can do this by search the userId passed and finding his collection and uploading their authorized users array
-        // since their authorized users array will contain everyone.) make separate api for this.
-        // ...
-        // ...
-        // const authResult = await db.collection('Users').find({UserId:userId});
-        // auth = authResult.AuthorizedUsers;
-        // ...
-        // ...
-        // ...
-        // ...
-        // end
-
-
         const tierResult = await db.collection('Lock').insertOne(lockCollection);
       }
       catch(e)
@@ -440,7 +426,75 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });
 
+    app.post('/api/addAuthorizedUser', async (req, res, next) => 
+    {
+      const {plainCode, userId} = req.body;
+      var error =''
+      var message = '';
+      var MasterUserId;
+      
+      
 
+
+
+      try
+      {
+        const db = client.db();
+        
+        
+        const code = await bcrypt.hash(plainCode, 10);
+        const codeResult = await db.collection('Users').find(code).toArray();
+        
+        MasterUserId = codeResult[0].UserId;
+        
+
+        const result = db.collection('Users').updateOne(
+          { "UserId" : MasterUserId },
+          { $push: { "AuthorizedUsers" : userId } }
+          );
+
+        message = 'successfully added Authorized User'
+      }
+      catch(e)
+      {
+        error = e.message;
+        console.log(e.message);
+      }
+
+      var ret = {result: result, error: error, message};
+      
+      res.status(200).json(ret);
+
+    });
+
+    app.post('/api/adminAddAuthorizedUser', async (req, res, next) => 
+    {
+      const {userId, guestUserId} = req.body;
+      var error =''
+      var message = '';
+
+      try
+      {
+        const db = client.db();
+
+        const result = db.collection('Users').updateOne(
+          { "UserId" : userId },
+          { $push: { "AuthorizedUsers" : guestUserId } }
+          );
+
+        message = 'successfully added Authorized User'
+      }
+      catch(e)
+      {
+        error = e.message;
+        console.log(e.message);
+      }
+
+      var ret = {result: result, error: error, message};
+      
+      res.status(200).json(ret);
+
+    });
     // called by lock
     app.post('/api/tierRequest', async (req, res, next) => 
     {
@@ -472,33 +526,152 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });
 
-    // Start
-    // the bottom stuff all will be added to users collection so make do with those variabbles
-    // its also possible that when comparing fingers we have multiple fingers so make sure to do an array and check both.
-    // now we dont need to make enroll fingers have multiple fingers to send we can do one at time.
+    
     app.post('/api/compareFinger', async(req, res, next) => 
     {
+      const {macAdd, fp} = req.body;
+      var error = '';
+      var fp1 
+      var fpResult;
+      var userId;
+      var authUsers;
 
+
+      try
+      {
+        const db = client.db();
+        
+        
+        const lockResult = await db.collection('Lock').find(macAdd).toArray();
+        userId = lockResult[0].MasterUserId;
+        const usersResult = await db.collection('Users').find(userId).toArray();
+        authUsers = usersResult[0].AuthorizedUsers;
+
+        for (var i = 0; i < length(authUsers); i++)
+        {
+          fp1 = authUsers[i].Fingerprint;
+          if (strcmp(fp, fp1) == 1)
+          {
+            error = 'Found the user';
+            fpResult = authUsers[i].UserId;
+          }
+        }
+        
+      }
+      
+      // Prints error if failed
+      catch(e)
+      {
+        error = e.message;
+        console.log(e.message);
+      }
+      
+      var ret = {fingerprint: fpResult, error: error};
+      
+      res.status(200).json(ret);
     });
 
     app.post('/api/enrollFinger', async(req, res, next) => 
     {
+      const {fp, userId} = req.body;
+      var error = '';
 
+
+      try
+      {
+        const db = client.db();
+        const fpResult = await db.collection('Users').update({UserId: userId}, {$set: {Fingerprint: fp}});
+
+
+        
+        error = 'fingerprint has been added.';
+        
+      }
+      
+      // Prints error if failed
+      catch(e)
+      {
+        error = e.message;
+        console.log(e.message);
+      }
+      
+      var ret = {fingerprint: fp, error: error};
+      
+      res.status(200).json(ret);
     });
 
     app.post('/api/enrollRFID', async(req, res, next) => 
     {
+      const {rfid, userId} = req.body;
+      var error = '';
+      
 
+      try
+      {
+        const db = client.db();
+        
+        const rfidResult = await db.collection('Users').update({UserId: userId}, {$set: {RFID: rfid}});;
+
+
+        
+        error = 'rfid has been added.';
+        
+      }
+      
+      // Prints error if failed
+      catch(e)
+      {
+        error = e.message;
+        console.log(e.message);
+      }
+      
+      var ret = {rfid: rfid, error: error};
+      
+      res.status(200).json(ret);
     });
 
     app.post('/api/compareRFID', async(req, res, next) => 
     {
+      const {macAdd, rfid} = req.body;
+      var error = '';
+      var userId;
+      var authUsers;
       
+      var rf;
+      var rfid1;
+      try
+      {
+        const db = client.db();
+        
+        const rfidResult = await db.collection('Lock').find(macAdd).toArray();
+        userId = rfidResult[0].MasterUserId;
+        const usersResult = await db.collection('Users').find(userId).toArray();
+        authUsers = usersResult[0].AuthorizedUsers;
+
+        for (var i = 0; i < length(authUsers); i++)
+        {
+          rfid1 = authUsers[i].RFID;
+          if (strcmp(rfid1, rfid) == 1)
+          {
+            error = 'Found the user';
+            rf = authUsers[i].UserId;
+          }
+        }
+        
+      }
+      
+      // Prints error if failed
+      catch(e)
+      {
+        error = e.message;
+        console.log(e.message);
+      }
+      
+      var ret = {userId: rf, error: error};
+      
+      res.status(200).json(ret);
     });
-    // 
-    //
-    // 
-    // End
+  
     
     app.post('/api/recievefromESP32', async (req, res, next) =>
     {
@@ -804,8 +977,12 @@ exports.setApp = function ( app, client )
       const db = client.db();
 
       // req.body to pull the info from the webpage. 
-      const { email, firstname, lastname, login, password: plainTextPassword  } = req.body
+      const { email, firstname, lastname, login, password: plainTextPassword, plainCode } = req.body
 
+      if (!(plainCode))
+      {
+        plainCode = '';
+      }
       // set userId to the unique username and email combo 
       const userId_array = await db.collection('Users').find().toArray();
         
@@ -823,8 +1000,8 @@ exports.setApp = function ( app, client )
 
 
       // bcrypt to encrypt password  
-      const password = await bcrypt.hash(plainTextPassword, 10)
-      
+      const password = await bcrypt.hash(plainTextPassword, 10);
+      const code = await bcrypt.hash(plainCode, 10);
       // // lets make an empty friends array.
       // let friends_array = [];
       // let defaultValue = 0;
@@ -838,8 +1015,10 @@ exports.setApp = function ( app, client )
       // create a new user 
       const fullname = firstname + ' ' + lastname;
       var auth = [];
+      var fingerprint = '';
+      var rfid = '';
       const newUser = {Email:email, UserId: arraylength + 1, FirstName:firstname, LastName:lastname, FullName:fullname,
-         Login:login, Password:password, AuthorizedUsers:auth}; // add userid UserId:userId
+         Login:login, Password:password, Fingerprint:fingerprint, RFID:rfid, AuthorizedUsers:auth, code:code}; // add userid UserId:userId
 
       
       // check if email is taken,
