@@ -2,6 +2,8 @@ var token = require('./createJWT.js');
 const bcrypt = require('bcryptjs');
 let {PythonShell} = require('python-shell')
 var cron = require('node-cron');
+const Net = require('net');
+
 // import { MongoCron } from 'mongodb-cron';
 //Install node-cron using npm: $ npm install --save node-cron
 //https://www.npmjs.com/package/node-cron
@@ -81,14 +83,14 @@ exports.setApp = function ( app, client )
         }
 
         // Variable Declaration
-        var email = {email:email};
+        var emailObj = {email:email};
         var error = '';
 
         // Connecting to database and searching for Pictures associated with User.
         try
         {
           const db = client.db();
-          const result = await db.collection('EKey').deleteOne(email).toArray();
+          const result = await db.collection('EKey').deleteOne(emailObj).toArray();
         }
 
         // Prints error if failed
@@ -268,12 +270,184 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });  
 
+    // since we know what lock is associated with which userId, we need to search for approved users 
+    // ...
+    // ...
+    // ...
+    // ...
+    // ...
+    // ...
+    // ...
+    // end
+    app.post('/api/socketTest', async (req, res, next) => 
+    {
+      const {macAdd} = req.body;
+      const port = 80;
+      var host = '';
+      var error = '';
+      
+      try{
+        const db = client.db();
+        hostResult = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
+        host = hostResult[0].IP;
+        console.log(hostResult[0]);
+        console.log(host);
+        
+        // Create a new TCP client.
+        const Sclient = new Net.Socket();
+        // Send a connection request to the server.
+        Sclient.connect({ port: port, host: host }, function() {
+            // If there is no error, the server has accepted the request and created a new 
+            // socket dedicated to us.
+            console.log('TCP connection established with the server.');
+
+            // The client can now send data to the server by writing to its socket.
+            Sclient.write('Hello, server.');
+            
+        });
+
+        // The client can also receive data from the server by reading from its socket.
+        Sclient.on('data', function(chunk) {
+            console.log(`Data received from the server: ${chunk.toString()}.`);
+            
+            // Request an end to the connection after the data has been received.
+            
+        });
+
+        Sclient.on('end', function() {
+            console.log('Requested an end to the TCP connection');
+        }); 
+        error = 'success';
+      }
+      catch(e)
+      {
+        error = e.message;
+      }
+      var ret = {error: error};
+      
+      res.status(200).json(ret);
+    });
+
+    app.post('/api/updateIP', async (req, res, next) => 
+    {
+      const {macAdd, ip} = req.body;
+      var error = '';
+      
+      try
+      {
+        const db = client.db();
+
+
+        const ipResult = await db.collection('Lock').update({MACAddress: macAdd}, {$set: {IP: ip}});
+        error = 'success';
+      }
+      catch(e)
+      {
+        error = e.message;
+      }
+      var ret = {error: error};
+      
+      res.status(200).json(ret);
+
+
+    });
+
+
+    app.post('/api/updateTier', async (req, res, next) =>
+    {
+
+    });
+
+    app.post('/api/updateWifiStatus', async (req, res, next) =>
+    {
+      const {status, macAdd, userId} = req.body;
+      try
+      {
+        const db = client.db();
+
+        const Result = await db.collection('Lock').update({MACAddress: macAdd}, {$set: {wifiStatus: status}});
+        error = 'success';
+      }
+      catch(e)
+      {
+        error = e.message;
+      }
+      var ret = {error: error};
+      
+      res.status(200).json(ret);
+
+    });
+
+    app.post('/api/checkWifiStatus', async (req, res, next) =>
+    {
+      var error = '';
+      var status;
+      const {macAdd, userId} = req.body;
+      try
+      {
+        const db = client.db();
+        hostResult = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
+        status = hostResult[0].wifiStatus;
+      }
+      catch(e)
+      {
+        error = e.message;
+      }
+    
+      var ret = {status: status, error: error};
+      res.status(200).json(ret);
+
+    });
+
+    app.post('/api/linkLock', async (req, res, next) =>
+    {
+      const {macAdd, userId} = req.body;
+      var error = '';
+      var IP = '';
+      var tier = '';
+      var auth = [];
+      var wifiStatus = 0;
+
+      var lockCollection = {MACAddress:macAdd, TierLevel:tier, MasterUserId:userId, IP: IP, wifiStatus: wifiStatus};
+
+      try
+      {
+        const db = client.db();
+
+
+        // lets search for the authorized users, and add it as a field in the lock collection. ( we can do this by search the userId passed and finding his collection and uploading their authorized users array
+        // since their authorized users array will contain everyone.) make separate api for this.
+        // ...
+        // ...
+        // const authResult = await db.collection('Users').find({UserId:userId});
+        // auth = authResult.AuthorizedUsers;
+        // ...
+        // ...
+        // ...
+        // ...
+        // end
+
+
+        const tierResult = await db.collection('Lock').insertOne(lockCollection);
+      }
+      catch(e)
+      {
+        error = e.message;
+      }
+
+      var ret = {lockCollection: lockCollection, error: error};
+      
+      res.status(200).json(ret);
+    });
+
+
+    // called by lock
     app.post('/api/tierRequest', async (req, res, next) => 
     {
       const {macAdd} = req.body;
       
       var mac = {MACAddress:macAdd};
-      var err = '';
+      var error = '';
       var tier;
 
       try
@@ -663,8 +837,9 @@ exports.setApp = function ( app, client )
 
       // create a new user 
       const fullname = firstname + ' ' + lastname;
+      var auth = [];
       const newUser = {Email:email, UserId: arraylength + 1, FirstName:firstname, LastName:lastname, FullName:fullname,
-         Login:login, Password:password }; // add userid UserId:userId
+         Login:login, Password:password, AuthorizedUsers:auth}; // add userid UserId:userId
 
       
       // check if email is taken,

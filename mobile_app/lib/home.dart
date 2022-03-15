@@ -18,6 +18,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  String securityTier = 'Security Level 3';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,16 +38,96 @@ class _HomeState extends State<Home> {
         ),
         child: Column(
           children: [
-            SizedBox(height: MediaQuery
-                .of(context)
-                .size
-                .height * .06),
-            TextButton(
-              onPressed: () {},
-              child: const CircleAvatar(
+            SizedBox(height: MediaQuery.of(context).size.height * .08),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () {},
+                  child: const CircleAvatar(
+                    radius: 25,
+                    backgroundColor: Colors.white,
+                    backgroundImage:  AssetImage("assets/images/housekey.PNG"),
+                  ),
+                ),
+                IconButton(
+                  iconSize: MediaQuery.of(context).size.height * .06,
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/settings',
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.settings,
+                    //size: DeviceInfo.width,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: MediaQuery.of(context).size.height * .08),
 
+            Text(
+              securityTier,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 25,
               ),
             ),
+
+            Image(
+              image: AssetImage("assets/images/lock.PNG"),
+              height: MediaQuery.of(context).size.height * .2,
+              width: MediaQuery.of(context).size.width * .2,
+            ),
+
+            SizedBox(height: MediaQuery.of(context).size.height * .06),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextButton(
+                  onPressed: () {},
+                  child: const CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.blue,
+                    backgroundImage:  AssetImage("assets/images/camera.PNG"), // not transparent rn
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: const CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.blueGrey,
+                    backgroundImage:  AssetImage("assets/images/authorizedusers.PNG"),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: MediaQuery.of(context).size.height * .04),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextButton(
+                  onPressed: () {},
+                  child: const CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.green,
+                    backgroundImage:  AssetImage("assets/images/unlocked.PNG"),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: const CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.blue,
+                    backgroundImage:  AssetImage("assets/images/housekey.PNG"),
+                  ),
+                ),
+              ],
+            ),
+            /*
             TextButton(
               onPressed: () async {
                 isLoggedIn = false;
@@ -55,14 +137,7 @@ class _HomeState extends State<Home> {
               child: const Text('Logout'),
             ),
             IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.settings,
-                //size: DeviceInfo.width,
-              ),
-            ),
-
-            IconButton(
+              iconSize: MediaQuery.of(context).size.height * .08,
               onPressed: () async {
                 // Ensure that plugin services are initialized so that `availableCameras()`
                 // can be called before `runApp()`
@@ -125,10 +200,24 @@ class _HomeState extends State<Home> {
                 }
               },
               child: const Text('List EKEYS'),
-            ),
+            ),*/
           ],
         ),
       ),
     );
+  }
+}
+class MyColor extends MaterialStateColor {
+  const MyColor() : super(_defaultColor);
+
+  static const int _defaultColor = 0xcafefeed;
+  static const int _pressedColor = 0xdeadbeef;
+
+  @override
+  Color resolve(Set<MaterialState> states) {
+    if (states.contains(MaterialState.pressed)) {
+      return const Color(_pressedColor);
+    }
+    return const Color(_defaultColor);
   }
 }
