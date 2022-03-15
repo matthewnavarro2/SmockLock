@@ -37,8 +37,7 @@ const byte pirPin = 2;
 volatile byte pirState = LOW;
 
 // ESP32-CAM SETUP
-int esp32_inPin = A2;
-int esp32_outPin = A3;
+SoftwareSerial camSerial(A2,A3);
 
 // RFID SETUP
 #define SS_PIN 10
@@ -186,6 +185,16 @@ void loop() {
   else if(esp8266State == HIGH){
     esp8266State == LOW;
     printOLED("Im slump");
+  }
+}
+
+char callESP32()
+{
+  camSerial.write("P");
+
+  while (camSerial.available())
+  {
+    if()
   }
 }
 
