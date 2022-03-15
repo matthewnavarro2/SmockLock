@@ -25,13 +25,16 @@ int fingerID;
 // ESP8266 SETUP
 // pin 3 is esp TX
 // pin 4 is esp RX 
-SoftwareSerial esp8266(3,4);
+SoftwareSerial esp8266(8,4);
+const byte esp8266IntPin = 3;
+int esp8266InterPin = 5;
+volatile byte esp8266State = LOW;
 String str;
 
 // PIR SETUP
 // pin 2 is input from PIR sensor
 const byte pirPin = 2;
-volatile byte state = LOW;
+volatile byte pirState = LOW;
 
 // ESP32-CAM SETUP
 int esp32_inPin = A2;
@@ -59,25 +62,36 @@ void setup() {
   printOLED("Welcome to SMOCK Lock");
   
   // Setting the pin modes
-  pinMode(3, INPUT);
+  pinMode(8, INPUT);
   pinMode(4,OUTPUT);
   pinMode(esp32_inPin, INPUT);
   pinMode(esp32_outPin, OUTPUT);
   pinMode(relayPin, OUTPUT);
+  pinMode(esp8266InterPin, OUTPUT);
 
   // Fingerprint Scanner Initialization
   fingerInitalize();
 }
 
 // This will eventually be the main loop function
+/*
 void mainLoop()
 {
   // put your main code here, to run repeatedly:
   
   // the interrupt must be attached each loop
   attachInterrupt(digitalPinToInterrupt(pirPin),interrupt_routine,RISING);
+  attachInterrupt(digitalPinToInterrupt(esp8266IntPin),interrupt_routine,RISING);
   LowPower.powerDown(SLEEP_FOREVER,ADC_OFF,BOD_OFF); // sleep until interrupt
-  detachInterrupt(digitalPinToInterrupt(pirPin)); // remove interrupt
+  if(digitalRead(pirPin) == HIGH)
+  {
+    detachInterrupt(digitalPinToInterrupt(pirPin)); // remove interrupt
+  }
+  else if(digitalRead(esp8266IntPin) == HIGH)
+  {
+    detachInterrupt(digitalPinToInterrupt(esp8266IntPin)); // remove interrupt
+  }
+  
   
   // When the PIR detects motion
   if (state==HIGH){
@@ -104,23 +118,26 @@ void mainLoop()
 
     delay(500);
   }
+  
   // Goes to sleep after finishing
   if (state==HIGH){
     state = LOW;
     printOLED("Im slump");
   }
 }
-
+*/
 // Loop Function (What will be happening over and over)
 void loop() { 
   
   // the interrupt must be attached each loop
-  attachInterrupt(digitalPinToInterrupt(pirPin),interrupt_routine,RISING);
+  attachInterrupt(digitalPinToInterrupt(pirPin),interrupt_routine1,RISING);
+  attachInterrupt(digitalPinToInterrupt(esp8266IntPin),interrupt_routine2,RISING);
   LowPower.powerDown(SLEEP_FOREVER,ADC_OFF,BOD_OFF); // sleep until interrupt
   detachInterrupt(digitalPinToInterrupt(pirPin)); // remove interrupt
+  detachInterrupt(digitalPinToInterrupt(esp8266IntPin)); // remove interrupt
   
   // When the PIR detects motion
-  if (state==HIGH){
+  if (pirState==HIGH){
     
     // Shows that the system is awake
     printOLED("Im woke");
@@ -141,14 +158,33 @@ void loop() {
     
     // Send RFID ID to ESP8266 and wait for response
     if (ans == 1){
-      digitalWrite(relayPin, HIGH);
-      delay(10000);
-      digitalWrite(relayPin, LOW);
+      digitalWrite(esp8266InterPin, HIGH);
+      digitalWrite(esp8266InterPin, LOW);
+      //digitalWrite(relayPin, HIGH);
+      //digitalWrite(relayPin, LOW);
+      
     }
   }
+
+  else if(esp8266State == HIGH)
+  {
+   printOLED("ESP Interrupt");
+   esp8266.begin(9600);
+   functi = esp8266.read();
+    val = esp8266.read();
+   esp8266.end();
+   printOLED(functi);
+   printOLED(val);   
+  }
+  
   // Goes to sleep after finishing
-  if (state==HIGH){
-    state = LOW;
+  if (pirState==HIGH){
+    pirState = LOW;
+    printOLED("Im slump");
+  }
+  // Goes to sleep after finishing
+  else if(esp8266State == HIGH){
+    esp8266State == LOW;
     printOLED("Im slump");
   }
 }
@@ -210,8 +246,11 @@ void sendFinger()
   printOLED("Fingerprint Sent");
 }
 
-void interrupt_routine(){
-  state = HIGH;
+void interrupt_routine1(){
+  pirState = HIGH;
+}
+void interrupt_routine2(){
+  esp8266State = HIGH;
 }
 
 // Function to print to the OLED screen

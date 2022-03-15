@@ -2,8 +2,8 @@
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
 
-const char* ssid = "Coutostoyou";
-const char* password = "Chaos357-";
+const char* ssid = "TP-Link_DECC";
+const char* password = "9542584446";
 
 //Your Domain name with URL path or IP address with path
 const char *serverName = "http://smocklock2.herokuapp.com/api/sendTier";
@@ -43,7 +43,7 @@ void loop() {
       String serverPath = serverName;
       
       // Your Domain name with URL path or IP address with path
-      http.begin(serverName);
+      http.begin(serverPath);
       
       // Send HTTP GET request
       int httpResponseCode = http.POST("");
