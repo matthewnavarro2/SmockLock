@@ -25,6 +25,20 @@ class _SetupState extends State<Setup> {
     super.dispose();
   }
 
+  Future<int> wifiStatus() async {
+    int lockStatus = 0;
+
+    while(lockStatus == 0){
+      var res = await Api.checkWifiStatus();
+      print("111111");
+      //check res to see if status is 0 or 1
+      //set lockstatus to status
+    }
+    // move to next page with assumption it is connected to wifi
+    return 1;
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,8 +74,13 @@ class _SetupState extends State<Setup> {
             TextButton(
                 onPressed: () async {
                   //var res = await Api.linklock(macController.text);
-                  await storage.write(key: 'mac', value: macController.text);
-                  Navigator.pushNamed(context, '/setup2');
+                  // Alert: GO TO SETTINGS AND CONNECT TO LOCK WIFI
+                  //        INPUT WIFI INFORMATION TO CONNECT Lock
+                  //        STAY IN LOOP UNTIL PROCESS IS FINISHED
+
+                  showAlertDialog(context, "Connect to Locks Access Point", "Navigate to your phones wifi settings and look for the locks access point to connect to your wifi. Click Finished when you are done.");
+
+
 
 
                 },
@@ -75,4 +94,42 @@ class _SetupState extends State<Setup> {
       ),
     );
   }
+
+  showAlertDialog(BuildContext context, String title, String message) {
+
+    Widget cancelButton = TextButton(
+      child: Text("Cancel"),
+      onPressed:  () {
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the button
+    Widget okButton = TextButton(
+      child: Text("Finished"),
+      onPressed: () {
+        Navigator.of(context).pop();
+        Navigator.pushNamed(context, '/setup2');
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        cancelButton,
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
 }

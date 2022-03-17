@@ -24,7 +24,7 @@ int fingerID;
 
 // ESP8266 SETUP
 // pin 3 is esp TX
-// pin 4 is esp RX 
+// pin 4 is esp RX
 SoftwareSerial esp8266(8,4);
 const byte esp8266IntPin = 3;
 int esp8266InterPin = 5;
@@ -37,8 +37,7 @@ const byte pirPin = 2;
 volatile byte pirState = LOW;
 
 // ESP32-CAM SETUP
-SoftwareSerial esp32(A2,A3);
-
+SoftwareSerial camSerial(A2,A3);
 
 // RFID SETUP
 #define SS_PIN 10
@@ -55,15 +54,15 @@ String tierR="";
 // Setup Loop (Runs once on startup)
 void setup() {
   // OLED Initialization
-  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) 
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
   {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
-  
+
   // Welcome Message
   printOLED("Welcome to SMOCK Lock");
-  
+
   // Setting the pin modes
   //pinMode(relayPin, OUTPUT);
   pinMode(esp8266InterPin, OUTPUT);
@@ -77,8 +76,8 @@ void setup() {
 
 
 // Loop Function (What will be happening over and over)
-void loop() 
-{ 
+void loop()
+{
   // Attaching the interrupts
   attachInterrupt(digitalPinToInterrupt(pirPin),interrupt_routine1,RISING);
   attachInterrupt(digitalPinToInterrupt(esp8266IntPin),interrupt_routine2,RISING);
@@ -89,45 +88,45 @@ void loop()
   // Detaching the interrupts
   detachInterrupt(digitalPinToInterrupt(pirPin)); // remove interrupt
   detachInterrupt(digitalPinToInterrupt(esp8266IntPin)); // remove interrupt
-  
+
   // When the PIR detects motion
   if (pirState==HIGH){
-    
+
     // Shows that the system is awake
     printOLED("Hello");
 
     // Find tier number through Tier Request
     printOLED("Getting the tier");
     tier = tierRequest();
-    
+
     // Turn on ESP32-CAM and wait for a response
 
-    // Get the fingerprint from user 
+    // Get the fingerprint from user
     //fingerID = getFingerID();
-    
+
     // Send the fingerprint to ESP8266 and wait for response
     //sendFinger(fingerID)
-    
+
     // Request RFID
     printOLED("Getting the RFID");
-    int ans = 0; 
+    int ans = 0;
     ans = RFIDread();
-    
+
     // Send RFID ID to ESP8266 and wait for response
     if (ans == 1){
       digitalWrite(esp8266InterPin, HIGH);
       digitalWrite(esp8266InterPin, LOW);
       //digitalWrite(relayPin, HIGH);
       //digitalWrite(relayPin, LOW);
-      
+
     }
-    
+
     pirState = LOW;
     printOLED("ZZZ");
     delay(2000);
     display.clearDisplay();
   }
-  
+
   if(esp8266State == HIGH)
   {
    printOLED("ESP Interrupt");
@@ -148,25 +147,25 @@ void loop()
 
    if(strcmp(functi, "enrollFingerID") == 1)
    {
-      
+
    }
    else if(strcmp(functi, "enrollRFID") == 1)
    {
-    
+
    }
    else
    {
-    
-      
+
+
    }
-   
-   
+
+
    printOLED(str);
 
-   
+
    str = "";
    esp8266State = LOW;
-   printOLED("Im slump");  
+   printOLED("Im slump");
   }
 }
 
@@ -196,6 +195,16 @@ int tierRequest()
   return 1;
 }
 
+char callESP32()
+{
+  camSerial.write("P");
+
+  while (camSerial.available())
+  {
+    if()
+  }
+}
+
 // RFID Reader Function
 int RFIDread()
 {
@@ -207,13 +216,13 @@ int RFIDread()
   printOLED("Put key up to reader\n");
 
   // Look for new cards
-  if ( ! mfrc522.PICC_IsNewCardPresent()) 
+  if ( ! mfrc522.PICC_IsNewCardPresent())
   {
     printOLED("No card found");
     return 0;
   }
   // Select one of the cards
-  if ( ! mfrc522.PICC_ReadCardSerial()) 
+  if ( ! mfrc522.PICC_ReadCardSerial())
   {
     return 0;
   }
@@ -221,13 +230,13 @@ int RFIDread()
   // Getting the UID from the card at reader
   String content= "";
   byte letter;
-  for (byte i = 0; i < mfrc522.uid.size; i++) 
+  for (byte i = 0; i < mfrc522.uid.size; i++)
   {
      content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
      content.concat(String(mfrc522.uid.uidByte[i], HEX));
   }
   content.toUpperCase();
-  
+
   // Compares the UID at the reader to stored cards
   if (content.substring(1) == "82 15 C9 1B" || content.substring(1) == "E0 84 2E 1B" || content.substring(1) == "33 66 5D 9B" || content.substring(1) == "93 1B E5 1B") //change here the UID of the card/cards that you want to give access
   {
@@ -235,7 +244,7 @@ int RFIDread()
     return 1;
     delay(3000);
   }
- 
+
   else {
     printOLED(" Access denied");
     return 0;
@@ -283,7 +292,7 @@ void esp32Wake()
 
 
 // Function for fingerprint sensor startup
-// want to change serial prints to oled 
+// want to change serial prints to oled
 void fingerInitalize()
 {
   Serial.begin(9600);
@@ -314,7 +323,7 @@ void waitToWake()
 
 uint8_t readnumber(void) {
   uint8_t num = 0;
-  
+
   while (num == 0) {
     while (! Serial.available());
     num = Serial.parseInt();
@@ -342,16 +351,16 @@ int getFingerID() {
     if (counter < 3)
     {
       printOLED("Place Finger");
-    
+
       uint8_t p = finger.getImage();
       if (p != FINGERPRINT_OK)  return -1;
-    
+
       p = finger.image2Tz();
       if (p != FINGERPRINT_OK)  return -1;
-    
+
       p = finger.fingerFastSearch();
       if (p != FINGERPRINT_OK)  return -1;
-  
+
       if(finger.confidence < 100)
       {
         printOLED("Not confident enough, try again");
@@ -368,7 +377,7 @@ int getFingerID() {
       printOLED("Too many failed attempts")
       return -1;
     }
-  } 
+  }
 }
 
 uint8_t getFingerprintEnroll(int id) {
@@ -420,7 +429,7 @@ uint8_t getFingerprintEnroll(int id) {
       Serial.println("Unknown error");
       return p;
   }
-  
+
   Serial.println("Remove finger");
   delay(2000);
   p = 0;
@@ -474,10 +483,10 @@ uint8_t getFingerprintEnroll(int id) {
       Serial.println("Unknown error");
       return p;
   }
-  
+
   // OK converted!
   Serial.print("Creating model for #");  Serial.println(id);
-  
+
   p = finger.createModel();
   if (p == FINGERPRINT_OK) {
     Serial.println("Prints matched!");
@@ -490,8 +499,8 @@ uint8_t getFingerprintEnroll(int id) {
   } else {
     Serial.println("Unknown error");
     return p;
-  }   
-  
+  }
+
   Serial.print("ID "); Serial.println(id);
   p = finger.storeModel(id);
   if (p == FINGERPRINT_OK) {
@@ -508,5 +517,5 @@ uint8_t getFingerprintEnroll(int id) {
   } else {
     Serial.println("Unknown error");
     return p;
-  }   
+  }
 }

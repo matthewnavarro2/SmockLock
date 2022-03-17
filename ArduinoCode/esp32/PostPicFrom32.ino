@@ -11,6 +11,8 @@
 #include <base64.h>
 #include "base64.hpp"
 #include "fd_forward.h"
+#include <SoftwareSerial.h>
+#include <AltSoftSerial.h>
 // define the number of bytes you want to access
 #define EEPROM_SIZE 1
 
@@ -44,11 +46,14 @@ bool internet_connected = false;
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
 
+AltSoftwareSerial mySerial(15, 14);
+
 void setup()
 {
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
 
   Serial.begin(115200);
+  mySerial.begin(9600);
   //Serial.setDebugOutput(true);
   //Serial.println();
   if (init_wifi())
@@ -99,6 +104,9 @@ void setup()
     Serial.printf("Camera init failed with error 0x%x", err);
     return;
   }
+
+  //turn on low power mode(modem mode for now)
+  setModemSleep();
 }
 
 void takePic()
@@ -148,11 +156,12 @@ void takePic()
 
    int httpCode = http.POST("{\"buffer\":\"" + buffer + "\"}"); // we simply put the whole image in the post body.
 
-  // httpCode will be negative on error
+    // httpCode will be negative on error
     if (httpCode > 0)
     {
       // HTTP header has been send and Server response header has been handled
       Serial.printf("[HTTP] POST... code: %d\n", httpCode);
+      mySerial.write("[HTTP Pass]");
 
       // file found at server
       if (httpCode == HTTP_CODE_OK)
@@ -164,12 +173,14 @@ void takePic()
     else
     {
       Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
+      mySerial.write("[HTTP Fail]");
     }
    http.end(); 
    }
    else
    {
       Serial.printf("Camera Failed to capture Face");
+      mySerial.write("[Camera Fail]");
    }
 
   esp_camera_fb_return(fb);
@@ -177,17 +188,26 @@ void takePic()
 
 void loop()
 {
-  counter++;
-  takePic();
-  //10 sec delay may need to change
-  delay(10000);
-
-  if(counter == 5)
+  if (mySerial.available())
   {
-    Serial.println("Going to sleep now");
-    delay(2000);
-    esp_deep_sleep_start();
+    wakeModemSleep();
+
+    if (init_wifi())
+    { // Connected to WiFi
+      internet_connected = true;
+      Serial.println("Internet connected");
+    }
+
+    char character = mySerial.read();
+
+    if(character == "P")
+    {
+      takePic();
+    }
+
+    setModemSleep();
   }
+ delay(2000);
 }
 
 
@@ -206,4 +226,17 @@ bool init_wifi()
     connAttempts++;
   }
   return true;
+}
+
+void setModemSleep() {
+    WiFi.setSleep(true);
+    if (!setCpuFrequencyMhz(40)){
+        Serial2.println("Not valid frequency!");
+    }
+    // Use this if 40Mhz is not supported
+    // setCpuFrequencyMhz(80);
+}
+
+void wakeModemSleep() {
+    setCpuFrequencyMhz(240);
 }

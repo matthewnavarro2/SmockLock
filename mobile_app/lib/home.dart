@@ -18,7 +18,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  String securityTier = 'Security Level 3';
+  String user = 'Hello User22';
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +68,7 @@ class _HomeState extends State<Home> {
             SizedBox(height: MediaQuery.of(context).size.height * .08),
 
             Text(
-              securityTier,
+              user,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 25,
