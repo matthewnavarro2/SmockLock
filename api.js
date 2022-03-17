@@ -443,7 +443,7 @@ exports.setApp = function ( app, client )
         
         
         const code = await bcrypt.hash(plainCode, 10);
-        const codeResult = await db.collection('Users').find(code).toArray();
+        const codeResult = await db.collection('Users').find({code:code}).toArray();
         
         MasterUserId = codeResult[0].UserId;
         
@@ -532,14 +532,15 @@ exports.setApp = function ( app, client )
 
     app.post('/api/sendTier', async (req, res, next) =>
     {
+      const {macAdd} = req.body;
       var error = '';
       var sTier = 0;
     
       try
       {
         const db = client.db();
-        const result = await db.collection('DBSecurity').find().toArray();   
-        sTier = result[0].sTier;    
+        const result = await db.collection('Lock').find({MACAddress:macAdd}).toArray();   
+        sTier = result[0].TierLevel;    
       }
       catch(e)
       {
@@ -555,7 +556,24 @@ exports.setApp = function ( app, client )
 
     app.post('/api/updateTier', async (req, res, next) =>
     {
+      const {macAdd, tier} = req.body;
 
+
+
+      try
+      {
+        const db = client.db();
+        const result = await db.collection('Lock').update({MACAddress: macAdd}, {$set: {TierLevel: tier}});
+        sTier = result[0].TierLevel;    
+      }
+      catch(e)
+      {
+        error = e.toString();
+      }
+
+      var ret = { error: error, sTier:sTier};
+      
+      res.status(200).json(ret);
     });
     // ************************************ FINGER API ******************************************************
     //
@@ -589,12 +607,12 @@ exports.setApp = function ( app, client )
         if (lockResult = 0)
           error = '';
         fpArray = lockResult[0].FingerPrintId;
-        const usersResult = await db.collection('Users').find(userId).toArray();
+        const usersResult = await db.collection('Users').find({UserId:userId}).toArray();
         authUsers = usersResult[0].AuthorizedUsers;
-        const fingerResult = await db.collection('Users').find(fp).toArray();
+        const fingerResult = await db.collection('Users').find({Fingerprint:fp}).toArray();
         fpResult = fingerResult[0].UserId;
-        message = 'FingerPrint Accepted, User Id:'+fpResult;
-        
+        message = 'FingerPrint Accepted, User Id:' + fpResult;
+
       }
       
       // Prints error if failed
@@ -645,7 +663,36 @@ exports.setApp = function ( app, client )
 
     app.post('/api/getFingerId', async(req, res, next) => 
     {
+      const {macAdd} = req.body;
+      var error = '';
+      var fingerArray = [];
+      var newFingerId = 0;
+
+      try{
+        const db = client.db();
+        const lockResult = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
+        fingerArray = lockResult[0].FingerPrintId;
+
+        if (Math.max(...fingerArray) < 0)
+        {
+          error = 'No Finger Array'
+        }
+        else
+        {
+          newFingerId = Math.max(...fingerArray) + 1;
+        }
+        
+      }
+      catch(e)
+      {
+        error = e.message;
+        console.log(e.message);
+      }
+
+      var ret = {newFpUserId: newFingerId, error: error};
       
+      res.status(200).json(ret);
+
     });
     // ************************************ RFID API ******************************************************
     //
@@ -693,9 +740,9 @@ exports.setApp = function ( app, client )
       {
         const db = client.db();
         
-        const rfidResult = await db.collection('Lock').find(macAdd).toArray();
+        const rfidResult = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
         userId = rfidResult[0].MasterUserId;
-        const usersResult = await db.collection('Users').find(userId).toArray();
+        const usersResult = await db.collection('Users').find({UserId:userId}).toArray();
         authUsers = usersResult[0].AuthorizedUsers;
 
         for (var i = 0; i < length(authUsers); i++)
