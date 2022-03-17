@@ -17,6 +17,9 @@ const Net = require('net');
 
 exports.setApp = function ( app, client )
 {
+    // ************************************ E KEY API ******************************************************
+    //
+    // *****************************************************************************************************
     cron.schedule('*/1 * * * *', async () => 
     {
       var date = new Date();
@@ -270,15 +273,7 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });  
 
-    // since we know what lock is associated with which userId, we need to search for approved users 
-    // ...
-    // ...
-    // ...
-    // ...
-    // ...
-    // ...
-    // ...
-    // end
+   
     app.post('/api/socketTest', async (req, res, next) => 
     {
       const {macAdd} = req.body;
@@ -328,6 +323,9 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });
 
+    // ************************************ LOCK API ******************************************************
+    //
+    // ****************************************************************************************************
     app.post('/api/updateIP', async (req, res, next) => 
     {
       const {macAdd, ip} = req.body;
@@ -353,10 +351,7 @@ exports.setApp = function ( app, client )
     });
 
 
-    app.post('/api/updateTier', async (req, res, next) =>
-    {
-
-    });
+    
 
     app.post('/api/updateWifiStatus', async (req, res, next) =>
     {
@@ -406,9 +401,11 @@ exports.setApp = function ( app, client )
       var IP = '';
       var tier = '';
       var auth = [];
+      var fp = [];
+      var rfid = [];
       var wifiStatus = 0;
 
-      var lockCollection = {MACAddress:macAdd, TierLevel:tier, MasterUserId:userId, IP: IP, wifiStatus: wifiStatus};
+      var lockCollection = {MACAddress:macAdd, TierLevel:tier, MasterUserId:userId, IP: IP, wifiStatus: wifiStatus, FingerPrintId:fp, RFID:rfid};
 
       try
       {
@@ -426,6 +423,9 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });
 
+    // ************************************ AUTHORIZED USERS API ***********************************************
+    //
+    // *********************************************************************************************************
     app.post('/api/addAuthorizedUser', async (req, res, next) => 
     {
       const {plainCode, userId} = req.body;
@@ -495,6 +495,10 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
 
     });
+
+    // ************************************ TIER API ******************************************************
+    //
+    // ****************************************************************************************************
     // called by lock
     app.post('/api/tierRequest', async (req, res, next) => 
     {
@@ -508,10 +512,10 @@ exports.setApp = function ( app, client )
       {
         const db = client.db();
         
-        const eKeyResult = await db.collection('Lock').find(mac);
+        const eKeyResult = await db.collection('Lock').find(mac).toArray();
         
     
-        tier = eKeyResult.TierLevel;
+        tier = eKeyResult[0].TierLevel;
       }
       
       // Prints error if failed
@@ -526,16 +530,47 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });
 
+    app.post('/api/sendTier', async (req, res, next) =>
+    {
+      var error = '';
+      var sTier = 0;
     
+      try
+      {
+        const db = client.db();
+        const result = await db.collection('DBSecurity').find().toArray();   
+        sTier = result[0].sTier;    
+      }
+      catch(e)
+      {
+        error = e.toString();
+      }
+
+      console.log(sTier);
+    
+      var ret = { error: error, sTier:sTier};
+      
+      res.status(200).json(ret);
+    });
+
+    app.post('/api/updateTier', async (req, res, next) =>
+    {
+
+    });
+    // ************************************ FINGER API ******************************************************
+    //
+    // ******************************************************************************************************
     app.post('/api/compareFinger', async(req, res, next) => 
     {
       const {macAdd, fp} = req.body;
       var error = '';
       var fp1 
-      var fpResult;
+      var fpResult = 0;
       var userId;
       var authUsers;
-
+      var fpArray = [];
+      var lockResult1 = 0;
+      var message = 'No Message'
 
       try
       {
@@ -544,18 +579,21 @@ exports.setApp = function ( app, client )
         
         const lockResult = await db.collection('Lock').find(macAdd).toArray();
         userId = lockResult[0].MasterUserId;
-        const usersResult = await db.collection('Users').find(userId).toArray();
-        authUsers = usersResult[0].AuthorizedUsers;
-
-        for (var i = 0; i < length(authUsers); i++)
+        
+        for (var j = 0; j < length(lockResult[0].FingerPrintId); j++)
         {
-          fp1 = authUsers[i].Fingerprint;
-          if (strcmp(fp, fp1) == 1)
-          {
-            error = 'Found the user';
-            fpResult = authUsers[i].UserId;
+          if (lockResult[0].FingerPrintId[j] == fp){
+            lockResult = 1;
           }
         }
+        if (lockResult = 0)
+          error = '';
+        fpArray = lockResult[0].FingerPrintId;
+        const usersResult = await db.collection('Users').find(userId).toArray();
+        authUsers = usersResult[0].AuthorizedUsers;
+        const fingerResult = await db.collection('Users').find(fp).toArray();
+        fpResult = fingerResult[0].UserId;
+        message = 'FingerPrint Accepted, User Id:'+fpResult;
         
       }
       
@@ -566,14 +604,15 @@ exports.setApp = function ( app, client )
         console.log(e.message);
       }
       
-      var ret = {fingerprint: fpResult, error: error};
+      var ret = {fingerprint: fpResult, message:message, error: error};
       
       res.status(200).json(ret);
     });
 
     app.post('/api/enrollFinger', async(req, res, next) => 
     {
-      const {fp, userId} = req.body;
+      // user is gonna send message with lock saying i wanna enroll fingerprint and this is my userId so lock has userId and macAdd and will generate fp.
+      const {macAdd, fp, userId} = req.body;
       var error = '';
 
 
@@ -582,6 +621,10 @@ exports.setApp = function ( app, client )
         const db = client.db();
         const fpResult = await db.collection('Users').update({UserId: userId}, {$set: {Fingerprint: fp}});
 
+        const fp1Result = db.collection('Lock').updateOne(
+          { "MACAddress" : macAdd },
+          { $push: { "AuthorizedUsers" : fp } }
+          );
 
         
         error = 'fingerprint has been added.';
@@ -600,6 +643,13 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });
 
+    app.post('/api/getFingerId', async(req, res, next) => 
+    {
+      
+    });
+    // ************************************ RFID API ******************************************************
+    //
+    // ****************************************************************************************************
     app.post('/api/enrollRFID', async(req, res, next) => 
     {
       const {rfid, userId} = req.body;
@@ -671,8 +721,10 @@ exports.setApp = function ( app, client )
       
       res.status(200).json(ret);
     });
-  
-    
+    // ************************************ ESP32 API ******************************************************
+    //
+    //
+    // *****************************************************************************************************
     app.post('/api/recievefromESP32', async (req, res, next) =>
     {
       //incoming 64bit encoding of pic
@@ -704,28 +756,9 @@ exports.setApp = function ( app, client )
 
     });
 
-    app.post('/api/sendTier', async (req, res, next) =>
-    {
-      var error = '';
-      var sTier = 0;
-    
-      try
-      {
-        const db = client.db();
-        const result = await db.collection('DBSecurity').find().toArray();   
-        sTier = result[0].sTier;    
-      }
-      catch(e)
-      {
-        error = e.toString();
-      }
-
-      console.log(sTier);
-    
-      var ret = { error: error, sTier:sTier};
-      
-      res.status(200).json(ret);
-    });
+    // ************************************ ADD PIC API ******************************************************
+    //
+    // *******************************************************************************************************
 
     // API for
     app.post('/api/addPic', async (req, res, next) => 
@@ -789,6 +822,9 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });
 
+    // ************************************ LIST PICS API ******************************************************
+    //
+    // *********************************************************************************************************
     // API for
     app.post('/api/listPics', async (req, res, next) => 
     {
