@@ -201,7 +201,34 @@ char callESP32()
 
   while (camSerial.available())
   {
-    if()
+    char character = mySerial.read();
+    Data.concat(character);
+
+    if (character == '\n')
+    {
+      Serial.print("Received: ");
+      Serial.println(Data);
+
+      // Add your code to parse the received line here....
+      if(strcmp(Data, "[HTTP Pass]"))
+      {
+        printOLED("Face Detected");
+      }
+      else if(strcmp(Data, "[HTTP Fail]"))
+      {
+        printOLED("Failed to process request");
+      }
+      else if(strcmp(Data, "[Camera Fail]"))
+      {
+        i
+      }
+      else
+      {
+        printOLED("Fatal Error");
+      }
+
+      Data = "";
+    }
   }
 }
 

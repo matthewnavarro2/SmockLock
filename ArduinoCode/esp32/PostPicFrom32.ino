@@ -207,6 +207,7 @@ void loop()
 
     setModemSleep();
   }
+  character = "";
  delay(2000);
 }
 
