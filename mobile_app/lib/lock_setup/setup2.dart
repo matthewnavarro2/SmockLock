@@ -16,7 +16,8 @@ class _Setup2State extends State<Setup2> {
   bool isFinger2 = false;
   bool isRFID = false;
   bool isEKEY = false;
-
+  String tier = '';
+  String setup = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,7 +105,31 @@ class _Setup2State extends State<Setup2> {
                 ),
 
                 TextButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      tier = getTier(isFaceRec, isFinger, isRFID, isEKEY);
+                      setup = getSetup(isFaceRec2, isFinger2);
+                      var res = await Api.updateTier(tier);
+                      if(setup == '11'){
+                        //push facerec setup
+                        //push finger setup
+                        Navigator.pushNamed(context, '/facerec');
+                        Navigator.pushNamed(context, '/finger');
+
+
+                      }
+                      else if(setup == '10'){
+                        //push facerec setup
+
+                      }
+                      else if(setup == '01'){
+
+                        //push finger setup
+                      }else if(setup == '00'){
+                        //pop to settings
+                        Navigator.of(context).pop();
+
+                      }
+
 
                     },
                     child: Text("Next"),
@@ -114,4 +139,56 @@ class _Setup2State extends State<Setup2> {
         )
     );
   }
+
+  String getSetup(bool isFaceRec2, bool isFinger2){
+    String setup = '';
+
+    if(isFaceRec2){
+      setup = setup + '1';
+    }
+    else{
+      setup = setup + '0';
+    }
+    if(isFinger2){
+      setup = setup + '1';
+    }
+    else{
+      setup = setup + '0';
+    }
+
+    return setup;
+  }
+
+  String getTier(bool isFaceRec, bool isFinger, bool isRFID, bool isEKEY){
+    String tier = '';
+    if(isFaceRec){
+      tier = tier + '1';
+    }
+    else{
+      tier = tier + '0';
+    }
+
+    if(isFinger){
+      tier = tier + '1';
+    }
+    else{
+      tier = tier + '0';
+    }
+
+    if(isRFID){
+      tier = tier + '1';
+    }
+    else{
+      tier = tier + '0';
+    }
+
+    if(isEKEY){
+      tier = tier + '1';
+    }
+    else{
+      tier = tier + '0';
+    }
+    return tier;
+  }
+
 }

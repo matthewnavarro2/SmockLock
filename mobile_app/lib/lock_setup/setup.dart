@@ -73,7 +73,7 @@ class _SetupState extends State<Setup> {
             ),
             TextButton(
                 onPressed: () async {
-                  //var res = await Api.linklock(macController.text);
+                  var res = await Api.linklock(macController.text);
                   // Alert: GO TO SETTINGS AND CONNECT TO LOCK WIFI
                   //        INPUT WIFI INFORMATION TO CONNECT Lock
                   //        STAY IN LOOP UNTIL PROCESS IS FINISHED

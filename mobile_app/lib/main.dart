@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile_app/ekeyscreen/ekey.dart';
 import 'package:mobile_app/ekeyscreen/listekey.dart';
+import 'package:mobile_app/facerec_setup/facerec.dart';
 import 'package:mobile_app/lock_setup/setup.dart';
 import 'package:mobile_app/lock_setup/setup2.dart';
 import 'package:mobile_app/login/login.dart';
@@ -11,6 +12,7 @@ import 'package:mobile_app/settingscreen/settings.dart';
 
 import 'camerascreen/takepicturescreen.dart';
 import 'ekeyscreen/editekey.dart';
+import 'finger_setup/finger.dart';
 import 'home.dart';
 import 'login/intro.dart';
 
@@ -50,6 +52,8 @@ Future<void> main() async {
             '/settings' : (context) => const Settings(),
             '/setup' : (context) => const Setup(),
             '/setup2' : (context) => const Setup2(),
+            '/facerec' : (context) => const Facerec(),
+            '/finger' : (context) => const Finger(),
       }
 
   ));

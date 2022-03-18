@@ -177,6 +177,27 @@ class Api {
     return res;
   }
 
+  static Future updateTier(String tier) async {
+    var jwt = await storage.read(key:"jwt");
+    var mac = await storage.read(key:"mac");
+
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
+    var userId = decodedToken["userId"];
+
+    var res = await http.post(
+        Uri.parse('$SERVER_IP/updateTier'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'tier': tier,
+          'macAdd': mac
+        })
+
+    );
+    return res;
+  }
+
 // if(res.statusCode == 200){
 //  Map<String, dynamic> jsonObject = jsonDecode(res.body);
 // return jsonObject;
