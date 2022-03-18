@@ -406,7 +406,7 @@ exports.setApp = function ( app, client )
       var rfid = [];
       var wifiStatus = 0;
 
-      var lockCollection = {MACAddress:macAdd, TierLevel:tier, MasterUserId:userId, IP: IP, wifiStatus: wifiStatus, FingerPrintId:fp, RFID:rfid};
+      var lockCollection = {MACAddress:macAdd, TierLevel:tier, MasterUserId:Number(userId), IP: IP, wifiStatus: wifiStatus, FingerPrintId:fp, RFID:rfid};
 
       try
       {
@@ -594,7 +594,7 @@ exports.setApp = function ( app, client )
       var error = '';
       var fp1 
       var fpResult = 0;
-      var userId;
+      let userId = 0;
       var authUsers;
       let length = 0;
       var message = 'No Message'
@@ -604,18 +604,21 @@ exports.setApp = function ( app, client )
         const db = client.db();
         
         
-        const lockResult = await db.collection('Lock').find(macAdd).toArray();
+        const lockResult = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
+        
+        
         userId = lockResult[0].MasterUserId;
+        const usersResult = await db.collection('Users').find({UserId:userId}).toArray();
+        
         const fpArray = lockResult[0].FingerPrintId;
+   
         length = fpArray.length;
         for (var j = 0; j < length; j++)
         {
 
           if (lockResult[0].FingerPrintId[j] == fp)
           {
-            const usersResult = await db.collection('Users').find({UserId:userId}).toArray();
             authUsers = usersResult[0].AuthorizedUsers;
-            
             const users1Result = await db.collection('Users').find({Fingerprint:fp}).toArray();
             fpResult = users1Result[0].UserId;
            
@@ -765,6 +768,7 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });
 
+    // need to add checks to make sure something happens if nothing is loaded.
     app.post('/api/compareRFID', async(req, res, next) => 
     {
       const {macAdd, rfid} = req.body;
@@ -781,8 +785,9 @@ exports.setApp = function ( app, client )
         const db = client.db();
         
         
-        const lockResult = await db.collection('Lock').find(macAdd).toArray();
+        const lockResult = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
         userId = lockResult[0].MasterUserId;
+        const usersResult = await db.collection('Users').find({UserId:userId}).toArray();
         const rfArray = lockResult[0].RFID;
         length = rfArray.length;
         for (var j = 0; j < length; j++)
@@ -792,7 +797,7 @@ exports.setApp = function ( app, client )
           {
   
             
-            const usersResult = await db.collection('Users').find({UserId:userId}).toArray();
+            
             authUsers = usersResult[0].AuthorizedUsers;
             
             const rfResult = await db.collection('Users').find({RFID:rfid}).toArray();
