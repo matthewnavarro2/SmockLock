@@ -356,6 +356,7 @@ exports.setApp = function ( app, client )
     app.post('/api/updateWifiStatus', async (req, res, next) =>
     {
       const {status, macAdd, userId} = req.body;
+      var error = '';
       try
       {
         const db = client.db();
@@ -557,7 +558,7 @@ exports.setApp = function ( app, client )
     app.post('/api/updateTier', async (req, res, next) =>
     {
       const {macAdd, tier} = req.body;
-
+      var sTier;
 
 
       try
@@ -639,9 +640,14 @@ exports.setApp = function ( app, client )
         const db = client.db();
         const fpResult = await db.collection('Users').update({UserId: userId}, {$set: {Fingerprint: fp}});
 
+        const rfidResult = db.collection('Lock').updateOne(
+          { "MACAddress" : macAdd },
+          { $push: { "FingerPrintId" : fp } }
+          );
+
         const fp1Result = db.collection('Lock').updateOne(
           { "MACAddress" : macAdd },
-          { $push: { "AuthorizedUsers" : fp } }
+          { $push: { "AuthorizedUsers" : userId } }
           );
 
         
@@ -699,7 +705,7 @@ exports.setApp = function ( app, client )
     // ****************************************************************************************************
     app.post('/api/enrollRFID', async(req, res, next) => 
     {
-      const {rfid, userId} = req.body;
+      const {macAdd, rfid, userId} = req.body;
       var error = '';
       
 
@@ -707,9 +713,16 @@ exports.setApp = function ( app, client )
       {
         const db = client.db();
         
-        const rfidResult = await db.collection('Users').update({UserId: userId}, {$set: {RFID: rfid}});;
+        const userResult = await db.collection('Users').update({UserId: userId}, {$set: {RFID: rfid}});;
 
-
+        const rfidResult = db.collection('Lock').updateOne(
+          { "MACAddress" : macAdd },
+          { $push: { "RFID" : rfid } }
+          );
+        const rfid1Result = db.collection('Lock').updateOne(
+          { "MACAddress" : macAdd },
+          { $push: { "AuthorizedUsers" : userId } }
+          );
         
         error = 'rfid has been added.';
         
