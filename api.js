@@ -662,11 +662,14 @@ exports.setApp = function ( app, client )
           { $push: { "FingerPrintId" : fp } }
           );
 
-        const fp1Result = db.collection('Lock').updateOne(
-          { "MACAddress" : macAdd },
-          { $push: { "AuthorizedUsers" : userId } }
-          );
-
+        const checkResult = db.collection('Lock').find(userId);
+        if (checkResult == null)
+        {
+          const rfid1Result = db.collection('Lock').updateOne(
+            { "MACAddress" : macAdd },
+            { $push: { "AuthorizedUsers" : userId } }
+            );
+        }
         
         error = 'fingerprint has been added.';
         
@@ -736,10 +739,15 @@ exports.setApp = function ( app, client )
           { "MACAddress" : macAdd },
           { $push: { "RFID" : rfid } }
           );
-        const rfid1Result = db.collection('Lock').updateOne(
-          { "MACAddress" : macAdd },
-          { $push: { "AuthorizedUsers" : userId } }
-          );
+          
+        const checkResult = db.collection('Lock').find(userId);
+        if (checkResult == null)
+        {
+          const rfid1Result = db.collection('Lock').updateOne(
+            { "MACAddress" : macAdd },
+            { $push: { "AuthorizedUsers" : userId } }
+            );
+        }
         
         error = 'rfid has been added.';
         
