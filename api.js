@@ -596,7 +596,7 @@ exports.setApp = function ( app, client )
       var fpResult = 0;
       var userId;
       var authUsers;
-      var length;
+      let length = 0;
       var message = 'No Message'
 
       try
@@ -774,7 +774,7 @@ exports.setApp = function ( app, client )
       var message = '';
  
       var rf;
-      var length;
+      let length = 0;
       var rfidResult;
       try
       {
