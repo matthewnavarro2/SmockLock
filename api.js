@@ -411,8 +411,16 @@ exports.setApp = function ( app, client )
       try
       {
         const db = client.db();
-
-        const tierResult = await db.collection('Lock').insertOne(lockCollection);
+        const macResult = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
+        if (macResult == null )
+        {
+          const tierResult = await db.collection('Lock').insertOne(lockCollection);
+        }
+        else
+        {
+          error = 'could not add lock, existing lock already exists with matching MAC Address';
+        }
+          
       }
       catch(e)
       {
@@ -588,8 +596,7 @@ exports.setApp = function ( app, client )
       var fpResult = 0;
       var userId;
       var authUsers;
-      var fpArray = [];
-      var lockResult1 = 0;
+      var length;
       var message = 'No Message'
 
       try
@@ -599,22 +606,31 @@ exports.setApp = function ( app, client )
         
         const lockResult = await db.collection('Lock').find(macAdd).toArray();
         userId = lockResult[0].MasterUserId;
-        
-        for (var j = 0; j < length(lockResult[0].FingerPrintId); j++)
+        const fpArray = lockResult[0].FingerPrintId;
+        length = length(fpArray);
+        for (var j = 0; j < length; j++)
         {
-          if (lockResult[0].FingerPrintId[j] == fp){
-            lockResult = 1;
-          }
-        }
-        if (lockResult = 0)
-          error = '';
-        fpArray = lockResult[0].FingerPrintId;
-        const usersResult = await db.collection('Users').find({UserId:userId}).toArray();
-        authUsers = usersResult[0].AuthorizedUsers;
-        const fingerResult = await db.collection('Users').find({Fingerprint:fp}).toArray();
-        fpResult = fingerResult[0].UserId;
-        message = 'FingerPrint Accepted, User Id:' + fpResult;
 
+          if (lockResult[0].FingerPrintId[j] == fp)
+          {
+            const usersResult = await db.collection('Users').find({UserId:userId}).toArray();
+            authUsers = usersResult[0].AuthorizedUsers;
+            
+            const users1Result = await db.collection('Users').find({Fingerprint:fp}).toArray();
+            fpResult = users1Result[0].UserId;
+           
+            message = 'Fingerprint Accepted, User Id:' + fpResult;
+            error = '';
+            
+            break;
+          }
+          
+          else
+          {
+            error = 'No Match Found'
+          }
+
+        }
       }
       
       // Prints error if failed
@@ -624,7 +640,7 @@ exports.setApp = function ( app, client )
         console.log(e.message);
       }
       
-      var ret = {fingerprint: fpResult, message:message, error: error};
+      var ret = {FingerPrintId: fp, message:message, error: error};
       
       res.status(200).json(ret);
     });
@@ -747,9 +763,9 @@ exports.setApp = function ( app, client )
       var error = '';
       var userId;
       var authUsers;
-      var rfArray = [];
-      var lockResult1 = 0;
+ 
       var rf;
+      var length;
       var rfidResult;
       try
       {
@@ -758,15 +774,14 @@ exports.setApp = function ( app, client )
         
         const lockResult = await db.collection('Lock').find(macAdd).toArray();
         userId = lockResult[0].MasterUserId;
-        
-        for (var j = 0; j < length(lockResult[0].RFID); j++)
+        const rfArray = lockResult[0].RFID;
+        length = length(rfArray);
+        for (var j = 0; j < length; j++)
         {
 
           if (lockResult[0].RFID[j] == rfid)
           {
-            lockResult1 = 1;
-            
-            rfArray = lockResult[0].RFID;
+  
             
             const usersResult = await db.collection('Users').find({UserId:userId}).toArray();
             authUsers = usersResult[0].AuthorizedUsers;
