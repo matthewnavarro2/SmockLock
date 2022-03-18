@@ -640,7 +640,7 @@ exports.setApp = function ( app, client )
         console.log(e.message);
       }
       
-      var ret = {FingerPrintId: fp, message:message, error: error};
+      var ret = {userId: fpResult, message:message, error: error};
       
       res.status(200).json(ret);
     });
@@ -819,7 +819,7 @@ exports.setApp = function ( app, client )
         console.log(e.message);
       }
       
-      var ret = {RFID: rfid, message:message, error: error};
+      var ret = {userId: rfidResult, message:message, error: error};
       
       res.status(200).json(ret);
     });
