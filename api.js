@@ -607,7 +607,7 @@ exports.setApp = function ( app, client )
         const lockResult = await db.collection('Lock').find(macAdd).toArray();
         userId = lockResult[0].MasterUserId;
         const fpArray = lockResult[0].FingerPrintId;
-        length = length(fpArray);
+        length = fpArray.length;
         for (var j = 0; j < length; j++)
         {
 
@@ -784,7 +784,7 @@ exports.setApp = function ( app, client )
         const lockResult = await db.collection('Lock').find(macAdd).toArray();
         userId = lockResult[0].MasterUserId;
         const rfArray = lockResult[0].RFID;
-        length = length(rfArray);
+        length = rfArray.length;
         for (var j = 0; j < length; j++)
         {
 
