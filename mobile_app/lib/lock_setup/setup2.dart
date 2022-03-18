@@ -119,9 +119,11 @@ class _Setup2State extends State<Setup2> {
                       }
                       else if(setup == '10'){
                         //push facerec setup
+                        Navigator.pushNamed(context, '/facerec');
 
                       }
                       else if(setup == '01'){
+                        Navigator.pushNamed(context, '/finger');
 
                         //push finger setup
                       }else if(setup == '00'){
