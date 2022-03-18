@@ -739,7 +739,7 @@ exports.setApp = function ( app, client )
           { "MACAddress" : macAdd },
           { $push: { "RFID" : rfid } }
           );
-          
+
         const checkResult = db.collection('Lock').find(userId);
         if (checkResult == null)
         {
@@ -771,6 +771,7 @@ exports.setApp = function ( app, client )
       var error = '';
       var userId;
       var authUsers;
+      var message = '';
  
       var rf;
       var length;
