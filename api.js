@@ -558,21 +558,22 @@ exports.setApp = function ( app, client )
     app.post('/api/updateTier', async (req, res, next) =>
     {
       const {macAdd, tier} = req.body;
-      var sTier;
+      
 
 
       try
       {
         const db = client.db();
         const result = await db.collection('Lock').update({MACAddress: macAdd}, {$set: {TierLevel: tier}});
-        sTier = result[0].TierLevel;    
+        
+        error = 'Updated Database'  
       }
       catch(e)
       {
         error = e.toString();
       }
 
-      var ret = { error: error, sTier:sTier};
+      var ret = { error: error, result:result};
       
       res.status(200).json(ret);
     });
@@ -746,28 +747,45 @@ exports.setApp = function ( app, client )
       var error = '';
       var userId;
       var authUsers;
-      
+      var rfArray = [];
+      var lockResult1 = 0;
       var rf;
-      var rfid1;
+      var rfidResult;
       try
       {
         const db = client.db();
         
-        const rfidResult = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
-        userId = rfidResult[0].MasterUserId;
-        const usersResult = await db.collection('Users').find({UserId:userId}).toArray();
-        authUsers = usersResult[0].AuthorizedUsers;
-
-        for (var i = 0; i < length(authUsers); i++)
-        {
-          rfid1 = authUsers[i].RFID;
-          if (strcmp(rfid1, rfid) == 1)
-          {
-            error = 'Found the user';
-            rf = authUsers[i].UserId;
-          }
-        }
         
+        const lockResult = await db.collection('Lock').find(macAdd).toArray();
+        userId = lockResult[0].MasterUserId;
+        
+        for (var j = 0; j < length(lockResult[0].RFID); j++)
+        {
+
+          if (lockResult[0].RFID[j] == rfid)
+          {
+            lockResult1 = 1;
+            
+            rfArray = lockResult[0].RFID;
+            
+            const usersResult = await db.collection('Users').find({UserId:userId}).toArray();
+            authUsers = usersResult[0].AuthorizedUsers;
+            
+            const rfResult = await db.collection('Users').find({RFID:rfid}).toArray();
+            rfidResult = rfResult[0].UserId;
+           
+            message = 'RFID Accepted, User Id:' + rfidResult;
+            error = '';
+            
+            break;
+          }
+          
+          else
+          {
+            error = 'No Match Found'
+          }
+
+        }
       }
       
       // Prints error if failed
@@ -777,7 +795,7 @@ exports.setApp = function ( app, client )
         console.log(e.message);
       }
       
-      var ret = {userId: rf, error: error};
+      var ret = {RFID: rfid, message:message, error: error};
       
       res.status(200).json(ret);
     });
