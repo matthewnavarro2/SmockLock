@@ -195,7 +195,7 @@ int tierRequest()
   return 1;
 }
 
-char callESP32()
+void callESP32()
 {
   camSerial.write("P");
 
@@ -209,7 +209,6 @@ char callESP32()
       Serial.print("Received: ");
       Serial.println(Data);
 
-      // Add your code to parse the received line here....
       if(strcmp(Data, "[HTTP Pass]"))
       {
         printOLED("Face Detected");
@@ -220,7 +219,29 @@ char callESP32()
       }
       else if(strcmp(Data, "[Camera Fail]"))
       {
-        i
+        delay(5000);
+
+        printOLED("Please reposition face and try again");
+
+        camSerial.print("P");
+
+        if(strcmp(Data, "[HTTP Pass]"))
+        {
+          printOLED("Face Detected");
+        }
+        else if(strcmp(Data, "[HTTP Fail]"))
+        {
+          printOLED("Failed to process request");
+        }
+        else if(strcmp(Data, "[Camera Fail]"))
+        {
+          printOLED("Failed to detect face fatal error");
+        }
+        else
+        {
+          printOLED("Fatal Error");
+        }
+
       }
       else
       {
