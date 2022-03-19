@@ -217,6 +217,10 @@ void callESP32()
       {
         printOLED("Failed to process request");
       }
+      else if(strcmp(Data, "[WiFi Fail]"))
+      {
+        printOLED("Failed to connect the internet");
+      }
       else if(strcmp(Data, "[Camera Fail]"))
       {
         delay(5000);
@@ -236,6 +240,10 @@ void callESP32()
         else if(strcmp(Data, "[Camera Fail]"))
         {
           printOLED("Failed to detect face fatal error");
+        }
+        else if(strcmp(Data, "[WiFi Fail]"))
+        {
+          printOLED("Failed to connect the internet");
         }
         else
         {

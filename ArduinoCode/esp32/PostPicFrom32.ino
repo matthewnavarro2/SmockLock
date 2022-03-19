@@ -197,6 +197,10 @@ void loop()
       internet_connected = true;
       Serial.println("Internet connected");
     }
+    else
+    {
+      mySerial.print("[WiFi Fail]");
+    }
 
     char character = mySerial.read();
 
