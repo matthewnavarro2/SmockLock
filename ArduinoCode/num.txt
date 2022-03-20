@@ -1,0 +1,16 @@
+0) 0000 - none
+1) 0001 - ekey only
+2) 0010 - rfid only
+3) 0011 - rfid and ekey
+4) 0100 - fingerprint only
+5) 0101 - fingerprint and ekey
+6) 0110 - fingerprint and rfid
+7) 0111 - fingerprint, rfid, and ekey
+8) 1000 - facial only
+9) 1001 - facial and ekey
+10) 1010 - facial and rfid
+11) 1011 - facial,rfid,ekey
+12) 1100 - facial and fingerprint
+13) 1101 - facial,fingerprint, and ekey
+14) 1110 - facial fingerprint, and rfid
+15) 1111 - facial fingerprint rfid and ekey

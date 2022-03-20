@@ -24,6 +24,7 @@ volatile byte atmState = LOW;
 void ICACHE_RAM_ATTR interrupt_routine();
 
 String request = "";
+
 String mac;
 char* functi;
 char* val;
@@ -43,7 +44,9 @@ void setup() {
     pinMode(13, OUTPUT);
     attachInterrupt(digitalPinToInterrupt(atmIntPin),interrupt_routine,RISING);
     atm328.begin(9600);
+    atm328.print("");
     mac = WiFi.macAddress();
+    // need to add the api to send the macAddress to database
 }
 
 // Main Loop Function
@@ -62,36 +65,52 @@ void loop() {
         if (c == '\n')
         {
           Serial.print(request);
+          request.trim();
+          Serial.println(request.length());
         }
       }
       
-      // Break the message up into its function and values
-      functi = strtok(request," ");
-      val = strtok(NULL, "");
-
-      // Checks if we are requesting the tier
-      if (strcmp(functi, "Tier") == 1)
+      if(!request.equals(""))
       {
-        atm328.println(getTier());
-      }
-
-      // If we are sending the fingerprint ID
-      else if (strcmp(functi, "sendFinger") == 1)
-      {
+        // Break the message up into its function and values
+        char mes[1024];
+        request.toCharArray(mes, request.length());
+        functi = strtok(mes,"-");
+        val = strtok(NULL, "-");
+        Serial.println(functi);
+        Serial.println(val);
+        // Checks if we are requesting the tier
+        if (strcmp(functi, "Tier") == 0)
+        {
+          int tierL = getTier();
+          atm328.println(String(tierL));
+        }
+  
+        // If we are sending the fingerprint ID
+        else if (strcmp(functi, "sendFinger") == 0)
+        {
+          int fpResult = sendFinger(val);
+          atm328.println(String(fpResult));
+        }
+  
+        // If we are sending the RFID ID
+        else if (strcmp(functi, "sendRFID") == 0)
+        {
+          int rfidResult = sendRFID(val);
+          atm328.println(String(rfidResult));
+        }
         
+        // If an unrecognized command has been sent
+        else
+        {
+          
+        }
       }
-
-      // If we are sending the RFID ID
-      else if (strcmp(functi, "sendRFID") == 1)
-      {
-        
-      }
-      
-      // If an unrecognized command has been sent
       else
       {
-        
+        atm328.println("Try Again");
       }
+      
 
       // Reset the request string
       request = "";
@@ -141,17 +160,20 @@ void handleBody()
 }
 
 // Function to retrieve the tier level from the database
-void getTier()
+int getTier()
 {
+  Serial.println(mac);
+  int tierLevel;
   // Set the api path
-  const char *tierPath = "http://smocklock2.herokuapp.com/api/sendTier";
+  const char *tierPath = "http://smocklock2.herokuapp.com/api/tierRequest";
 
   // Creating the json document to be used in the POST request
   String json;
   DynamicJsonDocument doc(1024);
-
+  DynamicJsonDocument doc2(1024);
+  char mes[1024];
   // Inputting the parameters for the document
-  doc["mac"] = mac;
+  doc["macAdd"] = mac;
 
   // Serializeing the document into a JSON string
   serializeJson(doc, json);
@@ -168,11 +190,18 @@ void getTier()
     http.addHeader("Content-Type", "application/json");
     int httpResponseCode = http.POST(json);
     String payload = http.getString();
-    Serial.println(payload);
-
-    Serial.print("HTTP Response code: ");
-    Serial.println(httpResponseCode);
-
+    if (httpResponseCode == 200)
+    {
+      payload.toCharArray(mes,payload.length());
+      deserializeJson(doc2,mes);
+      tierLevel = doc2["tier"].as<int>();
+    }
+    else
+    {
+      Serial.print("HTTP Response code: ");
+      Serial.println(httpResponseCode);
+    }
+    
     // Free resources
     http.end();
   }
@@ -181,20 +210,24 @@ void getTier()
   else {
     Serial.println("WiFi Disconnected");
   }
+  return tierLevel;
 }
 
 // Function to compare the fingerID to database
-void sendFinger(int id)
+int sendFinger(String id)
 {
   // Set the api path
-  const char *fingerPath = "http://smocklock2.herokuapp.com/api/sendFinger";
+  const char *fingerPath = "http://smocklock2.herokuapp.com/api/compareFinger";
 
   // Creating the json document to be used in the POST request
   String json;
   DynamicJsonDocument doc(1024);
-
+  DynamicJsonDocument doc2(1024);
+  char mes[1024];
+  
   // Inputting the parameters for the api
-  doc["fingerID"] = id;
+  doc["macAdd"] = mac;
+  doc["fp"] = id;
   
   // Serializeing the document into a JSON string
   serializeJson(doc, json);
@@ -211,11 +244,21 @@ void sendFinger(int id)
     http.addHeader("Content-Type", "application/json");
     int httpResponseCode = http.POST(json);
     String payload = http.getString();
-    Serial.println(payload);
-
-    Serial.print("HTTP Response code: ");
-    Serial.println(httpResponseCode);
-
+    if (httpResponseCode == 200)
+    {
+      payload.toCharArray(mes, payload.length());
+      deserializeJson(doc2, mes);
+      int fpResult = doc2["userId"].as<int>();
+      Serial.println(String(fpResult));
+      return fpResult;
+    }
+    else
+    {
+      Serial.print("HTTP Response code: ");
+      Serial.println(httpResponseCode);
+      return -1;
+    }
+    
     // Free resources
     http.end();
   }
@@ -223,21 +266,26 @@ void sendFinger(int id)
   // If we are not connected to WiFi
   else {
     Serial.println("WiFi Disconnected");
+    return -1;
   }
 }
 
-void sendRFID(String id)
+// Function to compare the RFID ID to database
+int sendRFID(String id)
 {
   // Set the api path
-  const char *RFIDPath = "http://smocklock2.herokuapp.com/api/sendRFID";
+  const char *rfidPath = "http://smocklock2.herokuapp.com/api/compareRFID";
 
   // Creating the json document to be used in the POST request
   String json;
   DynamicJsonDocument doc(1024);
-
-  // Inputting the parameters for the document
-  doc["id"] = id;
-
+  DynamicJsonDocument doc2(1024);
+  char mes[1024];
+  
+  // Inputting the parameters for the api
+  doc["macAdd"] = mac;
+  doc["rfid"] = id;
+  
   // Serializeing the document into a JSON string
   serializeJson(doc, json);
   
@@ -247,17 +295,26 @@ void sendRFID(String id)
     HTTPClient http;
 
     // Your Domain name with URL path or IP address with path
-    http.begin(client, RFIDPath);
+    http.begin(client, rfidPath);
 
     // If you need an HTTP request with a content type: application/json, use the following:
     http.addHeader("Content-Type", "application/json");
     int httpResponseCode = http.POST(json);
     String payload = http.getString();
-    Serial.println(payload);
-
-    Serial.print("HTTP Response code: ");
-    Serial.println(httpResponseCode);
-
+    if (httpResponseCode == 200)
+    {
+      payload.toCharArray(mes, payload.length());
+      deserializeJson(doc2, mes);
+      int RFIDresult = doc2["userId"].as<int>();
+      return RFIDresult;
+    }
+    else
+    {
+      Serial.print("HTTP Response code: ");
+      Serial.println(httpResponseCode);
+      return -1;
+    }
+    
     // Free resources
     http.end();
   }
@@ -265,5 +322,6 @@ void sendRFID(String id)
   // If we are not connected to WiFi
   else {
     Serial.println("WiFi Disconnected");
+    return -1;
   }
 }

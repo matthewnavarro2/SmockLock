@@ -1,0 +1,41 @@
+API Descriptions
+=============================================================================================================================================
+Enroll Finger:
+User that is logged into on the app presses the enroll finger button.
+(Since the user is logged into the app already, we know the mac address of the lock and the user we are associating the fingerprint with)
+Determine what the fingerID will be
+Send the following string to Wi-Fi Module "enrollFinger <fingerID>" where <fingerID> will be the fingerID
+The board will go through the enrolling process
+If the enroll is successful:
+	Send a success message back so the app knows it was a success
+	Add the fingerID to the user in the database
+If the enroll is unsuccessful:
+	Handle the error
+=============================================================================================================================================
+Delete Finger:
+The owner of the lock will be able to delete a authorized user from the app
+When the user is chosen, the fingerID of that user is obtained from the database
+Then, send the following string to the Wi-Fi Module: "deleteFinger <fingerID>" where <fingerID> is the id of the fingerprint you want to delete
+
+If the delete is a success
+	The Wi-Fi module will send a success message back
+	Handle the new available fingerID that can be assigned
+If the delete is unsuccessful,
+	Handle the error
+==============================================================================================================================================
+Compare Finger:
+The user at the door will put their finger to the scanner
+If a print is matched:
+	The atmega will send the fingerID to the Wi-Fi module.
+	The Wi-Fi module will send the mac address and fingerID to the compareFinger api
+	The compareFinger api will check the new fingerID with the fingerID's stored in the database.
+	If a match is found:
+		The api returns the userID associated with the fingerID
+		The Wi-Fi module sends the userID back to atmega
+		Atmega stores userID to compare at end
+	If no match is found:
+		Send an error message back to Wi-Fi module
+		Handle the error
+If no match is found:
+	Handle the error
+==================================================================================================================================================
