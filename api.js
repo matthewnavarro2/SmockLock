@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 let {PythonShell} = require('python-shell')
 var cron = require('node-cron');
 const Net = require('net');
-let faceapi = require('./face-api.min.js')
+// let faceapi = require('./face-api.min.js')
 // import { MongoCron } from 'mongodb-cron';
 //Install node-cron using npm: $ npm install --save node-cron
 //https://www.npmjs.com/package/node-cron
@@ -483,7 +483,7 @@ exports.setApp = function ( app, client )
         if (codeResult.length == 0)
         {
           
-          error = 'Could no one has a code out.';
+          error = 'Could not add User no user has a matching code';
           
 
         }
@@ -505,7 +505,7 @@ exports.setApp = function ( app, client )
     
               const lockresult = db.collection('Lock').updateOne(
               { "MasterUserId" : codeResult[i].UserId },
-              { $push: { "AuthorizedUsers" : userId } }
+              { $push: { "AuthorizedUsers" : userId }}
               );
               
               message = 'successfully added Authorized User';
