@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 let {PythonShell} = require('python-shell')
 var cron = require('node-cron');
 const Net = require('net');
-
+let faceapi = require('./face-api.min.js')
 // import { MongoCron } from 'mongodb-cron';
 //Install node-cron using npm: $ npm install --save node-cron
 //https://www.npmjs.com/package/node-cron
@@ -350,6 +350,30 @@ exports.setApp = function ( app, client )
 
     });
 
+    app.post('/api/getLock', async (req, res, next) => 
+    {
+      const {macAdd} = req.body;
+      var error = '';
+      
+      try
+      {
+        const db = client.db();
+
+
+        const lockResult = await db.collection('Lock').find({MACAddress: macAdd}).toArray();
+        error = 'success';
+      }
+      catch(e)
+      {
+        error = e.message;
+      }
+      var ret = {result: lockResult, error: error};
+      
+      res.status(200).json(ret);
+
+
+    });
+
 
     
 
@@ -412,7 +436,7 @@ exports.setApp = function ( app, client )
       {
         const db = client.db();
         const macResult = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
-        if (macResult == null )
+        if (macResult[0] == null )
         {
           const tierResult = await db.collection('Lock').insertOne(lockCollection);
         }
@@ -452,17 +476,51 @@ exports.setApp = function ( app, client )
         
         
         const code = await bcrypt.hash(plainCode, 10);
-        const codeResult = await db.collection('Users').find({code:code}).toArray();
+        const codeResult = await db.collection('Users').find({code:{$exists:true}}).toArray();
+        console.log(code)
+        console.log(codeResult.length);
+        console.log(codeResult);
+        if (codeResult.length == 0)
+        {
+          
+          error = 'Could no one has a code out.';
+          
+
+        }
+        else
+        {
+          for (var i = 0; i < codeResult.length; i++)
+          {
+            let validCode = await bcrypt.compare(plainCode,codeResult[i].code);
+            console.log(codeResult[i].code);
+            console.log('^adminCode');
+            console.log(validCode);
+          
+            if (validCode)
+            {
+              const result = db.collection('Users').updateOne(
+              { "UserId" : codeResult[i].UserId },
+              { $push: { "AuthorizedUsers" : userId } }
+              );
+    
+              const lockresult = db.collection('Lock').updateOne(
+              { "MasterUserId" : codeResult[i].UserId },
+              { $push: { "AuthorizedUsers" : userId } }
+              );
+              
+              message = 'successfully added Authorized User';
+              break;
+            }
+            else
+            {
+              error = 'Could not add user because code is invalid.';
+            }
+          }
         
-        MasterUserId = codeResult[0].UserId;
+        }
         
 
-        const result = db.collection('Users').updateOne(
-          { "UserId" : MasterUserId },
-          { $push: { "AuthorizedUsers" : userId } }
-          );
-
-        message = 'successfully added Authorized User'
+        
       }
       catch(e)
       {
@@ -470,7 +528,7 @@ exports.setApp = function ( app, client )
         console.log(e.message);
       }
 
-      var ret = {result: result, error: error, message};
+      var ret = { error: error, message: message};
       
       res.status(200).json(ret);
 
@@ -486,10 +544,19 @@ exports.setApp = function ( app, client )
       {
         const db = client.db();
 
+        const lockResult = db.collection('Lock').find({MasterUserId:userId}).toArray();
+
+
         const result = db.collection('Users').updateOne(
           { "UserId" : userId },
           { $push: { "AuthorizedUsers" : guestUserId } }
           );
+
+          const lockresult = db.collection('Lock').updateOne(
+            { "MasterUserId" : userId },
+            { $push: { "AuthorizedUsers" : guestUserId } }
+            );
+    
 
         message = 'successfully added Authorized User'
       }
@@ -499,7 +566,7 @@ exports.setApp = function ( app, client )
         console.log(e.message);
       }
 
-      var ret = {result: result, error: error, message};
+      var ret = { error: error, message: message};
       
       res.status(200).json(ret);
 
@@ -586,7 +653,7 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });
     // ************************************ FINGER API ******************************************************
-    //
+    //                                      Lock Stuff
     // ******************************************************************************************************
     app.post('/api/compareFinger', async(req, res, next) => 
     {
@@ -696,12 +763,38 @@ exports.setApp = function ( app, client )
       var error = '';
       var fingerArray = [];
       var newFingerId = 0;
+      let faulty
+      let string = '';
 
       try{
         const db = client.db();
         const lockResult = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
+        console.log(lockResult);
         fingerArray = lockResult[0].FingerPrintId;
-
+        console.log(fingerArray);
+        
+        if (fingerArray.length == 127)
+        {
+          for (var i = 0; i < fingerArray.length;i++)
+          {
+            if (fingerArray[i] == 0)
+            {
+              faulty = i + 1;
+              break;
+            }
+          }
+          const result = await db.collection('Lock').updateOne(
+            {"FingerPrintId":'0'},
+            {$set: {"FingerPrintId.$":String(faulty)}}
+            );
+          const result1 = await db.collection('Lock').updateOne(
+            {"FingerPrintId":0},
+            {$set: {"FingerPrintId.$":String(faulty)}}
+            );  
+        }
+        
+        
+        
         if (Math.max(...fingerArray) < 0)
         {
           error = 'No Finger Array'
@@ -724,7 +817,7 @@ exports.setApp = function ( app, client )
 
     });
     // ************************************ RFID API ******************************************************
-    //
+    //                                     Lock Stuff
     // ****************************************************************************************************
     app.post('/api/enrollRFID', async(req, res, next) => 
     {
@@ -928,7 +1021,57 @@ exports.setApp = function ( app, client )
       
       res.status(200).json(ret);
     });
+    
 
+    // app.post('/api/detectFace', async (req, res, next) => 
+    // {
+    //   const {image} = req.body;
+    //   let error = '';
+    //   let message = '';
+    //   faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+
+    //   try
+    //   {
+    //     const detections = await faceapi.detectAllFaces(image, new faceapi.TinyFaceDetectorOptions())
+    //     if (!(detections))
+    //     {
+    //       error = 'No face detected in picture';
+    //     } 
+    //     else
+    //     {
+    //       message = 'face detected'
+    //     }
+    //     // this script looks at all the pictures in the User Pics once a new picture has been added
+    //     // it then removes the old encoded document and adds a new encoded document
+        
+    //     // PythonShell.run("newCreate_encoding.py", null, function(err,results){
+    //     //   console.log(results);
+    //     //   console.log("Python script finished");
+    //     // })
+    //   }
+      
+    //   // Prints error if failed
+    //   catch(e)
+    //   {
+    //     console.log(e.message);
+    //   }
+    //   var refreshedToken = null;
+    //   try
+    //   {
+    //     refreshedToken = token.refresh(jwtToken).accessToken;
+    //   }
+    //   catch(e)
+    //   {
+    //     console.log(e.message);
+    //   }
+    
+    //   // return
+    //   var ret = {message: message, error: error, jwtToken:refreshedToken};
+      
+    //   res.status(200).json(ret);
+    // });
+
+ 
     // ************************************ LIST PICS API ******************************************************
     //
     // *********************************************************************************************************
@@ -1048,6 +1191,30 @@ exports.setApp = function ( app, client )
       var ret = { error: error, jwtToken: refreshedToken };
       
       res.status(200).json(ret);
+    });
+
+    app.post('/api/getUser', async (req, res, next) => 
+    {
+      const {userId} = req.body;
+      var error = '';
+      
+      try
+      {
+        const db = client.db();
+
+
+        const userResult = await db.collection('Users').find({UserId: userId}).toArray();
+        error = 'success';
+      }
+      catch(e)
+      {
+        error = e.message;
+      }
+      var ret = {result: userResult, error: error};
+      
+      res.status(200).json(ret);
+
+
     });
     
     app.post('/api/login', async (req, res, next) => 
