@@ -28,15 +28,13 @@ class _FingerState extends State<Finger> {
                 //send fingerid to lock
                 var res = await Api.getFingerId(AuthorizedLocks.masterMac);
                 Map<String, dynamic> jsonObject = jsonDecode(res.body);
-                print(jsonObject);
                 var fingerId = jsonObject['newFpUserId'];
                 // get ip address
                 var masterIP = AuthorizedLocks.masterLock[0]['IP'];
                 print(masterIP);
-
-                print(AuthorizedLocks.masterLock);
+                print(fingerId);
                 var res2 = await Api.startFingerEnrollment(masterIP, fingerId);
-
+                print(res2);
               },
               child: Text('Start enrollment process'),
           ),
