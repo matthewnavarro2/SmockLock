@@ -12,7 +12,6 @@
 #include "base64.hpp"
 #include "fd_forward.h"
 #include <SoftwareSerial.h>
-#include <AltSoftSerial.h>
 // define the number of bytes you want to access
 #define EEPROM_SIZE 1
 
@@ -43,18 +42,17 @@ const char *password = "Chaos357-";
 const char *post_url = "http://smocklock2.herokuapp.com/api/recievefromESP32"; // Location where images are POSTED
 const char *facial_rec_url = "http://face-rec751.herokuapp.com/doFacialRec";
 bool internet_connected = false;
+bool face_dec = false;
 #include <ArduinoOTA.h>
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
-
-AltSoftwareSerial mySerial(15, 14);
 
 void setup()
 {
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
 
   Serial.begin(115200);
-  mySerial.begin(9600);
+  //mySerial.begin(9600);
   //Serial.setDebugOutput(true);
   //Serial.println();
   if (init_wifi())
@@ -107,35 +105,32 @@ void setup()
   }
 
   //turn on low power mode(modem mode for now)
-  setModemSleep();
 }
 
 void callFacialRec()
 {
-  HTTPClient http1;
+  HTTPClient http;
 
-  http1.begin(facial_rec_url); //HTTP
+  Serial.println("Calling Facial Rec.");
 
-  int httpCode = http.POST();
+  http.begin(facial_rec_url); //HTTP
+
+  http.addHeader("Content-Type", "application/json");
+
+  int httpCode = http.POST("");
 
   // httpCode will be negative on error
   if (httpCode > 0)
   {
     // HTTP header has been send and Server response header has been handled
-    Serial.printf("[HTTP] POST... code: %d\n", httpCode);
-
-    // file found at server
-    if (httpCode == HTTP_CODE_OK)
-    {
-      String payload = http.getString();
-      Serial.println(payload);
-    }
+    String payload = http.getString();
+    Serial.println("2");
   }
   else
   {
-    Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
+    Serial.printf("[HTTP1] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
   }
-   http1.end(); 
+   http.end(); 
 }
 
 void takePic()
@@ -160,6 +155,7 @@ void takePic()
 
   if(boxes != NULL)
   {
+    face_dec = true;
     HTTPClient http;
 
     Serial.print("[HTTP] begin...\n");
@@ -170,8 +166,6 @@ void takePic()
    Serial.print("[HTTP] POST...\n");
    // start connection and send HTTP header
 
-   Serial.println();
-
    size_t size = fb->len;
    String buffer = base64::encode((uint8_t *) fb->buf, fb->len);
 
@@ -179,7 +173,7 @@ void takePic()
 
    //buffer = "";
    // Uncomment this if you want to show the payload
-   Serial.println(imgPayload);
+   //Serial.println(imgPayload);
 
    http.addHeader("Content-Type", "application/json");
 
@@ -189,27 +183,28 @@ void takePic()
     if (httpCode > 0)
     {
       // HTTP header has been send and Server response header has been handled
-      Serial.printf("[HTTP] POST... code: %d\n", httpCode);
-      mySerial.write("[HTTP Pass]");
+      //mySerial.write("[HTTP Pass]");
 
       // file found at server
       if (httpCode == HTTP_CODE_OK)
       {
        String payload = http.getString();
-       Serial.println(payload);
+       //Serial.println(payload);
       }
     }
     else
     {
       Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
-      mySerial.write("[HTTP Fail]");
+      //mySerial.write("[HTTP Fail]");
     }
    http.end(); 
+   delay(2000);
+   callFacialRec();
    }
    else
    {
-      Serial.printf("Camera Failed to capture Face");
-      mySerial.write("[Camera Fail]");
+      Serial.println("Camera failed to capture face");
+      //mySerial.write("[Camera Fail]");
    }
 
   esp_camera_fb_return(fb);
@@ -217,32 +212,15 @@ void takePic()
 
 void loop()
 {
-  if (mySerial.available())
+  if(face_dec == true)
   {
-    wakeModemSleep();
-
-    if (init_wifi())
-    { // Connected to WiFi
-      internet_connected = true;
-      Serial.println("Internet connected");
-    }
-    else
-    {
-      mySerial.print("[WiFi Fail]");
-    }
-
-    char character = mySerial.read();
-
-    if(character == "P")
-    {
-      takePic();
-      callFacialRec()
-    }
-
-    setModemSleep();
+    takePic();
+    Serial.println("Going to sleep now");
+    delay(2000);
+    esp_deep_sleep_start();
   }
-  character = "";
-  delay(2000);
+  takePic();
+  delay(5000);
 }
 
 
