@@ -95,6 +95,7 @@ class _LoginState extends State<Login> {
                   ),
                   SizedBox(height: (MediaQuery.of(context).size.height) * .02),
                   TextField(
+                    obscureText: true,
                     controller: passController,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(

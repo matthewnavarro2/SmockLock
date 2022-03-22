@@ -85,6 +85,7 @@ class _RegisterState extends State<Register> {
                 ),
                 SizedBox(height: (MediaQuery.of(context).size.height) * .03),
                 TextField(
+                  obscureText: true,
                   controller: passController,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(
