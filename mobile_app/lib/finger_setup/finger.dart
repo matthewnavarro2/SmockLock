@@ -31,9 +31,7 @@ class _FingerState extends State<Finger> {
                 var fingerId = jsonObject['newFpUserId'];
                 // get ip address
                 var masterIP = AuthorizedLocks.masterLock[0]['IP'];
-                print(masterIP.runtimeType);
-                print(fingerId.runtimeType);
-                var res2 = await Api.startFingerEnrollment(masterIP, fingerId);
+                var res2 = await Api.startFingerEnrollment(masterIP, fingerId.toString());
                 print(res2);
               },
               child: Text('Start enrollment process'),
