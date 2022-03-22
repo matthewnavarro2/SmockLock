@@ -5,6 +5,8 @@ import 'package:flutter/rendering.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile_app/API/api.dart';
 import 'package:mobile_app/main.dart';
+import 'package:mobile_app/utility/authorized_lock_info.dart';
+import 'package:mobile_app/utility/authorized_lock_info.dart';
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
 
@@ -125,6 +127,26 @@ class _LoginState extends State<Login> {
                         Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
                         var userId = decodedToken["userId"];
                         // api call to get mac adress and store it based on userid
+                        var res2 = await Api.getLock();
+                        Map<String, dynamic> jsonObject2 = jsonDecode(res2.body);
+
+                        var masterLock = jsonObject2['result'];
+                        var masterMac = masterLock[0]['MACAddress'];
+
+                        var authorizedLocks = jsonObject2['result2'];
+                        List authorizedMacs = [];
+                        List authorizedLocksList = [];
+
+                        for(int i = 0; i < authorizedLocks.length; i++){
+                          authorizedMacs.add(authorizedLocks[i]['MACAddress']);
+                          authorizedLocksList.add(authorizedLocks[i]);
+                        }
+
+                        AuthorizedLocks.authorizedMacs = authorizedMacs;
+                        AuthorizedLocks.authorizedLocks = authorizedLocksList;
+                        AuthorizedLocks.masterLock = masterLock;
+                        AuthorizedLocks.masterMac = masterMac;
+
 
 
                         isLoggedIn = true;

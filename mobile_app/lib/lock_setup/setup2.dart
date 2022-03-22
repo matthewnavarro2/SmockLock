@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/API/api.dart';
+import 'package:mobile_app/utility/authorized_lock_info.dart';
 
 class Setup2 extends StatefulWidget {
   const Setup2({Key? key}) : super(key: key);
@@ -108,7 +109,7 @@ class _Setup2State extends State<Setup2> {
                     onPressed: () async {
                       tier = getTier(isFaceRec, isFinger, isRFID, isEKEY);
                       setup = getSetup(isFaceRec2, isFinger2);
-                      var res = await Api.updateTier(tier);
+                      var res = await Api.updateTier(tier, AuthorizedLocks.masterMac);
                       if(setup == '11'){
                         //push facerec setup
                         //push finger setup

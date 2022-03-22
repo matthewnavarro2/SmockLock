@@ -95,7 +95,12 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/auth_users',
+                    );
+                  },
                   child: const CircleAvatar(
                     radius: 50,
                     backgroundColor: Colors.blueGrey,

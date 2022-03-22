@@ -90,7 +90,6 @@ class Api {
     var jwt = await storage.read(key:"jwt");
     Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
     var userId = decodedToken["userId"];
-
     var res = await http.post(
         Uri.parse('$SERVER_IP/createEKey'),
         headers: <String, String>{
@@ -102,9 +101,7 @@ class Api {
           'fn': fn,
           'ln': ln,
           'email': email,
-
         })
-
     );
     return res;
   }
@@ -113,7 +110,6 @@ class Api {
     var jwt = await storage.read(key:"jwt");
     Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
     var userId = decodedToken["userId"];
-
     var res = await http.post(
         Uri.parse('$SERVER_IP/listEKeys'),
         headers: <String, String>{
@@ -123,18 +119,14 @@ class Api {
           'userId': userId,
           'jwtToken': jwt
         })
-
     );
     return res;
   }
 
   static Future<int> encodeForFacial() async {
-
     var res = await http.post(
         Uri.parse('http://face-rec751.herokuapp.com/encodeUserPictures')
     );
-    print(res.statusCode);
-    print(res.body);
     return res.statusCode;
   }
 
@@ -143,7 +135,6 @@ class Api {
     var mac = await storage.read(key:"mac");
     Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
     var userId = decodedToken["userId"];
-
     var res = await http.post(
         Uri.parse('$SERVER_IP/linkLock'),
         headers: <String, String>{
@@ -153,14 +144,86 @@ class Api {
           'userId': userId,
           'macAdd': mac
         })
+    );
+    return res;
+  }
+
+  static Future updateTier(String tier, String mac) async {
+    var res = await http.post(
+        Uri.parse('$SERVER_IP/updateTier'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'tier': tier,
+          'macAdd': mac
+        })
 
     );
     return res;
   }
 
-  static Future checkWifiStatus() async {
+  static Future startFingerEnrollment(String ip, String fingerId) async {
+    String message = "";
+    message = "enrollFinger-<" + fingerId +  ">-";
+    var res = await http.post(
+      Uri.parse('$ip/body'),
+      headers: <String, String>{
+        'Content-Type': 'text/plain',
+      },
+      body: message,
+
+    );
+    return res;
+  }
+
+  static Future getFingerId(String macAdd) async {
+    var res = await http.post(
+        Uri.parse('$SERVER_IP/getFingerId'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'macAdd': macAdd
+        })
+    );
+    return res;
+  }
+
+  static Future getLock({bool macAddress = false}) async {
+    if (macAddress){
+      var mac = await storage.read(key:"mac");
+      var res = await http.post(
+          Uri.parse('$SERVER_IP/getLockMA'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode({
+            'macAdd': mac
+          })
+      );
+      return res;
+    }
+    else{
+      var jwt = await storage.read(key:"jwt");
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
+      var userId = decodedToken["userId"];
+      var res = await http.post(
+          Uri.parse('$SERVER_IP/getLockUI'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode({
+            'userId': "$userId"
+          })
+      );
+      return res;
+    }
+  }
+
+/*
+  static Future checkWifiStatus(String mac) async {
     var jwt = await storage.read(key:"jwt");
-    var mac = await storage.read(key:"mac");
 
     Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
     var userId = decodedToken["userId"];
@@ -178,55 +241,20 @@ class Api {
     );
     return res;
   }
+  Future<int> wifiStatus() async {
+    int lockStatus = 0;
 
-  static Future updateTier(String tier) async {
-    var jwt = await storage.read(key:"jwt");
-    var mac = await storage.read(key:"mac");
-
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
-    var userId = decodedToken["userId"];
-
-    var res = await http.post(
-        Uri.parse('$SERVER_IP/updateTier'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({
-          'tier': tier,
-          'macAdd': mac
-        })
-
-    );
-    return res;
-  }
-
-  static Future startFingerEnrollment(String ip, String fingerId) async {
-
-    var res = await http.post(
-        Uri.parse('$ip/body'),
-        headers: <String, String>{
-          'Content-Type': 'text/plain',
-        },
-        body: "enrollFinger-<" + fingerId +  ">-",
-
-    );
-    return res;
+    while(lockStatus == 0){
+      var res = await Api.checkWifiStatus();
+      print("111111");
+      //check res to see if status is 0 or 1
+      //set lockstatus to status
+    }
+    // move to next page with assumption it is connected to wifi
+    return 1;
 
   }
-
-  static Future getFingerId() async {
-    var mac = await storage.read(key:"mac");
-    var res = await http.post(
-        Uri.parse('$SERVER_IP/updateTier'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({
-          'macAdd': mac
-        })
-    );
-    return res;
-  }
+ */
 
 
 }

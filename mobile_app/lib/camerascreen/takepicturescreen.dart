@@ -113,8 +113,8 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
                     //convert to bytes
                     String base64string = base64.encode(imagebytes);
                     //print(base64string);
-                    //Api.addPic(base64string);
-
+                    //await Api.addPic(base64string);
+                    //await Api.encodeForFacial();
 
                     // If the picture was taken, display it on a new screen.
                     await Navigator.of(context).push(

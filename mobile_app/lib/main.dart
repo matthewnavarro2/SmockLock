@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mobile_app/authorizeduserscreen/auth_users.dart';
 import 'package:mobile_app/ekeyscreen/ekey.dart';
 import 'package:mobile_app/ekeyscreen/listekey.dart';
 import 'package:mobile_app/facerec_setup/facerec.dart';
@@ -56,6 +57,7 @@ Future<void> main() async {
             '/facerec' : (context) => const Facerec(),
             '/finger' : (context) => const Finger(),
             '/setup2_2' : (context) => const Setup22(),
+            '/auth_users' : (context) => const AuthorizedUsers(),
 
           }
 

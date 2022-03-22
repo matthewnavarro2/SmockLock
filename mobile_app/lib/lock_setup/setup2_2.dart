@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/API/api.dart';
+import 'package:mobile_app/utility/authorized_lock_info.dart';
 
 class Setup22 extends StatefulWidget {
   const Setup22({Key? key}) : super(key: key);
@@ -83,7 +84,7 @@ class _Setup22State extends State<Setup22> {
                 TextButton(
                   onPressed: () async {
                     tier = getTier(isFaceRec, isFinger, isRFID, isEKEY);
-                    var res = await Api.updateTier(tier);
+                    var res = await Api.updateTier(tier, AuthorizedLocks.masterMac);
 
 
 

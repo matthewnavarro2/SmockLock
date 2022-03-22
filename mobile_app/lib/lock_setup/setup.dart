@@ -25,19 +25,6 @@ class _SetupState extends State<Setup> {
     super.dispose();
   }
 
-  Future<int> wifiStatus() async {
-    int lockStatus = 0;
-
-    while(lockStatus == 0){
-      var res = await Api.checkWifiStatus();
-      print("111111");
-      //check res to see if status is 0 or 1
-      //set lockstatus to status
-    }
-    // move to next page with assumption it is connected to wifi
-    return 1;
-
-  }
 
   @override
   Widget build(BuildContext context) {
