@@ -6,6 +6,7 @@ import 'package:mobile_app/ekeyscreen/listekey.dart';
 import 'package:mobile_app/facerec_setup/facerec.dart';
 import 'package:mobile_app/lock_setup/setup.dart';
 import 'package:mobile_app/lock_setup/setup2.dart';
+import 'package:mobile_app/lock_setup/setup2_2.dart';
 import 'package:mobile_app/login/login.dart';
 import 'package:mobile_app/login/register.dart';
 import 'package:mobile_app/settingscreen/settings.dart';
@@ -54,7 +55,9 @@ Future<void> main() async {
             '/setup2' : (context) => const Setup2(),
             '/facerec' : (context) => const Facerec(),
             '/finger' : (context) => const Finger(),
-      }
+            '/setup2_2' : (context) => const Setup22(),
+
+          }
 
   ));
 

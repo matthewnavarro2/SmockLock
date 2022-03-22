@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile_app/API/api.dart';
 import 'package:mobile_app/main.dart';
 class Login extends StatefulWidget {
@@ -121,6 +122,11 @@ class _LoginState extends State<Login> {
                         Map<String, dynamic> jsonObject = jsonDecode(res.body);
                         var jwt = jsonObject['token']['accessToken'];
                         await storage.write(key: 'jwt', value: jwt);
+                        Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
+                        var userId = decodedToken["userId"];
+                        // api call to get mac adress and store it based on userid
+
+
                         isLoggedIn = true;
                         Navigator.pushNamed(context, '/home');
                       }

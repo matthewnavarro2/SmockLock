@@ -52,7 +52,9 @@ class _SettingsState extends State<Settings> {
             ),
           ),
           TextButton(
-            onPressed: (){},
+            onPressed: (){
+              Navigator.pushNamed(context, '/facerec');
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
@@ -62,7 +64,9 @@ class _SettingsState extends State<Settings> {
             ),
           ),
           TextButton(
-            onPressed: (){},
+            onPressed: (){
+              Navigator.pushNamed(context, '/finger');
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
@@ -111,7 +115,10 @@ class _SettingsState extends State<Settings> {
             ),
           ),
           TextButton(
-            onPressed: (){},
+            onPressed: (){
+              Navigator.pushNamed(context, '/setup2_2');
+
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
