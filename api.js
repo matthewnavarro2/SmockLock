@@ -387,7 +387,7 @@ exports.setApp = function ( app, client )
 
 
         const lockResult = await db.collection('Lock').find({MasterUserId:tempUser}).toArray();
-        const lock2Result = await db.collection('Lock').find({AuthorizedUsers:tempUser}).toArray();
+        const lock2Result = await db.collection('Lock').find({AuthorizedUsers:userId}).toArray();
         result = lockResult;
         result2 = lock2Result;
         error = 'success';
