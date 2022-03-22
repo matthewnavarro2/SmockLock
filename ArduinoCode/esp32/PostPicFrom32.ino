@@ -41,6 +41,7 @@ int counter = 0;
 const char *ssid = "Coutostoyou";
 const char *password = "Chaos357-";
 const char *post_url = "http://smocklock2.herokuapp.com/api/recievefromESP32"; // Location where images are POSTED
+const char *facial_rec_url = "http://face-rec751.herokuapp.com/doFacialRec";
 bool internet_connected = false;
 #include <ArduinoOTA.h>
 #include <ESPmDNS.h>
@@ -107,6 +108,34 @@ void setup()
 
   //turn on low power mode(modem mode for now)
   setModemSleep();
+}
+
+void callFacialRec()
+{
+  HTTPClient http1;
+
+  http1.begin(facial_rec_url); //HTTP
+
+  int httpCode = http.POST();
+
+  // httpCode will be negative on error
+  if (httpCode > 0)
+  {
+    // HTTP header has been send and Server response header has been handled
+    Serial.printf("[HTTP] POST... code: %d\n", httpCode);
+
+    // file found at server
+    if (httpCode == HTTP_CODE_OK)
+    {
+      String payload = http.getString();
+      Serial.println(payload);
+    }
+  }
+  else
+  {
+    Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
+  }
+   http1.end(); 
 }
 
 void takePic()
@@ -207,6 +236,7 @@ void loop()
     if(character == "P")
     {
       takePic();
+      callFacialRec()
     }
 
     setModemSleep();
