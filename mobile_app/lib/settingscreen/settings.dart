@@ -76,6 +76,19 @@ class _SettingsState extends State<Settings> {
             ),
           ),
           TextButton(
+            onPressed: (){
+              Navigator.pushNamed(context, '/rfid');
+
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                Text('Configure RFID'),
+                CircleAvatar(),
+              ],
+            ),
+          ),
+          TextButton(
             onPressed: () async {
               isLoggedIn = false;
               await storage.deleteAll();

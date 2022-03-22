@@ -170,6 +170,16 @@ class Api {
     return res;
   }
 
+  static Future startRfidEnrollment(String ip) async {
+    String message = "";
+    message = " enrollRFID-";
+    var res = await http.post(
+      Uri.parse('http://$ip/body'),
+      body: message,
+    );
+    return res;
+  }
+
   static Future getFingerId(String macAdd) async {
     var res = await http.post(
         Uri.parse('$SERVER_IP/getFingerId'),

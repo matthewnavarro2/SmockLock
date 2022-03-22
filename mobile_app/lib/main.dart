@@ -10,6 +10,7 @@ import 'package:mobile_app/lock_setup/setup2.dart';
 import 'package:mobile_app/lock_setup/setup2_2.dart';
 import 'package:mobile_app/login/login.dart';
 import 'package:mobile_app/login/register.dart';
+import 'package:mobile_app/rfid_setup/rfid.dart';
 import 'package:mobile_app/settingscreen/settings.dart';
 
 import 'camerascreen/takepicturescreen.dart';
@@ -58,7 +59,7 @@ Future<void> main() async {
             '/finger' : (context) => const Finger(),
             '/setup2_2' : (context) => const Setup22(),
             '/auth_users' : (context) => const AuthorizedUsers(),
-
+            '/rfid' : (context) => const Rfid(),
           }
 
   ));
