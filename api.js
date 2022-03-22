@@ -1222,6 +1222,32 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });
 
+    app.post('/api/getUserId', async (req, res, next) => 
+    {
+      const {firstname} = req.body;
+      var error = '';
+      var result;
+      
+      try
+      {
+        const db = client.db();
+
+
+        const userResult = await db.collection('Users').find({FirstName: firstname}).toArray();
+        result = userResult;
+        error = 'success';
+      }
+      catch(e)
+      {
+        error = e.message;
+      }
+      var ret = {result: result, error: error};
+      
+      res.status(200).json(ret);
+
+
+    });
+
     app.post('/api/getUser', async (req, res, next) => 
     {
       const {userId} = req.body;
