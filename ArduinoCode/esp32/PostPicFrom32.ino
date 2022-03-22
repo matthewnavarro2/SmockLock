@@ -233,7 +233,8 @@ bool init_wifi()
   return true;
 }
 
-void setModemSleep() {
+void setModemSleep() 
+{
     WiFi.setSleep(true);
     if (!setCpuFrequencyMhz(40)){
         Serial2.println("Not valid frequency!");
@@ -242,6 +243,7 @@ void setModemSleep() {
     // setCpuFrequencyMhz(80);
 }
 
-void wakeModemSleep() {
+void wakeModemSleep() 
+{
     setCpuFrequencyMhz(240);
 }

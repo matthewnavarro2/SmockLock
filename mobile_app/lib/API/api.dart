@@ -20,7 +20,7 @@ class Api {
     return res;
   }
 
-  static Future<int> register(String email, String firstname, String lastname, String login, String password) async {
+  static Future<int> register(String email, String firstname, String lastname, String login, String password, {String code = ""}) async {
     var res = await http.post(
         Uri.parse('$SERVER_IP/register'),
         headers: <String, String>{
@@ -31,7 +31,9 @@ class Api {
           'firstname': firstname,
           'lastname': lastname,
           'login': login,
-          'password': password})
+          'password': password,
+          'plainCode': code
+        })
 
     );
     return res.statusCode;
@@ -198,9 +200,34 @@ class Api {
     return res;
   }
 
-// if(res.statusCode == 200){
-//  Map<String, dynamic> jsonObject = jsonDecode(res.body);
-// return jsonObject;
+  static Future startFingerEnrollment(String ip, String fingerId) async {
+
+    var res = await http.post(
+        Uri.parse('$ip/body'),
+        headers: <String, String>{
+          'Content-Type': 'text/plain',
+        },
+        body: "enrollFinger-<" + fingerId +  ">-",
+
+    );
+    return res;
+
+  }
+
+  static Future getFingerId() async {
+    var mac = await storage.read(key:"mac");
+    var res = await http.post(
+        Uri.parse('$SERVER_IP/updateTier'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'macAdd': mac
+        })
+    );
+    return res;
+  }
+
 
 }
 
