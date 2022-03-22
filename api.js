@@ -350,7 +350,7 @@ exports.setApp = function ( app, client )
 
     });
 
-    app.post('/api/getLock', async (req, res, next) => 
+    app.post('/api/getLockMA', async (req, res, next) => 
     {
       const {macAdd} = req.body;
       var error = '';
@@ -369,6 +369,33 @@ exports.setApp = function ( app, client )
         error = e.message;
       }
       var ret = {result: result, error: error};
+      
+      res.status(200).json(ret);
+
+
+    });
+
+    app.post('/api/getLockUI', async (req, res, next) => 
+    {
+      const {userId} = req.body;
+      var error = '';
+      var result, result2;
+      try
+      {
+        const db = client.db();
+
+
+        const lockResult = await db.collection('Lock').find({MasterUserId:userId}).toArray();
+        const lock2Result = await db.collection('Lock').find({AuthorizedUsers:userId}).toArray();
+        result = lockResult;
+        result2 = lock2Result;
+        error = 'success';
+      }
+      catch(e)
+      {
+        error = e.message;
+      }
+      var ret = {result: result, result2: result2, error: error};
       
       res.status(200).json(ret);
 
@@ -1198,6 +1225,7 @@ exports.setApp = function ( app, client )
     {
       const {userId} = req.body;
       var error = '';
+      var result;
       
       try
       {
@@ -1205,13 +1233,14 @@ exports.setApp = function ( app, client )
 
 
         const userResult = await db.collection('Users').find({UserId: userId}).toArray();
+        result = userResult;
         error = 'success';
       }
       catch(e)
       {
         error = e.message;
       }
-      var ret = {result: userResult, error: error};
+      var ret = {result: result, error: error};
       
       res.status(200).json(ret);
 
