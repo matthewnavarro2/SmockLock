@@ -58,9 +58,6 @@ class Api {
 
     );
     if(res.statusCode == 200){
-      var res3 = await listPics();
-      print('list status:');
-      print('${res3.body}');
       var res2 = await encodeForFacial();
     }
     return res.statusCode;

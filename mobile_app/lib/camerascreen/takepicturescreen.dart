@@ -41,7 +41,7 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
       // Get a specific camera from the list of available cameras.
       widget.camera,
       // Define the resolution to use.
-      ResolutionPreset.veryHigh,
+      ResolutionPreset.low,
 
     );
 
@@ -112,9 +112,9 @@ class _TakePictureScreenState extends State<TakePictureScreen> {
                     Uint8List imagebytes = await imagefile.readAsBytes();
                     //convert to bytes
                     String base64string = base64.encode(imagebytes);
-                    //print(base64string);
-                    //await Api.addPic(base64string);
-                    //await Api.encodeForFacial();
+
+                    var res1 = await Api.addPic(base64string);
+
 
                     // If the picture was taken, display it on a new screen.
                     await Navigator.of(context).push(
