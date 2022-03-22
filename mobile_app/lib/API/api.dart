@@ -162,7 +162,7 @@ class Api {
 
   static Future startFingerEnrollment(String ip, String fingerId) async {
     String message = "";
-    message = "enrollFinger-<" + fingerId +  ">-";
+    message = " enrollFinger-" + fingerId +  "-";
     var res = await http.post(
       Uri.parse('$ip/body'),
       body: message,
