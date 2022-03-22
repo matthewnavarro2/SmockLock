@@ -1253,58 +1253,83 @@ exports.setApp = function ( app, client )
       // incoming: login, password
       // outgoing: id, firstName, lastName, error
     
-     var error = '';
-    
-      const { login, password } = req.body;
-    
-      const db = client.db();
-      const results = await db.collection('Users').find({Login:login}).toArray(); 
-      // const verified = results[0].IsVerified; 
-	  // console.log(password);
-      // console.log(results[0].Password);
-	  const validPassword = await bcrypt.compare(password,results[0].Password);
-      // const results = await User.find({ Login: login, Password: password});
-      // console.log(results);
-
+      var error = '';
       var id = -1;
       var fn = '';
       var ln = '';
-
-	
-
       var ret;
+      var tempLog = '';
+      var tempPass = '';
     
-      if( results.length > 0 )
+      const { login, password } = req.body;
+    
+      
+      tempLog = login;
+      tempPass = password;
+      
+      if (tempLog == '' || tempPass == '')
       {
-        id = results[0].UserId;
-        fn = results[0].FirstName;
-        ln = results[0].LastName;
-
-
-        try
-        {
-          const token = require("./createJWT.js");
-           ret = {token: token.createToken( fn, ln, id )};
-           // var ret = { results:_ret, error: error, jwtToken: refreshedToken };
-        }
-        catch(e)
-        {
-          ret = {error:e.message};
-        }
+        ret = {error: "Did not enter a Proper Username/Password"} 
+        res.status(400).json(ret);
       }
       else
       {
-          ret = {error:"Login/Password incorrect"};
+        const db = client.db();
+        const results = await db.collection('Users').find({Login:login}).toArray(); 
+        if (!results[0])
+        {
+          ret = {error: "Did not enter a Proper Username/Password"} 
+          res.status(400).json(ret);
+        }
+        else
+        {
+          // const verified = results[0].IsVerified; 
+          // console.log(password);
+          // console.log(results[0].Password);
+          const validPassword = await bcrypt.compare(password,results[0].Password);
+          // const results = await User.find({ Login: login, Password: password});
+          // console.log(results);
+          if( results.length > 0 )
+          {
+            id = results[0].UserId;
+            fn = results[0].FirstName;
+            ln = results[0].LastName;
+            
+
+            try
+            {
+              const token = require("./createJWT.js");
+              ret = {token: token.createToken( fn, ln, id )};
+              // var ret = { results:_ret, error: error, jwtToken: refreshedToken };
+            }
+            catch(e)
+            {
+              ret = {error:e.message};
+            }
+          }
+          else
+          {
+              ret = {error:"Login/Password incorrect"};
+          }
+          if(validPassword){
+            res.status(200).json(ret);
+          }
+          else{
+            res.status(400).json({ error: "Invalid Password" });
+          }
+        }
+        
+        
       }
+
+      
+    
+      
       // // check if verified
       // if ( verified == false){
       //     res.status(400).json({ error: "Check your email for code to verify your account!" });
       // }
-      if(validPassword){
-	      res.status(200).json(ret);
-	  } else{
-	    res.status(400).json({ error: "Invalid Password" });
-	  }
+      
     });
     
     app.post('/api/register', async (req, res, next) => 
