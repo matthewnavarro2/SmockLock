@@ -165,11 +165,7 @@ class Api {
     message = "enrollFinger-<" + fingerId +  ">-";
     var res = await http.post(
       Uri.parse('$ip/body'),
-      headers: <String, String>{
-        'Content-Type': 'text/plain',
-      },
       body: message,
-
     );
     return res;
   }
