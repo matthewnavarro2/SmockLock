@@ -469,7 +469,6 @@ int tierRequest()
   return tierRet;
 }
 
-<<<<<<< Updated upstream
 void callESP32()
 {
   camSerial.write("P");
@@ -535,9 +534,6 @@ void callESP32()
     }
   }
 }
-=======
-
->>>>>>> Stashed changes
 
 // RFID Reader Function
 String RFIDread()
