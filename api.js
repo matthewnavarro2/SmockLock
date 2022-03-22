@@ -380,13 +380,14 @@ exports.setApp = function ( app, client )
       const {userId} = req.body;
       var error = '';
       var result, result2;
+      tempUser = Number(userId);
       try
       {
         const db = client.db();
 
 
-        const lockResult = await db.collection('Lock').find({MasterUserId:userId}).toArray();
-        const lock2Result = await db.collection('Lock').find({AuthorizedUsers:userId}).toArray();
+        const lockResult = await db.collection('Lock').find({MasterUserId:tempUser}).toArray();
+        const lock2Result = await db.collection('Lock').find({AuthorizedUsers:tempUser}).toArray();
         result = lockResult;
         result2 = lock2Result;
         error = 'success';
