@@ -826,7 +826,7 @@ exports.setApp = function ( app, client )
         
         if (Math.max(...fingerArray) < 0)
         {
-          error = 'No Finger Array'
+          error = 'No Finger Array';
         }
         else
         {
@@ -1392,8 +1392,19 @@ exports.setApp = function ( app, client )
 
 
       // bcrypt to encrypt password  
-      const password = await bcrypt.hash(plainTextPassword, 10);
-      const code = await bcrypt.hash(plainCode, 10);
+      if (password == '')
+      {
+        error = 'Password is Empty';
+      }
+      else if (code == '')
+      {
+        error = 'Code is Empty';
+      }
+      else
+      {
+        const password = await bcrypt.hash(plainTextPassword, 10);
+        const code = await bcrypt.hash(plainCode, 10);
+      }
       // // lets make an empty friends array.
       // let friends_array = [];
       // let defaultValue = 0;
