@@ -354,20 +354,21 @@ exports.setApp = function ( app, client )
     {
       const {macAdd} = req.body;
       var error = '';
-      
+      var result;
       try
       {
         const db = client.db();
 
 
         const lockResult = await db.collection('Lock').find({MACAddress: macAdd}).toArray();
+        result = lockResult;
         error = 'success';
       }
       catch(e)
       {
         error = e.message;
       }
-      var ret = {result: lockResult, error: error};
+      var ret = {result: result, error: error};
       
       res.status(200).json(ret);
 
