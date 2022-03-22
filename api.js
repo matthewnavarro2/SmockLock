@@ -350,24 +350,53 @@ exports.setApp = function ( app, client )
 
     });
 
-    app.post('/api/getLock', async (req, res, next) => 
+    app.post('/api/getLockMA', async (req, res, next) => 
     {
       const {macAdd} = req.body;
       var error = '';
-      
+      var result;
       try
       {
         const db = client.db();
 
 
         const lockResult = await db.collection('Lock').find({MACAddress: macAdd}).toArray();
+        result = lockResult;
         error = 'success';
       }
       catch(e)
       {
         error = e.message;
       }
-      var ret = {result: lockResult, error: error};
+      var ret = {result: result, error: error};
+      
+      res.status(200).json(ret);
+
+
+    });
+
+    app.post('/api/getLockUI', async (req, res, next) => 
+    {
+      const {userId} = req.body;
+      var error = '';
+      var result, result2;
+      tempUser = Number(userId);
+      try
+      {
+        const db = client.db();
+
+
+        const lockResult = await db.collection('Lock').find({MasterUserId:tempUser}).toArray();
+        const lock2Result = await db.collection('Lock').find({AuthorizedUsers:userId}).toArray();
+        result = lockResult;
+        result2 = lock2Result;
+        error = 'success';
+      }
+      catch(e)
+      {
+        error = e.message;
+      }
+      var ret = {result: result, result2: result2, error: error};
       
       res.status(200).json(ret);
 
@@ -1193,10 +1222,37 @@ exports.setApp = function ( app, client )
       res.status(200).json(ret);
     });
 
+    app.post('/api/getUserId', async (req, res, next) => 
+    {
+      const {firstname} = req.body;
+      var error = '';
+      var result;
+      
+      try
+      {
+        const db = client.db();
+
+
+        const userResult = await db.collection('Users').find({FirstName: firstname}).toArray();
+        result = userResult;
+        error = 'success';
+      }
+      catch(e)
+      {
+        error = e.message;
+      }
+      var ret = {result: result, error: error};
+      
+      res.status(200).json(ret);
+
+
+    });
+
     app.post('/api/getUser', async (req, res, next) => 
     {
       const {userId} = req.body;
       var error = '';
+      var result;
       
       try
       {
@@ -1204,13 +1260,14 @@ exports.setApp = function ( app, client )
 
 
         const userResult = await db.collection('Users').find({UserId: userId}).toArray();
+        result = userResult;
         error = 'success';
       }
       catch(e)
       {
         error = e.message;
       }
-      var ret = {result: userResult, error: error};
+      var ret = {result: result, error: error};
       
       res.status(200).json(ret);
 
@@ -1222,58 +1279,83 @@ exports.setApp = function ( app, client )
       // incoming: login, password
       // outgoing: id, firstName, lastName, error
     
-     var error = '';
-    
-      const { login, password } = req.body;
-    
-      const db = client.db();
-      const results = await db.collection('Users').find({Login:login}).toArray(); 
-      // const verified = results[0].IsVerified; 
-	  // console.log(password);
-      // console.log(results[0].Password);
-	  const validPassword = await bcrypt.compare(password,results[0].Password);
-      // const results = await User.find({ Login: login, Password: password});
-      // console.log(results);
-
+      var error = '';
       var id = -1;
       var fn = '';
       var ln = '';
-
-	
-
       var ret;
+      var tempLog = '';
+      var tempPass = '';
     
-      if( results.length > 0 )
+      const { login, password } = req.body;
+    
+      
+      tempLog = login;
+      tempPass = password;
+      
+      if (tempLog == '' || tempPass == '')
       {
-        id = results[0].UserId;
-        fn = results[0].FirstName;
-        ln = results[0].LastName;
-
-
-        try
-        {
-          const token = require("./createJWT.js");
-           ret = {token: token.createToken( fn, ln, id )};
-           // var ret = { results:_ret, error: error, jwtToken: refreshedToken };
-        }
-        catch(e)
-        {
-          ret = {error:e.message};
-        }
+        ret = {error: "Did not enter a Proper Username/Password"} 
+        res.status(400).json(ret);
       }
       else
       {
-          ret = {error:"Login/Password incorrect"};
+        const db = client.db();
+        const results = await db.collection('Users').find({Login:login}).toArray(); 
+        if (!results[0])
+        {
+          ret = {error: "Did not enter a Proper Username/Password"} 
+          res.status(400).json(ret);
+        }
+        else
+        {
+          // const verified = results[0].IsVerified; 
+          // console.log(password);
+          // console.log(results[0].Password);
+          const validPassword = await bcrypt.compare(password,results[0].Password);
+          // const results = await User.find({ Login: login, Password: password});
+          // console.log(results);
+          if( results.length > 0 )
+          {
+            id = results[0].UserId;
+            fn = results[0].FirstName;
+            ln = results[0].LastName;
+            
+
+            try
+            {
+              const token = require("./createJWT.js");
+              ret = {token: token.createToken( fn, ln, id )};
+              // var ret = { results:_ret, error: error, jwtToken: refreshedToken };
+            }
+            catch(e)
+            {
+              ret = {error:e.message};
+            }
+          }
+          else
+          {
+              ret = {error:"Login/Password incorrect"};
+          }
+          if(validPassword){
+            res.status(200).json(ret);
+          }
+          else{
+            res.status(400).json({ error: "Invalid Password" });
+          }
+        }
+        
+        
       }
+
+      
+    
+      
       // // check if verified
       // if ( verified == false){
       //     res.status(400).json({ error: "Check your email for code to verify your account!" });
       // }
-      if(validPassword){
-	      res.status(200).json(ret);
-	  } else{
-	    res.status(400).json({ error: "Invalid Password" });
-	  }
+      
     });
     
     app.post('/api/register', async (req, res, next) => 
