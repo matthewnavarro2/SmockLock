@@ -471,11 +471,11 @@ int tierRequest()
 
 void callESP32()
 {
-  camSerial.write("P");
+  esp32.write("P");
 
   while (camSerial.available())
   {
-    char character = mySerial.read();
+    char character = (char)esp32.read();
     Data.concat(character);
 
     if (character == '\n')
@@ -491,39 +491,13 @@ void callESP32()
       {
         printOLED("Failed to process request");
       }
-      else if(strcmp(Data, "[WiFi Fail]"))
-      {
-        printOLED("Failed to connect the internet");
-      }
       else if(strcmp(Data, "[Camera Fail]"))
       {
-        delay(5000);
-
-        printOLED("Please reposition face and try again");
-
-        camSerial.print("P");
-
-        if(strcmp(Data, "[HTTP Pass]"))
-        {
-          printOLED("Face Detected");
-        }
-        else if(strcmp(Data, "[HTTP Fail]"))
-        {
-          printOLED("Failed to process request");
-        }
-        else if(strcmp(Data, "[Camera Fail]"))
-        {
-          printOLED("Failed to detect face fatal error");
-        }
-        else if(strcmp(Data, "[WiFi Fail]"))
-        {
-          printOLED("Failed to connect the internet");
-        }
-        else
-        {
-          printOLED("Fatal Error");
-        }
-
+        printOLED("Please move into view");
+      }
+      else if(strcmp(Data, "[Detect Fail]"))
+      {
+        printOLED("Could not detect any face");
       }
       else
       {

@@ -34,8 +34,12 @@
 #define HREF_GPIO_NUM 23
 #define PCLK_GPIO_NUM 22
 
+#define RXD2 16
+#define TXD2 14
+
 int pictureNumber = 0;
 int counter = 0;
+int limit = 0;
 
 const char *ssid = "Coutostoyou";
 const char *password = "Chaos357-";
@@ -52,6 +56,7 @@ void setup()
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
 
   Serial.begin(115200);
+  Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
   //mySerial.begin(9600);
   //Serial.setDebugOutput(true);
   //Serial.println();
@@ -183,7 +188,7 @@ void takePic()
     if (httpCode > 0)
     {
       // HTTP header has been send and Server response header has been handled
-      //mySerial.write("[HTTP Pass]");
+      Serial2.write("[HTTP Pass]");
 
       // file found at server
       if (httpCode == HTTP_CODE_OK)
@@ -195,7 +200,7 @@ void takePic()
     else
     {
       Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
-      //mySerial.write("[HTTP Fail]");
+      Serial2.write("[HTTP Fail]");
     }
    http.end(); 
    delay(2000);
@@ -204,22 +209,38 @@ void takePic()
    else
    {
       Serial.println("Camera failed to capture face");
-      //mySerial.write("[Camera Fail]");
    }
 
   esp_camera_fb_return(fb);
 }
 
 void loop()
-{
-  if(face_dec == true)
+{ 
+  if(Serial2.available())
   {
-    takePic();
-    Serial.println("Going to sleep now");
-    delay(2000);
-    esp_deep_sleep_start();
+    while(face_dec == false)
+    {
+      limit++;
+      takePic();
+      if(face_dec == true)
+      {
+        Serial.println("Picture sucessfully taken and processed");
+        esp_deep_sleep_start();
+      }
+      else
+      {
+        Serial.println("Move Person");
+        Serial2.write("[Camera Fail]");
+      }
+
+      if(limit == 5)
+      {
+        Serial.println("Failed to cap, turning off");
+        Serial2.write("[Detect Fail]");
+        esp_deep_sleep_start();
+      }
+    }
   }
-  takePic();
   delay(5000);
 }
 
