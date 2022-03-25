@@ -237,6 +237,7 @@ void loop()
       {
         Serial.println("Failed to cap, turning off");
         Serial2.write("[Detect Fail]");
+        limit = 0;
         esp_deep_sleep_start();
       }
     }
