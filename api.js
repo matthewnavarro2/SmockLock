@@ -335,8 +335,13 @@ exports.setApp = function ( app, client )
       {
         const db = client.db();
 
-
+        const ipSearchResult = await db.collection('Lock').find({IP: ip});
+        if (ipSearchResult)
+        {
+          error = 'error already existing ip address'
+        }
         const ipResult = await db.collection('Lock').update({MACAddress: macAdd}, {$set: {IP: ip}});
+      
         error = 'success';
       }
       catch(e)
