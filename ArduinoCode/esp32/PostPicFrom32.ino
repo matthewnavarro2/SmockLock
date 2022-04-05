@@ -12,6 +12,7 @@
 #include "base64.hpp"
 #include "fd_forward.h"
 #include <SoftwareSerial.h>
+#include <ESP32QRCodeReader.h>
 // define the number of bytes you want to access
 #define EEPROM_SIZE 1
 
@@ -47,6 +48,8 @@ const char *post_url = "http://smocklock2.herokuapp.com/api/recievefromESP32"; /
 const char *facial_rec_url = "http://face-rec751.herokuapp.com/doFacialRec";
 bool internet_connected = false;
 bool face_dec = false;
+ESP32QRCodeReader reader(CAMERA_MODEL_WROVER_KIT);
+struct QRCodeData qrCodeData;
 #include <ArduinoOTA.h>
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
@@ -54,6 +57,9 @@ bool face_dec = false;
 void setup()
 {
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
+
+  reader.setup();
+  reader.begin();
 
   Serial.begin(115200);
   Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
@@ -239,6 +245,23 @@ void loop()
         Serial2.write("[Detect Fail]");
         limit = 0;
         esp_deep_sleep_start();
+      }
+      delay(2000);
+
+      if (reader.receiveQrCode(&qrCodeData, 100))
+      {
+        Serial.println("Found QRCode");
+        if (qrCodeData.valid)
+        {
+          Serial.println("QR code detected");
+          Serial2.write("[Detect QR Pass]");
+          //make api call
+        }
+        else
+        { 
+          Serial.println("QR code not detected");
+          Serial2.write("[Detect QR Fail]");
+        }
       }
     }
   }
