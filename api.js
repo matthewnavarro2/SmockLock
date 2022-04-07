@@ -461,13 +461,12 @@ exports.setApp = function ( app, client )
       const {macAdd, userId} = req.body;
       var error = '';
       var IP = '';
-      var tier = '';
       var auth = [];
       var fp = [];
       var rfid = [];
-      var wifiStatus = 0;
+      
 
-      var lockCollection = {MACAddress:macAdd, TierLevel:tier, MasterUserId:Number(userId), IP: IP, wifiStatus: wifiStatus, FingerPrintId:fp, RFID:rfid};
+      var lockCollection = {MACAddress:macAdd,  MasterUserId:Number(userId), IP: IP, FingerPrintId:fp, RFID:rfid};
 
       try
       {
@@ -571,6 +570,14 @@ exports.setApp = function ( app, client )
 
     });
 
+    // we're going to want to email another user our friend code (admin doing dis)
+    // which they will inturn input that code somewhere on the frontend, maybe on the homepage or settings
+    // which will then add them to the lock as an authorized user and will upload their fp and rfid if set up.
+    // we should probably also write another api that allows a user to upload their fp and rfid if authorized with a lock.
+    // (not necessary but if have enough time we can implement)
+    // after the fp and rfid has been uploaded we will then change the Master Lock User's friend code to prevent code sharing.
+    
+    // after receiving code from
     app.post('/api/adminAddAuthorizedUser', async (req, res, next) => 
     {
       const {userId, guestUserId} = req.body;
@@ -609,86 +616,7 @@ exports.setApp = function ( app, client )
 
     });
 
-    // ************************************ TIER API ******************************************************
-    //
-    // ****************************************************************************************************
-    // called by lock
-    app.post('/api/tierRequest', async (req, res, next) => 
-    {
-      const {macAdd} = req.body;
-      
-      var mac = {MACAddress:macAdd};
-      var error = '';
-      var tier;
-
-      try
-      {
-        const db = client.db();
-        
-        const eKeyResult = await db.collection('Lock').find(mac).toArray();
-        
     
-        tier = eKeyResult[0].TierLevel;
-      }
-      
-      // Prints error if failed
-      catch(e)
-      {
-        error = e.message;
-        console.log(e.message);
-      }
-      
-      var ret = {tier: tier, error: error};
-      
-      res.status(200).json(ret);
-    });
-
-    app.post('/api/sendTier', async (req, res, next) =>
-    {
-      const {macAdd} = req.body;
-      var error = '';
-      var sTier = 0;
-    
-      try
-      {
-        const db = client.db();
-        const result = await db.collection('Lock').find({MACAddress:macAdd}).toArray();   
-        sTier = result[0].TierLevel;    
-      }
-      catch(e)
-      {
-        error = e.toString();
-      }
-
-      console.log(sTier);
-    
-      var ret = { error: error, sTier:sTier};
-      
-      res.status(200).json(ret);
-    });
-
-    app.post('/api/updateTier', async (req, res, next) =>
-    {
-      const {macAdd, tier} = req.body;
-      
-
-
-      try
-      {
-        const db = client.db();
-        const result = await db.collection('Lock').update({MACAddress: macAdd}, {$set: {TierLevel: tier}});
-        
-        error = 'Updated Database'  
-      }
-      catch(e)
-      {
-        error = e.toString();
-      }
-
-      var ret = { error: error, result:result};
-      
-      res.status(200).json(ret);
-    });
     // ************************************ FINGER API ******************************************************
     //                                      Lock Stuff
     // ******************************************************************************************************
@@ -1413,6 +1341,10 @@ exports.setApp = function ( app, client )
 
       // req.body to pull the info from the webpage. 
       const { email, firstname, lastname, login, password: plainTextPassword, plainCode } = req.body
+
+      // we should generate a 6 digit friend code
+      // should not match any other code on the database
+      
 
       if (!(plainCode))
       {
