@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile_app/API/api.dart';
 import 'package:mobile_app/camerascreen/takepicturescreen.dart';
 import 'package:mobile_app/ekeyscreen/parse_json_ekey.dart';
@@ -18,10 +19,36 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  String user = 'Hello User22';
+  late String selectedValue;
+  late var jwt;
+  var time = 0;
 
   @override
   Widget build(BuildContext context) {
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // This is done everytime the page is built. Set state causes this portion to run again..
+    final arguments = ModalRoute.of(context)!.settings.arguments as Map;
+    jwt = arguments['jwt'];
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
+    List<DropdownMenuItem<String>> dropdownItems = [];
+
+    //time is used to auto set the lock being used to ur own lock.
+    if(time == 0){
+      selectedValue = decodedToken["locks"][0]["masterLockId"].toString();
+      time++;
+    }
+    // for loop to populate a list of locks that the account has access to
+    for(int i = 0; i < decodedToken["locks"].length; i++){
+      if(decodedToken["locks"][i]["access"] == "Master"){
+        var masterLockId = decodedToken["locks"][i]["masterLockId"];
+        dropdownItems.add(DropdownMenuItem(child: Text("Master Lock$i"), value: masterLockId.toString()));
+      }
+      else if(decodedToken["locks"][i]["access"] == "aUser"){
+        var masterLockId = decodedToken["locks"][i]["masterLockId"];
+        dropdownItems.add(DropdownMenuItem(child: Text("AuthLock$i"), value: masterLockId.toString()));
+      }
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -39,17 +66,55 @@ class _HomeState extends State<Home> {
         child: Column(
           children: [
             SizedBox(height: MediaQuery.of(context).size.height * .08),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TextButton(
-                  onPressed: () {},
+               /* TextButton(
+                  onPressed: () async {
+                    var res = await Api.listEKey();
+                    print(res.body);
+
+                    var resultObjsJson = jsonDecode(
+                        res.body)['result_array'] as List;
+                    List<GetResults> resultObjs = resultObjsJson.map((resultJson) =>
+                        GetResults.fromJson(resultJson)).toList();
+
+
+                    try {
+                      /* first ekey info */
+                      ////////////////////
+                      //*maybe length of ekeys returned from certain user*/
+                      var resultlength = resultObjs.length;
+                      ////////////////////////
+
+
+                      Navigator.pushNamed(
+                        context,
+                        '/listekeys',
+                        arguments: {'resultObjs': resultObjs},
+
+                      );
+                    } catch (e) {
+                      print(e);
+                    }
+                  },
                   child: const CircleAvatar(
                     radius: 25,
                     backgroundColor: Colors.white,
                     backgroundImage:  AssetImage("assets/images/housekey.PNG"),
                   ),
+                ),*/
+                DropdownButton(
+                  value: selectedValue,
+                  items: dropdownItems,
+                  onChanged: (String? newValue){
+                    setState(() {
+                      selectedValue = newValue!;
+                    });
+                  },
                 ),
+
                 IconButton(
                   iconSize: MediaQuery.of(context).size.height * .06,
                   onPressed: () {
@@ -66,23 +131,19 @@ class _HomeState extends State<Home> {
               ],
             ),
             SizedBox(height: MediaQuery.of(context).size.height * .08),
-
             Text(
-              user,
+              selectedValue,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 25,
               ),
             ),
-
             Image(
               image: AssetImage("assets/images/lock.PNG"),
               height: MediaQuery.of(context).size.height * .2,
               width: MediaQuery.of(context).size.width * .2,
             ),
-
             SizedBox(height: MediaQuery.of(context).size.height * .06),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -95,40 +156,9 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(
-                      context,
-                      '/auth_users',
-                    );
-                  },
-                  child: const CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.blueGrey,
-                    backgroundImage:  AssetImage("assets/images/authorizedusers.PNG"),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: MediaQuery.of(context).size.height * .04),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                TextButton(
-                  onPressed: () {},
-                  child: const CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.green,
-                    backgroundImage:  AssetImage("assets/images/unlocked.PNG"),
-                  ),
-                ),
-                TextButton(
                   onPressed: () async {
-                    var res = await Api.listEKey();
-                    print(res.body);
-
-                    var resultObjsJson = jsonDecode(
-                        res.body)['result_array'] as List;
+                    /*var res = await Api.getLock();
+                    var resultObjsJson = jsonDecode(res.body)['result_array'] as List;
                     List<GetResults> resultObjs = resultObjsJson.map((resultJson) =>
                         GetResults.fromJson(resultJson)).toList();
 
@@ -153,6 +183,34 @@ class _HomeState extends State<Home> {
                     } catch (e) {
                       print(e);
                     }
+*/
+
+
+
+                  },
+                  child: const CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.blueGrey,
+                    backgroundImage:  AssetImage("assets/images/authorizedusers.PNG"),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: MediaQuery.of(context).size.height * .04),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextButton(
+                  onPressed: () {},
+                  child: const CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.green,
+                    backgroundImage:  AssetImage("assets/images/unlocked.PNG"),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pushNamed(context, '/ekey');
                   },
                   child: const CircleAvatar(
                     radius: 50,
@@ -256,3 +314,5 @@ class MyColor extends MaterialStateColor {
     return const Color(_defaultColor);
   }
 }
+/*
+*/
