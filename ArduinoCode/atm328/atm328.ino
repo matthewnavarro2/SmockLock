@@ -469,33 +469,37 @@ int tierRequest()
   return tierRet;
 }
 
-int callESP32()
+void callESP32()
 {
   esp32.write("P");
+  int pass = 1;
 
-  while (camSerial.available())
+  while(pass == 1)
   {
-    char character = (char)esp32.read();
-    Data.concat(character);
-
-    if (character == '\n')
+    while (mySerial.available())
     {
-      Serial.print("Received: ");
-      Serial.println(Data);
+      char c = (char)mySerial.read();
+      Data.concat(c);
+      Serial.println(c);
 
-      if(strcmp(Data, "[HTTP Pass]"))
+      if(c == '\n')
+      {
+        Serial.print("Received: ");
+        Serial.println(Data);
+
+      if(strcmp(Data, "[HTTP PASS]") == 0)
       {
         printOLED("Face Detected");
       }
-      else if(strcmp(Data, "[HTTP Fail]"))
+      else if(strcmp(Data, "[HTTP Fail]") == 0)
       {
         printOLED("Failed to process request");
       }
-      else if(strcmp(Data, "[Camera Fail]"))
+      else if(strcmp(Data, "[Camera Fail]") == 0) 
       {
         printOLED("Please move into view");
       }
-      else if(strcmp(Data, "[Detect Fail]"))
+      else if(strcmp(Data, "[Detect Fail]") == 0)
       {
         printOLED("Could not detect any face");
       }
@@ -505,7 +509,10 @@ int callESP32()
       }
 
       Data = "";
+      pass = 0;
+      }
     }
+    delay(1000);
   }
 }
 
