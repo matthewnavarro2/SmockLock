@@ -1294,7 +1294,9 @@ exports.setApp = function ( app, client )
       var ret;
       var tempLog = '';
       var tempPass = '';
-    
+      var email = '';
+      var accesslvl = '';
+      var lockId = -1;
       const { login, password } = req.body;
     
       
@@ -1310,6 +1312,7 @@ exports.setApp = function ( app, client )
       {
         const db = client.db();
         const results = await db.collection('Users').find({Login:login}).toArray(); 
+        
         if (!results[0])
         {
           ret = {error: "Did not enter a Proper Username/Password"} 
@@ -1328,12 +1331,44 @@ exports.setApp = function ( app, client )
             id = results[0].UserId;
             fn = results[0].FirstName;
             ln = results[0].LastName;
-            
+            em = results[0].Email;
 
+            const lockMasterResults = await db.collection('Lock').find({MasterUserId:id}).toArray();
+            const lockResults = await db.collection('Lock').find({AuthorizedUsers:String(id)}).toArray();
+            console.log(lockMasterResults)
+            console.log(lockResults)
+            if (lockMasterResults.length > 0)
+            {
+              lcks = [
+                {masterLockId:lockMasterResults[0].MasterUserId, access : "Master"} 
+              ]
+              for (var i = 1; i < lockMasterResults.length; i++)
+              {
+                lcks.push({masterLockId:lockMasterResults[i].MasterUserId, access:"Master"})
+              }
+            }
+            else
+            {
+              ret = {error: "Could not get Lock Collection"} 
+            }
+            if (lockResults.length > 0)
+            {
+              lcks.push({masterLockId:lockResults[0].MasterUserId, access:"aUser"})
+              for (var j = 1; j < lockResults.length; j++)
+              {
+                lcks.push({masterLockId:lockResults[j].MasterUserId, access:"aUser"})
+              }
+            }
+            else
+            {
+              ret = {error: "Could not get Lock Collection"} 
+            }
+            
+            console.log(lcks);
             try
             {
               const token = require("./createJWT.js");
-              ret = {token: token.createToken( fn, ln, id )};
+              ret = {token: token.createToken( fn, ln, id, em, lcks )};
               // var ret = { results:_ret, error: error, jwtToken: refreshedToken };
             }
             catch(e)
