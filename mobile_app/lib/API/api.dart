@@ -127,9 +127,8 @@ class Api {
     return res.statusCode;
   }
 
-  static Future linklock( mac) async {
+  static Future linklock(String mac) async {
     var jwt = await storage.read(key:"jwt");
-    var mac = await storage.read(key:"mac");
     Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
     var userId = decodedToken["userId"];
     var res = await http.post(
@@ -141,21 +140,6 @@ class Api {
           'userId': userId,
           'macAdd': mac
         })
-    );
-    return res;
-  }
-
-  static Future updateTier(String tier, String mac) async {
-    var res = await http.post(
-        Uri.parse('$SERVER_IP/updateTier'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({
-          'tier': tier,
-          'macAdd': mac
-        })
-
     );
     return res;
   }
@@ -222,6 +206,34 @@ class Api {
       );
       return res;
     }
+  }
+
+  static Future getLockUI(int masterUserId) async {
+      var res = await http.post(
+          Uri.parse('$SERVER_IP/getLockUI'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode({
+            'userId': "$masterUserId"
+          })
+      );
+      return res;
+
+  }
+
+  static Future getUser(int userid) async {
+    var res = await http.post(
+        Uri.parse('$SERVER_IP/getUser'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'userId': userid,
+        })
+    );
+    return res;
+
   }
 
 /*

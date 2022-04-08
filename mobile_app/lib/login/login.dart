@@ -128,18 +128,12 @@ class _LoginState extends State<Login> {
                         await storage.write(key: 'jwt', value: jwt);
                         Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
                         var userId = decodedToken["userId"];
-                        print(decodedToken["locks"]);
-                        print(decodedToken["locks"][0]["masterLockId"]);
-
                         //var jwt = await storage.read(key: 'jwt', value: jwt);
                         //Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
                         // var userId = decodedToken["userId"];
                         // print(decodedToken["locks"]);
                         // print(decodedToken["locks"][0]["masterLockId"]);
-
-
-
-
+                        /*
                         // api call to get mac adress and store it based on userid
                         var res2 = await Api.getLock();
                         Map<String, dynamic> jsonObject2 = jsonDecode(res2.body);
@@ -161,17 +155,14 @@ class _LoginState extends State<Login> {
                         AuthorizedLocks.masterLock = masterLock;
                         AuthorizedLocks.masterMac = masterMac;
 
-
-
+                        */
                         isLoggedIn = true;
-                        //Navigator.pushNamed(context, '/home');
                         Navigator.pushNamed(
                             context,
                             '/home',
                             arguments: {'jwt': jwt},
                         );
                       }
-
                       else if (res.statusCode != 200) { // fail // trying to figure out how to do a dialog popup saying what error it is
                         var errTitle = 'Error';
                         var errMessage = '${res.statusCode}';

@@ -8,18 +8,22 @@ class AuthorizedUsers extends StatefulWidget {
 }
 
 class _AuthorizedUsersState extends State<AuthorizedUsers> {
+  List authorizedUser = [];
   @override
   Widget build(BuildContext context) {
+    final arguments = ModalRoute.of(context)!.settings.arguments as Map;
+    authorizedUser = arguments['authorizedUser'];
+
     return Scaffold(
       appBar: AppBar(
         title: Text("authorized Users"),
       ),
-      /*body: Column(
+      body: Column(
         children: [
           SizedBox(
             height: (MediaQuery.of(context).size.height) * .5,
             child: ListView.builder(
-                itemCount: resultObjs.length,
+                itemCount: authorizedUser.length,
                 itemBuilder: (context, index){
                   return Card(
                     child: ListTile(
@@ -28,18 +32,13 @@ class _AuthorizedUsersState extends State<AuthorizedUsers> {
                       },
                       tileColor: Colors.lightBlueAccent.shade700,
                       minVerticalPadding: (MediaQuery.of(context).size.height) * .025,
-                      title:  FittedBox(
-                        fit: BoxFit.fill,
-                        child: Row(
-                          children: [
-                            Text('${resultObjs[index].guestId}    '),
-                            Text(resultObjs[index].tgo),
-                            Text(resultObjs[index].firstname),
-                            Text(resultObjs[index].lastname),
-                            Text(resultObjs[index].email),
+                      title:  Row(
+                        children: [
+                          Text('${authorizedUser[index].firstName}'),
+                          Text('${authorizedUser[index].lastName}'),
+                          Text('${authorizedUser[index].email}'),
 
-                          ],
-                        ),
+                        ],
                       ),
                       //leading: Text((index+1).toString(),style: const TextStyle(
                       // fontSize: 30.0,
@@ -48,6 +47,7 @@ class _AuthorizedUsersState extends State<AuthorizedUsers> {
                       trailing:  IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: () {
+                          /*
                           Navigator.pushNamed(
                             context,
                             '/editekeys',
@@ -57,6 +57,7 @@ class _AuthorizedUsersState extends State<AuthorizedUsers> {
                             },
 
                           );
+                          */
                         },
 
                       ),
@@ -69,7 +70,7 @@ class _AuthorizedUsersState extends State<AuthorizedUsers> {
           ),
 
         ],
-      ),*/
+      ),
     );
   }
 }

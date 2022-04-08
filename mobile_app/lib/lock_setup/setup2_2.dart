@@ -83,10 +83,6 @@ class _Setup22State extends State<Setup22> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    tier = getTier(isFaceRec, isFinger, isRFID, isEKEY);
-                    var res = await Api.updateTier(tier, AuthorizedLocks.masterMac);
-
-
 
                   },
                   child: Text("Save"),

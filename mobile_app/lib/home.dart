@@ -9,6 +9,7 @@ import 'package:mobile_app/ekeyscreen/parse_json_ekey.dart';
 import 'package:mobile_app/main.dart';
 
 import 'API/device_info.dart';
+import 'authorizeduserscreen/auth_user_object.dart';
 
 
 class Home extends StatefulWidget {
@@ -57,7 +58,7 @@ class _HomeState extends State<Home> {
           gradient: LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
-              colors: [
+              colors: [ // background gradient of the homepage
                 Color.fromRGBO(234, 234, 234, 1),
                 Color.fromRGBO(178, 229, 190, 1),
               ]
@@ -157,33 +158,31 @@ class _HomeState extends State<Home> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    /*var res = await Api.getLock();
-                    var resultObjsJson = jsonDecode(res.body)['result_array'] as List;
-                    List<GetResults> resultObjs = resultObjsJson.map((resultJson) =>
-                        GetResults.fromJson(resultJson)).toList();
+                    // Get the list of userId who have authorized access to my lock.
+                    var userId = decodedToken["userId"];
+                    var res = await Api.getLockUI(userId);
+                    var resultObjsJson = jsonDecode(res.body);
+                    List authorizedUserId = resultObjsJson["result"][0]["AuthorizedUsers"];
+                    List authorizedUser = [];
+                    for(int i = 0; i < authorizedUserId.length; i++){
 
+                      var user = await Api.getUser(int.parse(authorizedUserId[i]));
+                      var result = jsonDecode(user.body);
+                      var authUserId = result["result"][0]["UserId"];
+                      var email = result["result"][0]["Email"];
+                      var firstName = result["result"][0]["FirstName"];
+                      var lastName = result["result"][0]["LastName"];
+                      AuthorizedUser newUser = AuthorizedUser(authUserId, email, firstName, lastName);
+                      authorizedUser.add(newUser);
 
-                    try {
-                      /* first ekey info */
-
-                      ////////////////////
-
-
-                      /*maybe length of ekeys returned from certain user*/
-                      var resultlength = resultObjs.length;
-                      ////////////////////////
-
-
-                      Navigator.pushNamed(
-                        context,
-                        '/listekeys',
-                        arguments: {'resultObjs': resultObjs},
-
-                      );
-                    } catch (e) {
-                      print(e);
                     }
-*/
+
+
+                    Navigator.pushNamed(
+                      context,
+                      '/auth_users',
+                      arguments: {'authorizedUser': authorizedUser},
+                    );
 
 
 

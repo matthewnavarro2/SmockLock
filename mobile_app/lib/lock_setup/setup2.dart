@@ -29,58 +29,7 @@ class _Setup2State extends State<Setup2> {
             child: Column(
               children: [
 
-                const Text("Please choose the modes of authorization "
-                    "that are required for access. "
-                    "Ex.) Choosing Fingerprint and Facial will require "
-                    "both to be verified for the lock to unlock."
-                ),
 
-                ListTile(
-                  title: const Text('Facial Recognition'),
-                  leading: Switch(
-                    value: isFaceRec,
-                    onChanged: (bool value) {
-                      setState(() {
-                        isFaceRec = value;
-                      });
-                    },
-                  ),
-                ),
-
-                ListTile(
-                  title: const Text('Fingerprint Recognition'),
-                  leading: Switch(
-                    value: isFinger,
-                    onChanged: (bool value) {
-                      setState(() {
-                        isFinger = value;
-                      });
-                    },
-                  ),
-                ),
-
-                ListTile(
-                  title: const Text('RFID'),
-                  leading: Switch(
-                    value: isRFID,
-                    onChanged: (bool value) {
-                      setState(() {
-                        isRFID = value;
-                      });
-                    },
-                  ),
-                ),
-                ListTile(
-                  title: const Text('Digital E-Key'),
-                  leading: Switch(
-                    value: isEKEY,
-                    onChanged: (bool value) {
-                      setState(() {
-                        isEKEY = value;
-                      });
-                    },
-                  ),
-                ),
                 Text('Would you like to setup any of the following methods of authorizations (These can always be setup later in the settings)?'),
                 ListTile(
                   title: const Text('Facial Recognition'),
@@ -107,9 +56,8 @@ class _Setup2State extends State<Setup2> {
 
                 TextButton(
                     onPressed: () async {
-                      tier = getTier(isFaceRec, isFinger, isRFID, isEKEY);
                       setup = getSetup(isFaceRec2, isFinger2);
-                      var res = await Api.updateTier(tier, AuthorizedLocks.masterMac);
+
                       if(setup == '11'){
                         //push facerec setup
                         //push finger setup
