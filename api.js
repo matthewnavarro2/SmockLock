@@ -1434,6 +1434,58 @@ exports.setApp = function ( app, client )
       {
         const password = await bcrypt.hash(plainTextPassword, 10);
         
+        // create a new user 
+        const fullname = firstname + ' ' + lastname;
+        var auth = [];
+        var fingerprint = '';
+        var code = '';
+        var rfid = '';
+        const newUser = {Email:email, UserId: arraylength + 1, FirstName:firstname, LastName:lastname, FullName:fullname,
+          Login:login, Password:password, Fingerprint:fingerprint, RFID:rfid, AuthorizedUsers:auth, code:code}; // add userid UserId:userId
+
+        
+        // check if email is taken,
+        const email_check = await db.collection('Users').find({Email:email}).toArray();
+
+        //console.log(email_check); 
+        if(Array.isArray(email_check) && email_check.length)
+        {
+          // console.log('User Not created')
+          return res.json({ status:'Email already taken!'})
+        }
+
+        // check if username is taken,
+        const username_check = await db.collection('Users').find({Login:login}).toArray();
+        if( Array.isArray(username_check) && username_check.length)
+        {
+          // console.log('User Not created')
+          return res.json({ status:'UserName already taken!'})
+        }
+
+        // // SEND CONFIRM EMAIL:
+        // const msg = {
+        //   to: "" + email + "",
+        //   from: "akbobsmith79@gmail.com",
+        //   subject: "Here is your email buddy",
+        //   text: "Enter this key: "+ key + "" 
+        // };
+        
+        // sgMail.send(msg).then(() => {
+        // console.log('Message sent')
+        // }).catch((error) => {
+        // console.log(error.response.body)
+        // // console.log(error.response.body.errors[0].message)
+        // }) 
+      
+        try{
+          const new_user = await db.collection('Users').insertOne(newUser);
+          console.log('User created')
+
+        } 
+        catch(e){
+          // console.log(error)
+          return res.json({ status:'error'})
+        }
       }
       // // lets make an empty friends array.
       // let friends_array = [];
@@ -1445,58 +1497,7 @@ exports.setApp = function ( app, client )
       // console.log(key); 
       // let verify = false;
 
-      // create a new user 
-      const fullname = firstname + ' ' + lastname;
-      var auth = [];
-      var fingerprint = '';
-      var code = '';
-      var rfid = '';
-      const newUser = {Email:email, UserId: arraylength + 1, FirstName:firstname, LastName:lastname, FullName:fullname,
-         Login:login, Password:password, Fingerprint:fingerprint, RFID:rfid, AuthorizedUsers:auth, code:code}; // add userid UserId:userId
-
       
-      // check if email is taken,
-      const email_check = await db.collection('Users').find({Email:email}).toArray();
-
-      //console.log(email_check); 
-      if(Array.isArray(email_check) && email_check.length)
-      {
-        // console.log('User Not created')
-        return res.json({ status:'Email already taken!'})
-      }
-
-      // check if username is taken,
-      const username_check = await db.collection('Users').find({Login:login}).toArray();
-      if( Array.isArray(username_check) && username_check.length)
-      {
-        // console.log('User Not created')
-        return res.json({ status:'UserName already taken!'})
-      }
-
-      // // SEND CONFIRM EMAIL:
-      // const msg = {
-      //   to: "" + email + "",
-      //   from: "akbobsmith79@gmail.com",
-      //   subject: "Here is your email buddy",
-      //   text: "Enter this key: "+ key + "" 
-      // };
-      
-      // sgMail.send(msg).then(() => {
-      // console.log('Message sent')
-      // }).catch((error) => {
-      // console.log(error.response.body)
-      // // console.log(error.response.body.errors[0].message)
-      // }) 
-    
-      try{
-        const new_user = await db.collection('Users').insertOne(newUser);
-        console.log('User created')
-
-      } 
-      catch(e){
-        // console.log(error)
-        return res.json({ status:'error'})
-      }
 
       res.json({status: 'All Good'});
 
