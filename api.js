@@ -1426,7 +1426,7 @@ exports.setApp = function ( app, client )
 
 
       // bcrypt to encrypt password  
-      if (password == '')
+      if (plainTextPassword == '')
       {
         error = 'Password is Empty';
       }
