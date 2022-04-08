@@ -3,6 +3,9 @@ const bcrypt = require('bcryptjs');
 let {PythonShell} = require('python-shell')
 var cron = require('node-cron');
 const Net = require('net');
+var crypto = require("crypto");
+var nodemailer = require('nodemailer');
+require('dotenv').config();
 // let faceapi = require('./face-api.min.js')
 // import { MongoCron } from 'mongodb-cron';
 //Install node-cron using npm: $ npm install --save node-cron
@@ -583,26 +586,87 @@ exports.setApp = function ( app, client )
       const {userId, guestUserId} = req.body;
       var error =''
       var message = '';
-
+      let email = '';
+      let fn = '';
+      // we should generate a 6 digit friend code
+      // should not match any other code on the database
+      var code = crypto.randomBytes(6).toString('hex');
       try
       {
         const db = client.db();
+        const userResult = await db.collection('Users').updateOne({UserId: userId}, {$set: {code: code}});
+        const userResult2 = await db.collection('Users').find({UserId:guestUserId}).toArray();
 
-        const lockResult = db.collection('Lock').find({MasterUserId:userId}).toArray();
+        if(!userResult)
+        {
+          error = 'Could not update code correctly, faulty parameters provided';
+        }
+        else
+        {
+          if(userResult2.length > 0)
+          {
+            email = userResult2[0].Email;
+            fn = userResult2[0].FirstName;
 
+            const SMOCKEMAIL = process.env.SMOCK_PASSWORD;
+            var transport = nodemailer.createTransport({
+              host: 'gmail',
+              auth: {
+                user: 'smocklockdev@gmail.com',
+                pass: String(SMOCKEMAIL)
+              }
+            });
+            
+            var mailOptions = {
+              from: 'smocklockdev@gmail.com',
+              to: String(email),
+              subject: 'Invitation to become Authorized User',
+              text: 'Hey there, Please put the following 6 Character code into the Smock Lock App: '+ code + '.',
+            };
+            
+            transport.sendMail(mailOptions, (error, info) => {
+              if (error) {
+                return console.log(error);
+              }
+              console.log('Message sent: %s', info.response);
+            });
 
-        const result = db.collection('Users').updateOne(
-          { "UserId" : userId },
-          { $push: { "AuthorizedUsers" : guestUserId } }
-          );
+            
+            console.log(transport)
 
-          const lockresult = db.collection('Lock').updateOne(
-            { "MasterUserId" : userId },
-            { $push: { "AuthorizedUsers" : guestUserId } }
+            const result = db.collection('Users').updateOne(
+              { "UserId" : userId },
+              { $push: { "AuthorizedUsers" : guestUserId } }
             );
     
+            const lockresult = db.collection('Lock').updateOne(
+              { "MasterUserId" : userId },
+              { $push: { "AuthorizedUsers" : guestUserId } }
+            );
 
-        message = 'successfully added Authorized User'
+            if (userResult2[0].Fingerprint == '')
+            {
+              message = 'No fingerPrint can be added since User Profile does not have one. Please Upload FP and RFID if necessary.'
+            }
+            else if (userResult2[0].RFID == '')
+            {
+              message = 'No RFID can be added since User Profile does not have one.  Please Upload FP and RFID if necessary.'
+            }
+            else
+            {
+              const lockresult2 = db.collection('Lock').updateOne(
+                { "MasterUserId" : userId },
+                { $push: { "FingerPrintId" : userResult2[0].Fingerprint } }
+              );
+
+              const lockresult3 = db.collection('Lock').updateOne(
+                { "MasterUserId" : userId },
+                { $push: { "RFID" : userResult2[0].RFID } }
+              );
+            }
+
+          }
+        }
       }
       catch(e)
       {
@@ -1340,16 +1404,11 @@ exports.setApp = function ( app, client )
       const db = client.db();
 
       // req.body to pull the info from the webpage. 
-      const { email, firstname, lastname, login, password: plainTextPassword, plainCode } = req.body
+      const { email, firstname, lastname, login, password: plainTextPassword} = req.body
 
-      // we should generate a 6 digit friend code
-      // should not match any other code on the database
       
 
-      if (!(plainCode))
-      {
-        plainCode = '';
-      }
+      
       // set userId to the unique username and email combo 
       const userId_array = await db.collection('Users').find().toArray();
         
@@ -1371,14 +1430,10 @@ exports.setApp = function ( app, client )
       {
         error = 'Password is Empty';
       }
-      else if (code == '')
-      {
-        error = 'Code is Empty';
-      }
       else
       {
         const password = await bcrypt.hash(plainTextPassword, 10);
-        const code = await bcrypt.hash(plainCode, 10);
+        
       }
       // // lets make an empty friends array.
       // let friends_array = [];
@@ -1394,6 +1449,7 @@ exports.setApp = function ( app, client )
       const fullname = firstname + ' ' + lastname;
       var auth = [];
       var fingerprint = '';
+      var code = '';
       var rfid = '';
       const newUser = {Email:email, UserId: arraylength + 1, FirstName:firstname, LastName:lastname, FullName:fullname,
          Login:login, Password:password, Fingerprint:fingerprint, RFID:rfid, AuthorizedUsers:auth, code:code}; // add userid UserId:userId
