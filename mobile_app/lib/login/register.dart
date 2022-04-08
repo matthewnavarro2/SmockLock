@@ -152,23 +152,7 @@ class _RegisterState extends State<Register> {
                     filled: true,
                   ),
                 ),
-                SizedBox(height: (MediaQuery.of(context).size.height) * .03),
-                TextField(
-                  controller: referralController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.zero),
-                    ),
-                    label: Text(
-                      'Referral Code',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    fillColor: Color.fromRGBO(255, 255, 255, 1),
-                    filled: true,
-                  ),
-                ),
+
                 SizedBox(height: (MediaQuery.of(context).size.height) * .03),
                 TextButton(
                   onPressed: () async {
@@ -177,9 +161,8 @@ class _RegisterState extends State<Register> {
                     var ln = lnController.text.trim();
                     var user = userController.text.trim();
                     var pass = passController.text.trim();
-                    var refcode = referralController.text.trim();
 
-                    var res = await Api.register(email, fn, ln, user, pass, code: refcode);
+                    var res = await Api.register(email, fn, ln, user, pass);
 
                     var res1 = await Api.login(user, pass);
 
@@ -191,7 +174,11 @@ class _RegisterState extends State<Register> {
                       var userId = decodedToken["userId"];
                       // api call to get mac adress and store it based on userid
                       isLoggedIn = true;
-                      Navigator.pushNamed(context, '/home');
+                      Navigator.pushNamed(
+                        context,
+                        '/home',
+                        arguments: {'jwt': jwt},
+                      );
                     }
 
                   },

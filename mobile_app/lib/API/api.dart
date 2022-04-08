@@ -20,7 +20,7 @@ class Api {
     return res;
   }
 
-  static Future<int> register(String email, String firstname, String lastname, String login, String password, {String code = ""}) async {
+  static Future<int> register(String email, String firstname, String lastname, String login, String password) async {
     var res = await http.post(
         Uri.parse('$SERVER_IP/register'),
         headers: <String, String>{
@@ -31,8 +31,7 @@ class Api {
           'firstname': firstname,
           'lastname': lastname,
           'login': login,
-          'password': password,
-          'plainCode': code
+          'password': password
         })
 
     );
