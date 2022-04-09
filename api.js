@@ -1289,6 +1289,7 @@ exports.setApp = function ( app, client )
       var email = '';
       var accesslvl = '';
       var lockId = -1;
+      var lcks = []; // Eric added this
       const { login, password } = req.body;
     
       
