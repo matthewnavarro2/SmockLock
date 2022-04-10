@@ -148,27 +148,10 @@ exports.setApp = function ( app, client )
       {
         console.log(e.message);
       }
-
-      if( results.length > 0 )
-      {
-        id = results[0].UserId;
-        fn = results[0].FirstName;
-        ln = results[0].LastName;
-
-
-        try
-        {
-          const token = require("./createJWT.js");
-           ret = {token: token.createToken( fn, ln, id )};
-           // var ret = { results:_ret, error: error, jwtToken: refreshedToken };
-        }
-        catch(e)
-        {
-          ret = {error:e.message};
-        }
-      }
+      
+      
       // Variable Declaration
-      var user = {userId:userId};
+      var user = {userId:Number(userId)};
       var error = '';
 
       // Connecting to database and searching for Pictures associated with User.
@@ -176,12 +159,44 @@ exports.setApp = function ( app, client )
       {
         const db = client.db();
         const result = await db.collection('EKey').find(user).toArray();
-        var _resultsarray = [];
-
-        for( var i=0; i<result.length; i++ )
+        const results = await db.collection('Users').find(user).toArray();
+        if( results.length > 0 )
         {
-        _resultsarray.push( result[i]);
+          id = results[0].UserId;
+          fn = results[0].FirstName;
+          ln = results[0].LastName;
+
+
+          try
+          {
+            const token = require("./createJWT.js");
+            ret = {token: token.createToken( fn, ln, id )};
+            // var ret = { results:_ret, error: error, jwtToken: refreshedToken };
+          }
+          catch(e)
+          {
+            ret = {error:e.message};
+          }
         }
+        else{
+          error = 'Error finding a user match on the databse jwt';
+        }
+        
+        if (result.length > 0)
+        {
+          var _resultsarray = [];
+        
+
+          for( var i=0; i<result.length; i++ )
+          {
+            _resultsarray.push( result[i]);
+          }
+        }
+        else
+        {
+          error = 'No EKeys on the database';
+        }
+        
         
       }
 
