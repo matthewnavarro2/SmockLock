@@ -1,0 +1,38 @@
+Midterm Demo:
+
+Key Engineering Specs:
+	- Speed of Facial Recoginition:
+		to have a positive ID or false provided within 10 secs
+	- Speed of Fingerprint Scanner
+		to have a positive ID or fasle provided within 10 secs
+	- Mobile Application for User (Possibly need to change)
+		provide the user with an easy to use mobile application.
+
+1. Initialization
+	* Talk about Mobile App Engineering Spec here, maybe elaborate on complete plan for app*
+	- Logging into the app						<Eric>
+	- Creating a new lock in the database with mac address		<Eric>
+	- Connecting the Wi-Fi module to Wi-Fi 				<Eric>
+
+2. Minor Setups from app
+	- Enrolling a fingerprint					<Matthew>
+	- Adding picture to database					<Matthew>
+	- Enrolling RFID						<Matthew>
+
+3. Facial Recognition
+	* Lets use a timer to show how long it takes to have a new face compared against the database *
+	- Have the ESP tell screen to "Come in view"			<Gabe>
+	- Get the ID back and show that face rec was successful		<Gabe>
+
+4. RFID
+	- Have the screen ask for RFID					<KV>
+	- Show a successful message					<KV>
+
+5. Fingerprint
+	- Have user input fingerprint					<KV>
+	- Show the ID being found					<KV>
+	- Then show id returned from sending finger ID to Database	<KV>
+
+6. Opening the lock
+	- Show the tructure for keeping track of security checks	<KV>
+	- Show the lock opening						<KV>

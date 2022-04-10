@@ -24,9 +24,9 @@ int fingerID;
 String fingerResult;
 volatile int finger_status = -1;
 
-int tierRequest();
-int sendFinger(String fingerID);
-int sendRFID(String RFIDid);
+//int tierRequest();
+//int sendFinger(String fingerID);
+//int sendRFID(String RFIDid);
 
 // ESP8266 SETUP
 // pin 3 is esp TX
@@ -43,7 +43,7 @@ const byte pirPin = 2;
 volatile byte pirState = LOW;
 
 // ESP32-CAM SETUP
-SoftwareSerial esp32(A2, A3);
+//SoftwareSerial esp32(A2, A3);
 
 
 // RFID SETUP
@@ -56,27 +56,31 @@ String RFIDresult;
 String rfMessage;
 
 //LOCK Setup
-//int relayPin = 8;
+int relayPin = 6;
 
 // Tier Variable
 ///int tier;
 String tierR = "";
 
+
+char* functi;
+char* val;
+
 // Setup Loop (Runs once on startup)
 void setup() {
   Serial.begin(19200);
   // OLED Initialization
-  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
-  {
-    Serial.println(F("SSD1306 allocation failed"));
-    for (;;); // Don't proceed, loop forever
-  }
+  //if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
+  //{
+  //  Serial.println(F("SSD1306 allocation failed"));
+  //  for (;;); // Don't proceed, loop forever
+  //}
 
   // Welcome Message
-  printOLED("Welcome to SMOCK Lock");
+  //printOLED("Welcome to SMOCK Lock");
 
   // Setting the pin modes
-  //pinMode(relayPin, OUTPUT);
+  pinMode(relayPin, OUTPUT);
   pinMode(esp8266InterPin, OUTPUT);
   /*
     // Fingerprint Scanner Initialization
@@ -111,14 +115,14 @@ void loop()
 {
   int tier;
   // Attaching the interrupts
-  attachInterrupt(digitalPinToInterrupt(pirPin), interrupt_routine1, RISING);
+  //attachInterrupt(digitalPinToInterrupt(pirPin), interrupt_routine1, RISING);
   attachInterrupt(digitalPinToInterrupt(esp8266IntPin), interrupt_routine2, RISING);
 
   // Sleep until interrupted
   LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF); // sleep until interrupt
 
   // Detaching the interrupts
-  detachInterrupt(digitalPinToInterrupt(pirPin)); // remove interrupt
+  //detachInterrupt(digitalPinToInterrupt(pirPin)); // remove interrupt
   detachInterrupt(digitalPinToInterrupt(esp8266IntPin)); // remove interrupt
 
   // When the PIR detects motion
@@ -126,7 +130,7 @@ void loop()
 
     //int userCheck[];
     // Shows that the system is awake
-    printOLED("Hello");
+    //printOLED("Hello");
 
     // Find tier number through Tier Request
     //printOLED("Getting the tier");
@@ -362,28 +366,46 @@ void loop()
     // Turn on ESP32-CAM and wait for a response
 
     // Get the fingerprint ID from user
-    fingerID = fpg();
-    printOLED(String(fingerID));
+    //fingerID = fpg();
+    //printOLED(String(fingerID));
 
     // Send the fingerprint to ESP8266 and wait for response
-    int fpResult = sendFinger("1");
-    printOLED(String(fpResult));
+    //printOLED("FP ID sent"); 
+    //int fpResult = sendFinger("1");  
+    //printOLED("User ID = ");
+    //printOLED(String(fpResult));
 
     // Request RFID
     //RFIDid = RFIDread();
     //printOLED(RFIDid);
+    
     // Send RFID ID to ESP8266
+    //printOLED("Sent RFID");
+    //printOLED("User ID = ");
     //rfiD=sendRFID(RFIDid);
+    //printOLED("User ID = ");
+    //printOLED(String(rfiD));
 
+    //printOLED("The Security Check:");
+    //printOLED("2 2 2 2");
+    //printOLED("All ID's match.");
+    //printOLED("Access Authorized");
+    //printOLED("Unlocking for 10 sec");
+
+    //digitalWrite(relayPin, HIGH);
+    //delay(10000);
+    //digitalWrite(relayPin, LOW);
+    
     pirState = LOW;
-    printOLED("ZZZ");
+    //printOLED("ZZZ");
     //delay(200);
     display.clearDisplay();
   }
 
   if (esp8266State == HIGH)
   {
-    printOLED("ESP Interrupt");
+    esp8266.begin(9600);
+    //Serial.println("ESP Interrupt");
     //while(esp8266.available()==0)
     //{}
     while (esp8266.available() > 0)
@@ -392,18 +414,21 @@ void loop()
       str.concat(c);
       if (c == '\n')
       {
-        printOLED("Recieved");
+        Serial.println(str);
+        str.trim();
       }
     }
     // Break the message up into its function and values
-    char *request;
+    esp8266.end();
+    char request[100];
     str.toCharArray(request, str.length());
-    char *functi = strtok(request, " ");
-    char *val = strtok(NULL, "");
-
-    if (strcmp(functi, "enrollFingerID") == 1)
+    functi = strtok(request, "-");
+    val = strtok(NULL, "-");
+    Serial.println(functi);
+    //Serial.println(val);
+    if (strcmp(functi, "enrollFinger") == 0)
     {
-
+      enrollFinger((val));
     }
     else if (strcmp(functi, "enrollRFID") == 1)
     {
@@ -416,12 +441,12 @@ void loop()
     }
 
 
-    printOLED(str);
+    //printOLED(str);
 
 
     str = "";
     esp8266State = LOW;
-    printOLED("Im slump");
+    //printOLED("Im slump");
   }
 }
 
@@ -468,7 +493,7 @@ int tierRequest()
   esp8266.end();
   return tierRet;
 }
-
+/*
 <<<<<<< Updated upstream
 void callESP32()
 {
@@ -538,7 +563,7 @@ void callESP32()
 =======
 
 >>>>>>> Stashed changes
-
+*/
 // RFID Reader Function
 String RFIDread()
 {
@@ -571,6 +596,7 @@ String RFIDread()
   }
   content.toUpperCase();
   SPI.end();
+  mfrc522.PCD_SoftPowerDown();
   return content.substring(1);
   /*
     // Compares the UID at the reader to stored cards
@@ -660,15 +686,15 @@ int sendFinger(String FingerId)
 int sendRFID(String RFIDId)
 {
   char ret[1024];
-  rfMessage = "sendRFID-";
+  String rfMessage = "sendRFID-E0 84 2E 1B-";
   //rfMessage = rfMessage + RFIDId;
   //rfMessage = rfMessage + "-";
 
-  Serial.println(rfMessage);
+  //Serial.println(rfMessage);
 
   esp8266.begin(9600);
   // Tell it to get the tier
-  esp8266.println(rfMessage);
+  esp8266.println("sendRFID-E0 84 2E 1B-");
 
   // Interrupt the ESP8266
   digitalWrite(esp8266InterPin, HIGH);
@@ -684,6 +710,7 @@ int sendRFID(String RFIDId)
     RFIDresult.concat(t);
     if (t == '\n')
     {
+      printOLED("UserId = ");
       printOLED(RFIDresult);
     }
   }
@@ -768,14 +795,15 @@ uint8_t readnumber(void) {
 int enrollFinger(int id)
 {
   Serial.println("Ready to enroll a fingerprint!");
-  Serial.println("Please type in the ID # (from 1 to 127) you want to save this finger as...");
-  id = 4;
+  //Serial.println("Please type in the ID # (from 1 to 127) you want to save this finger as...");
+  //id = 4;
   if (id == 0) {// ID #0 not allowed, try again!
     return;
   }
   printOLED("Enrolling ID #");
   printOLED(String(id));
-  //getFingerprintEnroll();
+  finger.begin(57600);
+  getFingerprintEnroll(id);
 }
 
 int fpg()

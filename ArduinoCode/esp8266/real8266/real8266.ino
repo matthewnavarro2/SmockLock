@@ -12,7 +12,7 @@
 ESP8266WebServer server(80);
 
 // Serial connection to the atmega328p
-SoftwareSerial atm328(12,15);
+//SoftwareSerial atm328(12,15);
 
 // Interrupt pin for atmega328p
 const byte atmIntPin = 14;
@@ -32,20 +32,21 @@ char* val;
 // Setup Function
 void setup() {
  
-    Serial.begin(115200);
+    Serial.begin(19200);
+    //Serial1.begin(19200);
     WiFiManager wifiManager;
     //wifiManager.resetSettings();
     wifiManager.autoConnect("AutoConnectAP");
-    Serial.print("Connected to WiFi. IP:");
+    //Serial.print("Connected to WiFi. IP:");
     server.on("/body", handleBody); //Associate the handler function to the path
- 
+    //atm328.begin(19200);
     server.begin(); //Start the server
-    Serial.println("Server listening");
+    //Serial.println("Server listening");
     pinMode(13, OUTPUT);
     attachInterrupt(digitalPinToInterrupt(atmIntPin),interrupt_routine,RISING);
-    atm328.begin(9600);
-    atm328.print("");
+
     mac = WiFi.macAddress();
+    //Serial.println(mac);
     // need to add the api to send the macAddress to database
 }
 
@@ -55,16 +56,14 @@ void loop() {
     // If the ESP8266 has been interrupted by atmega328
     if (atmState == HIGH)
     {
-      Serial.println("Interrupted");
-      
+      //Serial.println("Interrupted");
       // Grab the incomming message 
-      while(atm328.available())
+      while(Serial.available())
       {
-        char c = atm328.read();
+        char c = Serial.read();
         request.concat(c);
         if (c == '\n')
         {
-          Serial.print(request);
           request.trim();
           Serial.println(request.length());
         }
@@ -77,27 +76,27 @@ void loop() {
         request.toCharArray(mes, request.length());
         functi = strtok(mes,"-");
         val = strtok(NULL, "-");
-        Serial.println(functi);
-        Serial.println(val);
+        //Serial.println(functi);
+        //Serial.println(val);
         // Checks if we are requesting the tier
-        if (strcmp(functi, "Tier") == 0)
-        {
-          int tierL = getTier();
-          atm328.println(String(tierL));
-        }
-  
-        // If we are sending the fingerprint ID
-        else if (strcmp(functi, "sendFinger") == 0)
+        if (strcmp(functi, "sendFinger") == 0)
         {
           int fpResult = sendFinger(val);
-          atm328.println(String(fpResult));
+          //atm328.println(String(fpResult));
         }
   
         // If we are sending the RFID ID
         else if (strcmp(functi, "sendRFID") == 0)
         {
           int rfidResult = sendRFID(val);
-          atm328.println(String(rfidResult));
+          //atm328.println(String(rfidResult));
+        }
+        
+        // If we are sending the RFID ID
+        else if (strcmp(functi, "sendRFID") == 0)
+        {
+          int rfidResult = sendRFID(val);
+          //atm328.println(String(rfidResult));
         }
         
         // If an unrecognized command has been sent
@@ -108,7 +107,7 @@ void loop() {
       }
       else
       {
-        atm328.println("Try Again");
+        //atm328.println("Try Again");
       }
       
 
@@ -144,15 +143,16 @@ void handleBody()
 
   // Grabs the message from the request
   String message = server.arg("plain");
-  
+  //Serial.println(message);
   // Sends the response message back
   server.send(200, "text/plain", "We done got them message");
 
   // Interrupts the atmega328p
   digitalWrite(13, HIGH);
-
   // Sends the message to the atmega328p
-  atm328.println(message);
+
+  Serial.println(message);
+  
 
   // Resets the interrupt signal for the atmega328p
   digitalWrite(13, LOW);
