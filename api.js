@@ -469,7 +469,7 @@ exports.setApp = function ( app, client )
       var rfid = [];
       
 
-      var lockCollection = {MACAddress:macAdd,  MasterUserId:Number(userId), IP: IP, FingerPrintId:fp, RFID:rfid};
+      var lockCollection = {MACAddress:macAdd,  MasterUserId:Number(userId), IP: IP, FingerPrintId:fp, RFID:rfid, AuthorizedUsers:auth};
 
       try
       {
