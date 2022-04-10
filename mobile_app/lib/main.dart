@@ -1,13 +1,16 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mobile_app/authorizeduserscreen/auth_users.dart';
 import 'package:mobile_app/ekeyscreen/ekey.dart';
 import 'package:mobile_app/ekeyscreen/listekey.dart';
 import 'package:mobile_app/facerec_setup/facerec.dart';
 import 'package:mobile_app/lock_setup/setup.dart';
 import 'package:mobile_app/lock_setup/setup2.dart';
+import 'package:mobile_app/lock_setup/setup2_2.dart';
 import 'package:mobile_app/login/login.dart';
 import 'package:mobile_app/login/register.dart';
+import 'package:mobile_app/rfid_setup/rfid.dart';
 import 'package:mobile_app/settingscreen/settings.dart';
 
 import 'camerascreen/takepicturescreen.dart';
@@ -54,7 +57,10 @@ Future<void> main() async {
             '/setup2' : (context) => const Setup2(),
             '/facerec' : (context) => const Facerec(),
             '/finger' : (context) => const Finger(),
-      }
+            '/setup2_2' : (context) => const Setup22(),
+            '/auth_users' : (context) => const AuthorizedUsers(),
+            '/rfid' : (context) => const Rfid(),
+          }
 
   ));
 

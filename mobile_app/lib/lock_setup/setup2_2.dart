@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/API/api.dart';
 import 'package:mobile_app/utility/authorized_lock_info.dart';
 
-class Setup2 extends StatefulWidget {
-  const Setup2({Key? key}) : super(key: key);
+class Setup22 extends StatefulWidget {
+  const Setup22({Key? key}) : super(key: key);
 
   @override
-  _Setup2State createState() => _Setup2State();
+  _Setup22State createState() => _Setup22State();
 }
 
-class _Setup2State extends State<Setup2> {
+class _Setup22State extends State<Setup22> {
 
   bool isFaceRec = false;
   bool isFaceRec2 = false;
@@ -29,85 +29,68 @@ class _Setup2State extends State<Setup2> {
             child: Column(
               children: [
 
+                const Text("Please choose the modes of authorization "
+                    "that are required for access. "
+                    "Ex.) Choosing Fingerprint and Facial will require "
+                    "both to be verified for the lock to unlock."
+                ),
 
-                Text('Would you like to setup any of the following methods of authorizations (These can always be setup later in the settings)?'),
                 ListTile(
                   title: const Text('Facial Recognition'),
                   leading: Switch(
-                    value: isFaceRec2,
+                    value: isFaceRec,
                     onChanged: (bool value) {
                       setState(() {
-                        isFaceRec2 = value;
+                        isFaceRec = value;
+                      });
+                    },
+                  ),
+                ),
+
+                ListTile(
+                  title: const Text('Fingerprint Recognition'),
+                  leading: Switch(
+                    value: isFinger,
+                    onChanged: (bool value) {
+                      setState(() {
+                        isFinger = value;
+                      });
+                    },
+                  ),
+                ),
+
+                ListTile(
+                  title: const Text('RFID'),
+                  leading: Switch(
+                    value: isRFID,
+                    onChanged: (bool value) {
+                      setState(() {
+                        isRFID = value;
                       });
                     },
                   ),
                 ),
                 ListTile(
-                  title: const Text('Fingerprint Recognition'),
+                  title: const Text('Digital E-Key'),
                   leading: Switch(
-                    value: isFinger2,
+                    value: isEKEY,
                     onChanged: (bool value) {
                       setState(() {
-                        isFinger2 = value;
+                        isEKEY = value;
                       });
                     },
                   ),
                 ),
-
                 TextButton(
-                    onPressed: () async {
-                      setup = getSetup(isFaceRec2, isFinger2);
+                  onPressed: () async {
 
-                      if(setup == '11'){
-                        //push facerec setup
-                        //push finger setup
-                        Navigator.pushNamed(context, '/facerec');
-                        Navigator.pushNamed(context, '/finger');
-
-
-                      }
-                      else if(setup == '10'){
-                        //push facerec setup
-                        Navigator.pushNamed(context, '/facerec');
-
-                      }
-                      else if(setup == '01'){
-                        Navigator.pushNamed(context, '/finger');
-
-                        //push finger setup
-                      }else if(setup == '00'){
-                        //pop to settings
-                        Navigator.of(context).pop();
-
-                      }
-
-
-                    },
-                    child: Text("Next"),
+                  },
+                  child: Text("Save"),
                 )
               ],
             )
         )
     );
-  }
-
-  String getSetup(bool isFaceRec2, bool isFinger2){
-    String setup = '';
-
-    if(isFaceRec2){
-      setup = setup + '1';
-    }
-    else{
-      setup = setup + '0';
-    }
-    if(isFinger2){
-      setup = setup + '1';
-    }
-    else{
-      setup = setup + '0';
-    }
-
-    return setup;
   }
 
   String getTier(bool isFaceRec, bool isFinger, bool isRFID, bool isEKEY){

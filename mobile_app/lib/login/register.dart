@@ -1,6 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile_app/API/api.dart';
+
+import '../main.dart';
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -15,6 +20,24 @@ class _RegisterState extends State<Register> {
   final fnController = TextEditingController();
   final lnController = TextEditingController();
   final emailController = TextEditingController();
+  final referralController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+
+  @override
+  void dispose(){
+    userController.dispose(); // dispose controller when page is disposed
+    passController.dispose();
+    fnController.dispose();
+    lnController.dispose();
+    emailController.dispose();
+    referralController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +60,7 @@ class _RegisterState extends State<Register> {
               children: [
                 Container(
                   width: (MediaQuery.of(context).size.width) * 1,
-                  height: (MediaQuery.of(context).size.height) * .2,
+                  height: (MediaQuery.of(context).size.height) * .1,
                   decoration: const BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage("assets/images/smock_lock_bg_no_text.PNG"),
@@ -62,6 +85,7 @@ class _RegisterState extends State<Register> {
                 ),
                 SizedBox(height: (MediaQuery.of(context).size.height) * .03),
                 TextField(
+                  obscureText: true,
                   controller: passController,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(
@@ -128,6 +152,7 @@ class _RegisterState extends State<Register> {
                     filled: true,
                   ),
                 ),
+
                 SizedBox(height: (MediaQuery.of(context).size.height) * .03),
                 TextButton(
                   onPressed: () async {
@@ -138,6 +163,23 @@ class _RegisterState extends State<Register> {
                     var pass = passController.text.trim();
 
                     var res = await Api.register(email, fn, ln, user, pass);
+
+                    var res1 = await Api.login(user, pass);
+
+                    if (res1.statusCode == 200) { // Success, do login
+                      Map<String, dynamic> jsonObject = jsonDecode(res1.body);
+                      var jwt = jsonObject['token']['accessToken'];
+                      await storage.write(key: 'jwt', value: jwt);
+                      Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
+                      var userId = decodedToken["userId"];
+                      // api call to get mac adress and store it based on userid
+                      isLoggedIn = true;
+                      Navigator.pushNamed(
+                        context,
+                        '/home',
+                        arguments: {'jwt': jwt},
+                      );
+                    }
 
                   },
                   child: Container(
@@ -164,4 +206,5 @@ class _RegisterState extends State<Register> {
         )
     );
   }
+
 }

@@ -2,8 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile_app/API/api.dart';
 import 'package:mobile_app/main.dart';
+import 'package:mobile_app/utility/authorized_lock_info.dart';
+import 'package:mobile_app/utility/authorized_lock_info.dart';
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
 
@@ -92,6 +95,7 @@ class _LoginState extends State<Login> {
                   ),
                   SizedBox(height: (MediaQuery.of(context).size.height) * .02),
                   TextField(
+                    obscureText: true,
                     controller: passController,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(
@@ -112,6 +116,7 @@ class _LoginState extends State<Login> {
 
                   TextButton(
                     onPressed: () async {
+
                       String username = '', pass = '';
                       username = userController.text;
                       pass = passController.text;
@@ -121,10 +126,43 @@ class _LoginState extends State<Login> {
                         Map<String, dynamic> jsonObject = jsonDecode(res.body);
                         var jwt = jsonObject['token']['accessToken'];
                         await storage.write(key: 'jwt', value: jwt);
-                        isLoggedIn = true;
-                        Navigator.pushNamed(context, '/home');
-                      }
+                        Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
+                        var userId = decodedToken["userId"];
+                        //var jwt = await storage.read(key: 'jwt', value: jwt);
+                        //Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
+                        // var userId = decodedToken["userId"];
+                        // print(decodedToken["locks"]);
+                        // print(decodedToken["locks"][0]["masterLockId"]);
+                        /*
+                        // api call to get mac adress and store it based on userid
+                        var res2 = await Api.getLock();
+                        Map<String, dynamic> jsonObject2 = jsonDecode(res2.body);
 
+                        var masterLock = jsonObject2['result'];
+                        var masterMac = masterLock[0]['MACAddress'];
+
+                        var authorizedLocks = jsonObject2['result2'];
+                        List authorizedMacs = [];
+                        List authorizedLocksList = [];
+
+                        for(int i = 0; i < authorizedLocks.length; i++){
+                          authorizedMacs.add(authorizedLocks[i]['MACAddress']);
+                          authorizedLocksList.add(authorizedLocks[i]);
+                        }
+
+                        AuthorizedLocks.authorizedMacs = authorizedMacs;
+                        AuthorizedLocks.authorizedLocks = authorizedLocksList;
+                        AuthorizedLocks.masterLock = masterLock;
+                        AuthorizedLocks.masterMac = masterMac;
+
+                        */
+                        isLoggedIn = true;
+                        Navigator.pushNamed(
+                            context,
+                            '/home',
+                            arguments: {'jwt': jwt},
+                        );
+                      }
                       else if (res.statusCode != 200) { // fail // trying to figure out how to do a dialog popup saying what error it is
                         var errTitle = 'Error';
                         var errMessage = '${res.statusCode}';

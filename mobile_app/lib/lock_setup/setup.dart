@@ -25,19 +25,6 @@ class _SetupState extends State<Setup> {
     super.dispose();
   }
 
-  Future<int> wifiStatus() async {
-    int lockStatus = 0;
-
-    while(lockStatus == 0){
-      var res = await Api.checkWifiStatus();
-      print("111111");
-      //check res to see if status is 0 or 1
-      //set lockstatus to status
-    }
-    // move to next page with assumption it is connected to wifi
-    return 1;
-
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +61,7 @@ class _SetupState extends State<Setup> {
             TextButton(
                 onPressed: () async {
                   var res = await Api.linklock(macController.text);
+                  print(res.body);
                   // Alert: GO TO SETTINGS AND CONNECT TO LOCK WIFI
                   //        INPUT WIFI INFORMATION TO CONNECT Lock
                   //        STAY IN LOOP UNTIL PROCESS IS FINISHED
