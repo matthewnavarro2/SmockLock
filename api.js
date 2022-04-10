@@ -133,7 +133,7 @@ exports.setApp = function ( app, client )
 
       // Grabbing picture from parameter
       const {userId, jwtToken} = req.body;
-
+      var _resultsarray = [];
       // Checking to see if Token Expired
       try
       {
@@ -184,7 +184,7 @@ exports.setApp = function ( app, client )
         
         if (result.length > 0)
         {
-          var _resultsarray = [];
+          
         
 
           for( var i=0; i<result.length; i++ )
