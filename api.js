@@ -996,7 +996,7 @@ exports.setApp = function ( app, client )
       // outgoing: error
 
       // Grabbing picture from parameter
-      const {name, pic, jwtToken} = req.body;
+      const {userId, pic, jwtToken} = req.body;
 
       // Checking to see if token has expired
       try
@@ -1013,7 +1013,7 @@ exports.setApp = function ( app, client )
         console.log(e.message);
       }
       // Variable Declaration
-      var newPic = {Name:name, Pic:pic};
+      var newPic = {UserId:Number(userId), Pic:pic};
       var error = '';
 
       // Connecting to database and adding a picture
