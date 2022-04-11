@@ -199,7 +199,7 @@ class Api {
     var userId = decodedToken["userId"];
 
     var res = await http.post(
-        Uri.parse('$SERVER_IP/getFingerId'),
+        Uri.parse('$SERVER_IP/enrollRFID'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
