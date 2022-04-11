@@ -46,7 +46,14 @@ class _FingerState extends State<Finger> {
                 var fingerId = jsonObject2['newFpUserId'];
                 
                 var res3 = await Api.startFingerEnrollment(ip, fingerId.toString());
-                print(res3.body);
+                if(res3.body == "Success"){
+                  print(res3.body);
+                }else if(res3.body == "Failed"){
+                  print(res3.body);
+                }else{
+                  print("this mega failed");
+                }
+
               },
               child: Text('Start enrollment process'),
           ),
