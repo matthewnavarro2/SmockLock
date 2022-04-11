@@ -353,8 +353,8 @@ exports.setApp = function ( app, client )
       {
         const db = client.db();
 
-        const ipSearchResult = await db.collection('Lock').find({IP: ip});
-        if (ipSearchResult)
+        const ipSearchResult = await db.collection('Lock').find({IP: ip}).toArray();
+        if (ipSearchResult.length > 0)
         {
           error = 'error already existing ip address'
         }
