@@ -174,6 +174,44 @@ class Api {
     return res;
   }
 
+  static Future enrollFinger(String macAdd, String fingerId) async {
+    var jwt = await storage.read(key: "jwt");
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
+    var userId = decodedToken["userId"];
+
+    var res = await http.post(
+        Uri.parse('$SERVER_IP/enrollFinger'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'macAdd': macAdd,
+          'fp' : fingerId,
+          'userId' : userId,
+        })
+    );
+    return res;
+  }
+
+  static Future enrollRFID(String macAdd, String rfid) async {
+    var jwt = await storage.read(key: "jwt");
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
+    var userId = decodedToken["userId"];
+
+    var res = await http.post(
+        Uri.parse('$SERVER_IP/getFingerId'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'macAdd': macAdd,
+          'rfid' : rfid,
+          'userId' : userId,
+        })
+    );
+    return res;
+  }
+
   static Future getFingerId(String macAdd) async {
     var res = await http.post(
         Uri.parse('$SERVER_IP/getFingerId'),

@@ -37,7 +37,15 @@ class _RfidState extends State<Rfid> {
                 var res = await Api.getLockUI(userId);
                 Map<String, dynamic> jsonObject = jsonDecode(res.body);
                 var ip = jsonObject["result"][0]["IP"];
+                var mac = jsonObject["result"][0]["MACAddress"];
                 var res2 = await Api.startRfidEnrollment(ip);
+                print(res2.body);
+                if(res2.body == "Failed" || res2.body == "" || res2 == null){
+                  print("Failure. Please try again");
+                }else{
+                  var rfid = res2.body;
+                  var res1 = await Api.enrollRFID(mac, rfid);
+                }
 
                 // print(decodedToken["locks"]);
                 // print(decodedToken["locks"][0]["masterLockId"]);
