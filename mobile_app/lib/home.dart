@@ -20,7 +20,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late String selectedValue;
+  String selectedValue = '';
   late var jwt;
   var time = 0;
 
@@ -33,22 +33,29 @@ class _HomeState extends State<Home> {
     Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
     List<DropdownMenuItem<String>> dropdownItems = [];
 
-    //time is used to auto set the lock being used to ur own lock.
-    if(time == 0){
-      selectedValue = decodedToken["locks"][0]["masterLockId"].toString();
-      time++;
-    }
-    // for loop to populate a list of locks that the account has access to
-    for(int i = 0; i < decodedToken["locks"].length; i++){
-      if(decodedToken["locks"][i]["access"] == "Master"){
-        var masterLockId = decodedToken["locks"][i]["masterLockId"];
-        dropdownItems.add(DropdownMenuItem(child: Text("Master Lock$i"), value: masterLockId.toString()));
+    // NEED TO IMPLEMENT THE FOLLOWING:
+    // 1. HANDLE WHEN THERE IS NO LOCKS THE USER IS AUTHORIZED FOR
+    // 2. HANDLE WHEN THERE IS ONLY AUTHORIZEDUSER LOCKS for the user
+
+    if(decodedToken["locks"].length > 0){
+      //time is used to auto set the lock being used to ur own lock.
+      if(time == 0){
+        selectedValue = decodedToken["locks"][0]["masterLockId"].toString();
+        time++;
       }
-      else if(decodedToken["locks"][i]["access"] == "aUser"){
-        var masterLockId = decodedToken["locks"][i]["masterLockId"];
-        dropdownItems.add(DropdownMenuItem(child: Text("AuthLock$i"), value: masterLockId.toString()));
+      // for loop to populate a list of locks that the account has access to
+      for(int i = 0; i < decodedToken["locks"].length; i++){
+        if(decodedToken["locks"][i]["access"] == "Master"){
+          var masterLockId = decodedToken["locks"][i]["masterLockId"];
+          dropdownItems.add(DropdownMenuItem(child: Text("Master Lock$i"), value: masterLockId.toString()));
+        }
+        else if(decodedToken["locks"][i]["access"] == "aUser"){
+          var masterLockId = decodedToken["locks"][i]["masterLockId"];
+          dropdownItems.add(DropdownMenuItem(child: Text("AuthLock$i"), value: masterLockId.toString()));
+        }
       }
     }
+
     ////////////////////////////////////////////////////////////////////////////////////////
     return Scaffold(
       body: Container(
@@ -209,7 +216,35 @@ class _HomeState extends State<Home> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    Navigator.pushNamed(context, '/ekey');
+                    var res = await Api.listEKey();
+                    print(res.body);
+
+                    var resultObjsJson = jsonDecode(
+                        res.body)['result_array'] as List;
+                    List<GetResults> resultObjs = resultObjsJson.map((resultJson) =>
+                        GetResults.fromJson(resultJson)).toList();
+
+
+                    try {
+                      /* first ekey info */
+
+                      ////////////////////
+
+
+                      /*maybe length of ekeys returned from certain user*/
+                      var resultlength = resultObjs.length;
+                      ////////////////////////
+
+
+                      Navigator.pushNamed(
+                        context,
+                        '/listekeys',
+                        arguments: {'resultObjs': resultObjs},
+
+                      );
+                    } catch (e) {
+                      print(e);
+                    }
                   },
                   child: const CircleAvatar(
                     radius: 50,
@@ -217,6 +252,7 @@ class _HomeState extends State<Home> {
                     backgroundImage:  AssetImage("assets/images/housekey.PNG"),
                   ),
                 ),
+
               ],
             ),
             /*

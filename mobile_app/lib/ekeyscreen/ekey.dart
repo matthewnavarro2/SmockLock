@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_app/API/api.dart';
+import 'package:mobile_app/ekeyscreen/parse_json_ekey.dart';
 
 class Ekeyscreen extends StatefulWidget {
   const Ekeyscreen({Key? key}) : super(key: key);
@@ -119,9 +122,37 @@ class _EkeyscreenState extends State<Ekeyscreen> {
                 var email = emailController.text;
 
 
-                var res = await Api.createEKey(timeOfDay, email, fn, ln);
-                print(res.body);
-                Navigator.pop(context);
+                var res1 = await Api.createEKey(timeOfDay, email, fn, ln);
+
+                //
+                var res = await Api.listEKey();
+
+                var resultObjsJson = jsonDecode(
+                    res.body)['result_array'] as List;
+                List<GetResults> resultObjs = resultObjsJson.map((resultJson) =>
+                    GetResults.fromJson(resultJson)).toList();
+
+
+                try {
+                  /* first ekey info */
+
+                  ////////////////////
+
+
+                  /*maybe length of ekeys returned from certain user*/
+                  var resultlength = resultObjs.length;
+                  ////////////////////////
+
+                  Navigator.pop(context);
+                  Navigator.pushNamed(
+                    context,
+                    '/listekeys',
+                    arguments: {'resultObjs': resultObjs},
+
+                  );
+                } catch (e) {
+                  print(e);
+                }
 
               },
               child: const Text('Expiration Date')

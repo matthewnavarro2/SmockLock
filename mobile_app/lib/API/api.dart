@@ -43,6 +43,7 @@ class Api {
     var jwt = await storage.read(key:"jwt");
     Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
     var name = decodedToken["firstName"];
+    var userId = decodedToken["userId"];
 
     var res = await http.post(
         Uri.parse('$SERVER_IP/addPic'),
@@ -50,7 +51,7 @@ class Api {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, String>{
-          'name': name,
+          'userId': userId,
           'pic': base64,
           'jwtToken': jwt,
           })
