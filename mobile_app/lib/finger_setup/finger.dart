@@ -44,9 +44,9 @@ class _FingerState extends State<Finger> {
                 var res2 = await Api.getFingerId(mac);
                 Map<String, dynamic> jsonObject2 = jsonDecode(res2.body);
                 var fingerId = jsonObject2['newFpUserId'];
-
+                
                 var res3 = await Api.startFingerEnrollment(ip, fingerId.toString());
-                print(res3);
+                print(res3.body);
               },
               child: Text('Start enrollment process'),
           ),
