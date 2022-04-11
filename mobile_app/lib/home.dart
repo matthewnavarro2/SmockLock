@@ -217,25 +217,16 @@ class _HomeState extends State<Home> {
                 TextButton(
                   onPressed: () async {
                     var res = await Api.listEKey();
-                    print(res.body);
-
                     var resultObjsJson = jsonDecode(
                         res.body)['result_array'] as List;
                     List<GetResults> resultObjs = resultObjsJson.map((resultJson) =>
                         GetResults.fromJson(resultJson)).toList();
-
-
                     try {
                       /* first ekey info */
-
                       ////////////////////
-
-
                       /*maybe length of ekeys returned from certain user*/
                       var resultlength = resultObjs.length;
                       ////////////////////////
-
-
                       Navigator.pushNamed(
                         context,
                         '/listekeys',
