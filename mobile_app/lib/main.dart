@@ -17,7 +17,7 @@ import 'package:mobile_app/settingscreen/settings.dart';
 import 'camerascreen/takepicturescreen.dart';
 import 'ekeyscreen/editekey.dart';
 import 'finger_setup/finger.dart';
-import 'home.dart';
+import 'home/home.dart';
 import 'login/intro.dart';
 
 const SERVER_IP = 'http://smocklock2.herokuapp.com/api';

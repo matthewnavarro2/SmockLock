@@ -154,6 +154,16 @@ class Api {
     return res;
   }
 
+  static Future unlockDoor(String ip) async {
+    String message = "";
+    message = "  unlockDoor-";
+    var res = await http.post(
+      Uri.parse('http://$ip:80/body'),
+      body: message,
+    );
+    return res;
+  }
+
   static Future startRfidEnrollment(String ip) async {
     String message = "";
     message = " enrollRFID-";
