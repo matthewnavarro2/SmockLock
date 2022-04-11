@@ -130,7 +130,8 @@ void callFacialRec()
   {
     // HTTP header has been send and Server response header has been handled
     String payload = http.getString();
-    Serial.println("2");
+    Serial.println(payload);
+    Serial2.write(payload);
   }
   else
   {
@@ -226,7 +227,7 @@ void loop()
       if(face_dec == true)
       {
         Serial.println("Picture sucessfully taken and processed");
-        esp_deep_sleep_start();
+        face_dec = false;
       }
       else
       {
