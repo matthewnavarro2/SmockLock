@@ -208,6 +208,8 @@ class _HomeState extends State<Home> {
               children: [
                 TextButton(
                   onPressed: () async {
+                    var jwt = await storage.read(key:"jwt");
+                    Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
                     var userId = decodedToken["userId"];
                     var res = await Api.getLockUI(userId);
                     Map<String, dynamic> jsonObject = jsonDecode(res.body);
