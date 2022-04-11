@@ -50,8 +50,8 @@ class Api {
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode(<String, String>{
-          'userId': userId,
+        body: jsonEncode({
+          'userId': userId.toString(),
           'pic': base64,
           'jwtToken': jwt,
           })
