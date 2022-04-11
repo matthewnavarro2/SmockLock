@@ -148,7 +148,7 @@ class Api {
     String message = "";
     message = " enrollFinger-" + fingerId +  "-";
     var res = await http.post(
-      Uri.parse('http://$ip/body'),
+      Uri.parse('http://$ip:80/body'),
       body: message,
     );
     return res;
@@ -158,7 +158,7 @@ class Api {
     String message = "";
     message = " enrollRFID-";
     var res = await http.post(
-      Uri.parse('http://$ip/body'),
+      Uri.parse('http://$ip:80/body'),
       body: message,
     );
     return res;
