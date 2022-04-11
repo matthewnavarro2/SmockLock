@@ -128,34 +128,10 @@ class _LoginState extends State<Login> {
                         await storage.write(key: 'jwt', value: jwt);
                         Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
                         var userId = decodedToken["userId"];
-                        //var jwt = await storage.read(key: 'jwt', value: jwt);
-                        //Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
-                        // var userId = decodedToken["userId"];
-                        // print(decodedToken["locks"]);
-                        // print(decodedToken["locks"][0]["masterLockId"]);
-                        /*
-                        // api call to get mac adress and store it based on userid
-                        var res2 = await Api.getLock();
-                        Map<String, dynamic> jsonObject2 = jsonDecode(res2.body);
 
-                        var masterLock = jsonObject2['result'];
-                        var masterMac = masterLock[0]['MACAddress'];
 
-                        var authorizedLocks = jsonObject2['result2'];
-                        List authorizedMacs = [];
-                        List authorizedLocksList = [];
 
-                        for(int i = 0; i < authorizedLocks.length; i++){
-                          authorizedMacs.add(authorizedLocks[i]['MACAddress']);
-                          authorizedLocksList.add(authorizedLocks[i]);
-                        }
 
-                        AuthorizedLocks.authorizedMacs = authorizedMacs;
-                        AuthorizedLocks.authorizedLocks = authorizedLocksList;
-                        AuthorizedLocks.masterLock = masterLock;
-                        AuthorizedLocks.masterMac = masterMac;
-
-                        */
                         isLoggedIn = true;
                         Navigator.pushNamed(
                             context,
