@@ -1326,7 +1326,7 @@ exports.setApp = function ( app, client )
         const db = client.db();
 
 
-        const userResult = await db.collection('Users').find({UserId: userId}).toArray();
+        const userResult = await db.collection('Users').find({UserId: Number(userId)}).toArray();
         result = userResult;
         error = 'success';
       }
