@@ -905,7 +905,7 @@ exports.setApp = function ( app, client )
 
       try{
         const db = client.db();
-        const rfidResult = await db.collection('Users').updateOne({UserId: userId}, {$set: {RFID: rfid}});
+        const rfidResult = await db.collection('Users').updateOne({UserId: Number(userId)}, {$set: {RFID: rfid}});
         const check = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
         console.log(check);
         if (check.length > 0)
@@ -924,12 +924,12 @@ exports.setApp = function ( app, client )
             error = 'RFID already exists under lock no need to update'
           } 
           
-          const authCheck1 = await db.collection('Lock').find({MACAddress:macAdd, AuthorizedUsers:userId}).toArray();
+          const authCheck1 = await db.collection('Lock').find({MACAddress:macAdd, AuthorizedUsers:Number(userId)}).toArray();
           if (authCheck1.length < 1) 
           {
             const finger1Result = await db.collection('Lock').updateOne(
               { "MACAddress" : macAdd },
-              { $push: { "AuthorizedUsers" : userId } }
+              { $push: { "AuthorizedUsers" : Number(userId) } }
               );
           }
           else{
