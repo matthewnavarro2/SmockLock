@@ -769,23 +769,48 @@ exports.setApp = function ( app, client )
       try
       {
         const db = client.db();
-        const fpResult = await db.collection('Users').update({UserId: userId}, {$set: {Fingerprint: fp}});
-
-        const rfidResult = db.collection('Lock').updateOne(
-          { "MACAddress" : macAdd },
-          { $push: { "FingerPrintId" : fp } }
-          );
-
-        const checkResult = db.collection('Lock').find(userId);
-        if (checkResult == null)
+        const fpResult = await db.collection('Users').updateOne({UserId: userId}, {$set: {Fingerprint: fp}});
+        const check = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
+        console.log(check);
+        if (check.length > 0)
         {
-          const rfid1Result = db.collection('Lock').updateOne(
-            { "MACAddress" : macAdd },
-            { $push: { "AuthorizedUsers" : userId } }
-            );
-        }
+          const authCheck = await db.collection('Lock').find({MACAddress:macAdd, FingerPrintId:fp}).toArray();
+          if (authCheck.length < 1)
+          {
+            const fingerResult = await db.collection('Lock').updateOne(
+              { "MACAddress" : macAdd },
+              { $push: { "FingerPrintId" : fp } }
+              );
+              error = 'fingerprint has been added.';
+          }
+          else
+          {
+            error = 'FingerprintId already exists under lock no need to update'
+          } 
+          
+          const authCheck1 = await db.collection('Lock').find({MACAddress:macAdd, AuthorizedUsers:userId}).toArray();
+          if (authCheck1.length < 1) 
+          {
+            const finger1Result = await db.collection('Lock').updateOne(
+              { "MACAddress" : macAdd },
+              { $push: { "AuthorizedUsers" : userId } }
+              );
+          }
+          else{
+            error = 'UserId is already an Authorized User no need to update'
+          }
+          
+
+          
+          
+
+        }else{
+          error = 'Could not find lock with matching MACAddress';
+        } 
         
-        error = 'fingerprint has been added.';
+
+       
+        
         
       }
       
@@ -878,31 +903,49 @@ exports.setApp = function ( app, client )
       var error = '';
       
 
-      try
-      {
+      try{
         const db = client.db();
-        
-        const userResult = await db.collection('Users').update({UserId: userId}, {$set: {RFID: rfid}});;
-
-        const rfidResult = db.collection('Lock').updateOne(
-          { "MACAddress" : macAdd },
-          { $push: { "RFID" : rfid } }
-          );
-
-        const checkResult = db.collection('Lock').find(userId);
-        if (checkResult == null)
+        const rfidResult = await db.collection('Users').updateOne({UserId: userId}, {$set: {RFID: rfid}});
+        const check = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
+        console.log(check);
+        if (check.length > 0)
         {
-          const rfid1Result = db.collection('Lock').updateOne(
-            { "MACAddress" : macAdd },
-            { $push: { "AuthorizedUsers" : userId } }
-            );
-        }
+          const authCheck = await db.collection('Lock').find({MACAddress:macAdd, RFID:rfid}).toArray();
+          if (authCheck.length < 1)
+          {
+            const fingerResult = await db.collection('Lock').updateOne(
+              { "MACAddress" : macAdd },
+              { $push: { "RFID" : rfid } }
+              );
+              error = 'RFID has been added.';
+          }
+          else
+          {
+            error = 'RFID already exists under lock no need to update'
+          } 
+          
+          const authCheck1 = await db.collection('Lock').find({MACAddress:macAdd, AuthorizedUsers:userId}).toArray();
+          if (authCheck1.length < 1) 
+          {
+            const finger1Result = await db.collection('Lock').updateOne(
+              { "MACAddress" : macAdd },
+              { $push: { "AuthorizedUsers" : userId } }
+              );
+          }
+          else{
+            error = 'UserId is already an Authorized User no need to update'
+          }
+          
+
+          
+        }else{
+          error = 'Could not find lock with matching MACAddress';
+        } 
         
-        error = 'rfid has been added.';
+        
+        
         
       }
-      
-      // Prints error if failed
       catch(e)
       {
         error = e.message;
