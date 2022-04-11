@@ -817,24 +817,33 @@ exports.setApp = function ( app, client )
         fingerArray = lockResult[0].FingerPrintId;
         console.log(fingerArray);
         
+        if (fingerArray.length < 1)
+        {
+          newFingerId = 1;
+        }
+
         if (fingerArray.length == 127)
         {
-          for (var i = 0; i < fingerArray.length;i++)
+          for (var i = 1; i < fingerArray.length+1;i++)
           {
             if (fingerArray[i] == 0)
             {
-              faulty = i + 1;
+              faulty = i;
+              const result1 = await db.collection('Lock').updateOne(
+                {"FingerPrintId":0},
+                {$set: {"FingerPrintId.$":String(faulty)}}
+                );  
               break;
             }
+            if (fingerArray[i] == '0')
+            {
+              const result = await db.collection('Lock').updateOne(
+                {"FingerPrintId":'0'},
+                {$set: {"FingerPrintId.$":String(faulty)}}
+                );
+            }
           }
-          const result = await db.collection('Lock').updateOne(
-            {"FingerPrintId":'0'},
-            {$set: {"FingerPrintId.$":String(faulty)}}
-            );
-          const result1 = await db.collection('Lock').updateOne(
-            {"FingerPrintId":0},
-            {$set: {"FingerPrintId.$":String(faulty)}}
-            );  
+          
         }
         
         
