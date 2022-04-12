@@ -21,7 +21,9 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String selectedValue = "-1";
+  String userName = '';
   late var jwt;
+  var nameList;
   var time = 0;
 
   @override
@@ -30,6 +32,7 @@ class _HomeState extends State<Home> {
     // This is done everytime the page is built. Set state causes this portion to run again..
     final arguments = ModalRoute.of(context)!.settings.arguments as Map;
     jwt = arguments['jwt'];
+    nameList = arguments['nameList'];
     Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
     List<DropdownMenuItem<String>> dropdownItems = [];
 
@@ -47,17 +50,27 @@ class _HomeState extends State<Home> {
       for(int i = 0; i < decodedToken["locks"].length; i++){
         if(decodedToken["locks"][i]["access"] == "Master"){
           var masterLockId = decodedToken["locks"][i]["masterLockId"];
-          dropdownItems.add(DropdownMenuItem(child: Text("Master Lock$i"), value: masterLockId.toString()));
+          dropdownItems.add(DropdownMenuItem(child: Text("${nameList[i]}'s Lock"), value: masterLockId.toString()));
+          if(selectedValue == masterLockId.toString()){
+            userName = "${nameList[i]}'s Lock";
+          }
         }
         else if(decodedToken["locks"][i]["access"] == "aUser"){
           var masterLockId = decodedToken["locks"][i]["masterLockId"];
-          dropdownItems.add(DropdownMenuItem(child: Text("AuthLock$i"), value: masterLockId.toString()));
+          dropdownItems.add(DropdownMenuItem(child: Text("${nameList[i]}'s Lock"), value: masterLockId.toString()));
+          if(selectedValue == masterLockId.toString()){
+            userName = "${nameList[i]}'s Lock";
+          }
         }
       }
 
     }
     dropdownItems.add(DropdownMenuItem(child: Text("Add a new lock"), value: "-1"));
     var user = decodedToken["userId"];
+    // get first and last name of selected value "masterlockid" and assign to userName
+    //userName = nameList[parseselectedValue]
+
+
     if(selectedValue == "$user")
     {
       // master lock
@@ -110,7 +123,7 @@ class _HomeState extends State<Home> {
               ),
               SizedBox(height: MediaQuery.of(context).size.height * .08),
               Text(
-                selectedValue,
+                userName,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 25,
@@ -348,7 +361,7 @@ class _HomeState extends State<Home> {
               ),
               SizedBox(height: MediaQuery.of(context).size.height * .08),
               Text(
-                selectedValue,
+                userName,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 25,
@@ -513,13 +526,46 @@ class _HomeState extends State<Home> {
                 ],
               ),
               SizedBox(height: MediaQuery.of(context).size.height * .08),
-              Text(
-                selectedValue,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 25,
+              Card(
+                child: Text(
+                  "Welcome to the SMOCK Lock Application",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 25,
+                  ),
                 ),
               ),
+
+              SizedBox(height: MediaQuery.of(context).size.height * .08),
+
+              ListTile(
+                leading: TextButton(
+                  onPressed: (){
+                    Navigator.pushNamed(context, '/setup');
+                  },
+                  child: Text("CLICK"),
+                ),
+                title: Text(
+                  "Attach your lock to your account.",
+                  style: const TextStyle(
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: TextButton(
+                  onPressed: (){
+
+                  },
+                  child: Text("CLICK"),
+                ),
+                title: Text(
+                  "Have a referral code? Join a lock now!",
+                  style: const TextStyle(
+                  ),
+                ),
+              ),
+
+
 
 
             ],
