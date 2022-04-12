@@ -129,9 +129,11 @@ void callFacialRec()
   if (httpCode > 0)
   {
     // HTTP header has been send and Server response header has been handled
+    Serial2.write("[HTTP Pass]");
     String payload = http.getString();
     Serial.println(payload);
-    Serial2.write(payload);
+    delay(5000);
+    Serial2.print(payload);
   }
   else
   {
@@ -189,28 +191,27 @@ void takePic()
     // httpCode will be negative on error
     if (httpCode > 0)
     {
-      // HTTP header has been send and Server response header has been handled
-      Serial2.write("[HTTP Pass]");
-
       // file found at server
       if (httpCode == HTTP_CODE_OK)
       {
        String payload = http.getString();
        //Serial.println(payload);
       }
+
+      http.end(); 
+      delay(2000);
+      callFacialRec();
     }
     else
     {
       Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
       Serial2.write("[HTTP Fail]");
     }
-   http.end(); 
-   delay(2000);
-   callFacialRec();
    }
    else
    {
       Serial.println("Camera failed to capture face");
+      Serial2.write("[Camera Fail]");
    }
 
   esp_camera_fb_return(fb);
@@ -220,32 +221,10 @@ void loop()
 { 
   if(Serial2.available())
   {
-    while(face_dec == false)
-    {
-      limit++;
-      takePic();
-      if(face_dec == true)
-      {
-        Serial.println("Picture sucessfully taken and processed");
-        face_dec = false;
-      }
-      else
-      {
-        Serial.println("Move Person");
-        Serial2.write("[Camera Fail]");
-      }
-
-      if(limit == 5)
-      {
-        Serial.println("Failed to cap, turning off");
-        Serial2.write("[Detect Fail]");
-        limit = 0;
-        esp_deep_sleep_start();
-      }
-      delay(5000);
-    }
+    Serial.println("Im in");
+    takePic();
   }
-  delay(5000);
+  delay(7000);
 }
 
 
