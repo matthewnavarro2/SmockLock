@@ -133,7 +133,7 @@ exports.setApp = function ( app, client )
 
       // Grabbing picture from parameter
       const {userId, jwtToken} = req.body;
-
+      var _resultsarray = [];
       // Checking to see if Token Expired
       try
       {
@@ -148,27 +148,10 @@ exports.setApp = function ( app, client )
       {
         console.log(e.message);
       }
-
-      if( results.length > 0 )
-      {
-        id = results[0].UserId;
-        fn = results[0].FirstName;
-        ln = results[0].LastName;
-
-
-        try
-        {
-          const token = require("./createJWT.js");
-           ret = {token: token.createToken( fn, ln, id )};
-           // var ret = { results:_ret, error: error, jwtToken: refreshedToken };
-        }
-        catch(e)
-        {
-          ret = {error:e.message};
-        }
-      }
+      
+      
       // Variable Declaration
-      var user = {userId:userId};
+      var user = {userId:Number(userId)};
       var error = '';
 
       // Connecting to database and searching for Pictures associated with User.
@@ -176,12 +159,44 @@ exports.setApp = function ( app, client )
       {
         const db = client.db();
         const result = await db.collection('EKey').find(user).toArray();
-        var _resultsarray = [];
-
-        for( var i=0; i<result.length; i++ )
+        const results = await db.collection('Users').find(user).toArray();
+        if( results.length > 0 )
         {
-        _resultsarray.push( result[i]);
+          id = results[0].UserId;
+          fn = results[0].FirstName;
+          ln = results[0].LastName;
+
+
+          try
+          {
+            const token = require("./createJWT.js");
+            ret = {token: token.createToken( fn, ln, id )};
+            // var ret = { results:_ret, error: error, jwtToken: refreshedToken };
+          }
+          catch(e)
+          {
+            ret = {error:e.message};
+          }
         }
+        else{
+          error = 'Error finding a user match on the databse jwt';
+        }
+        
+        if (result.length > 0)
+        {
+          
+        
+
+          for( var i=0; i<result.length; i++ )
+          {
+            _resultsarray.push( result[i]);
+          }
+        }
+        else
+        {
+          error = 'No EKeys on the database';
+        }
+        
         
       }
 
@@ -338,8 +353,8 @@ exports.setApp = function ( app, client )
       {
         const db = client.db();
 
-        const ipSearchResult = await db.collection('Lock').find({IP: ip});
-        if (ipSearchResult)
+        const ipSearchResult = await db.collection('Lock').find({IP: ip}).toArray();
+        if (ipSearchResult.length > 0)
         {
           error = 'error already existing ip address'
         }
@@ -754,23 +769,48 @@ exports.setApp = function ( app, client )
       try
       {
         const db = client.db();
-        const fpResult = await db.collection('Users').update({UserId: userId}, {$set: {Fingerprint: fp}});
-
-        const rfidResult = db.collection('Lock').updateOne(
-          { "MACAddress" : macAdd },
-          { $push: { "FingerPrintId" : fp } }
-          );
-
-        const checkResult = db.collection('Lock').find(userId);
-        if (checkResult == null)
+        const fpResult = await db.collection('Users').updateOne({UserId: userId}, {$set: {Fingerprint: fp}});
+        const check = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
+        console.log(check);
+        if (check.length > 0)
         {
-          const rfid1Result = db.collection('Lock').updateOne(
-            { "MACAddress" : macAdd },
-            { $push: { "AuthorizedUsers" : userId } }
-            );
-        }
+          const authCheck = await db.collection('Lock').find({MACAddress:macAdd, FingerPrintId:fp}).toArray();
+          if (authCheck.length < 1)
+          {
+            const fingerResult = await db.collection('Lock').updateOne(
+              { "MACAddress" : macAdd },
+              { $push: { "FingerPrintId" : fp } }
+              );
+              error = 'fingerprint has been added.';
+          }
+          else
+          {
+            error = 'FingerprintId already exists under lock no need to update'
+          } 
+          
+          const authCheck1 = await db.collection('Lock').find({MACAddress:macAdd, AuthorizedUsers:userId}).toArray();
+          if (authCheck1.length < 1) 
+          {
+            const finger1Result = await db.collection('Lock').updateOne(
+              { "MACAddress" : macAdd },
+              { $push: { "AuthorizedUsers" : userId } }
+              );
+          }
+          else{
+            error = 'UserId is already an Authorized User no need to update'
+          }
+          
+
+          
+          
+
+        }else{
+          error = 'Could not find lock with matching MACAddress';
+        } 
         
-        error = 'fingerprint has been added.';
+
+       
+        
         
       }
       
@@ -802,24 +842,33 @@ exports.setApp = function ( app, client )
         fingerArray = lockResult[0].FingerPrintId;
         console.log(fingerArray);
         
+        if (fingerArray.length < 1)
+        {
+          newFingerId = 1;
+        }
+
         if (fingerArray.length == 127)
         {
-          for (var i = 0; i < fingerArray.length;i++)
+          for (var i = 1; i < fingerArray.length+1;i++)
           {
             if (fingerArray[i] == 0)
             {
-              faulty = i + 1;
+              faulty = i;
+              const result1 = await db.collection('Lock').updateOne(
+                {"FingerPrintId":0},
+                {$set: {"FingerPrintId.$":String(faulty)}}
+                );  
               break;
             }
+            if (fingerArray[i] == '0')
+            {
+              const result = await db.collection('Lock').updateOne(
+                {"FingerPrintId":'0'},
+                {$set: {"FingerPrintId.$":String(faulty)}}
+                );
+            }
           }
-          const result = await db.collection('Lock').updateOne(
-            {"FingerPrintId":'0'},
-            {$set: {"FingerPrintId.$":String(faulty)}}
-            );
-          const result1 = await db.collection('Lock').updateOne(
-            {"FingerPrintId":0},
-            {$set: {"FingerPrintId.$":String(faulty)}}
-            );  
+          
         }
         
         
@@ -854,31 +903,49 @@ exports.setApp = function ( app, client )
       var error = '';
       
 
-      try
-      {
+      try{
         const db = client.db();
-        
-        const userResult = await db.collection('Users').update({UserId: userId}, {$set: {RFID: rfid}});;
-
-        const rfidResult = db.collection('Lock').updateOne(
-          { "MACAddress" : macAdd },
-          { $push: { "RFID" : rfid } }
-          );
-
-        const checkResult = db.collection('Lock').find(userId);
-        if (checkResult == null)
+        const rfidResult = await db.collection('Users').updateOne({UserId: Number(userId)}, {$set: {RFID: rfid}});
+        const check = await db.collection('Lock').find({MACAddress:macAdd}).toArray();
+        console.log(check);
+        if (check.length > 0)
         {
-          const rfid1Result = db.collection('Lock').updateOne(
-            { "MACAddress" : macAdd },
-            { $push: { "AuthorizedUsers" : userId } }
-            );
-        }
+          const authCheck = await db.collection('Lock').find({MACAddress:macAdd, RFID:rfid}).toArray();
+          if (authCheck.length < 1)
+          {
+            const fingerResult = await db.collection('Lock').updateOne(
+              { "MACAddress" : macAdd },
+              { $push: { "RFID" : rfid } }
+              );
+              error = 'RFID has been added.';
+          }
+          else
+          {
+            error = 'RFID already exists under lock no need to update'
+          } 
+          
+          const authCheck1 = await db.collection('Lock').find({MACAddress:macAdd, AuthorizedUsers:Number(userId)}).toArray();
+          if (authCheck1.length < 1) 
+          {
+            const finger1Result = await db.collection('Lock').updateOne(
+              { "MACAddress" : macAdd },
+              { $push: { "AuthorizedUsers" : Number(userId) } }
+              );
+          }
+          else{
+            error = 'UserId is already an Authorized User no need to update'
+          }
+          
+
+          
+        }else{
+          error = 'Could not find lock with matching MACAddress';
+        } 
         
-        error = 'rfid has been added.';
+        
+        
         
       }
-      
-      // Prints error if failed
       catch(e)
       {
         error = e.message;
@@ -996,7 +1063,7 @@ exports.setApp = function ( app, client )
       // outgoing: error
 
       // Grabbing picture from parameter
-      const {name, pic, jwtToken} = req.body;
+      const {userId, pic, jwtToken} = req.body;
 
       // Checking to see if token has expired
       try
@@ -1013,7 +1080,7 @@ exports.setApp = function ( app, client )
         console.log(e.message);
       }
       // Variable Declaration
-      var newPic = {Name:name, Pic:pic};
+      var newPic = {UserId:Number(userId), Pic:pic};
       var error = '';
 
       // Connecting to database and adding a picture
@@ -1259,7 +1326,7 @@ exports.setApp = function ( app, client )
         const db = client.db();
 
 
-        const userResult = await db.collection('Users').find({UserId: userId}).toArray();
+        const userResult = await db.collection('Users').find({UserId: Number(userId)}).toArray();
         result = userResult;
         error = 'success';
       }

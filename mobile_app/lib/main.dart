@@ -8,6 +8,7 @@ import 'package:mobile_app/facerec_setup/facerec.dart';
 import 'package:mobile_app/lock_setup/setup.dart';
 import 'package:mobile_app/lock_setup/setup2.dart';
 import 'package:mobile_app/lock_setup/setup2_2.dart';
+import 'package:mobile_app/login/ekey_login.dart';
 import 'package:mobile_app/login/login.dart';
 import 'package:mobile_app/login/register.dart';
 import 'package:mobile_app/rfid_setup/rfid.dart';
@@ -16,7 +17,7 @@ import 'package:mobile_app/settingscreen/settings.dart';
 import 'camerascreen/takepicturescreen.dart';
 import 'ekeyscreen/editekey.dart';
 import 'finger_setup/finger.dart';
-import 'home.dart';
+import 'home/home.dart';
 import 'login/intro.dart';
 
 const SERVER_IP = 'http://smocklock2.herokuapp.com/api';
@@ -60,6 +61,7 @@ Future<void> main() async {
             '/setup2_2' : (context) => const Setup22(),
             '/auth_users' : (context) => const AuthorizedUsers(),
             '/rfid' : (context) => const Rfid(),
+            '/ekey_login' : (context) => const EKeyLogin(),
           }
 
   ));

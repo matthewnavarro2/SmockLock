@@ -29,7 +29,7 @@ class _IntroState extends State<Intro> {
                 SizedBox(height: (MediaQuery.of(context).size.height) * .1),
                 Container(
                   width: (MediaQuery.of(context).size.width) * 1,
-                  height: (MediaQuery.of(context).size.height) * .8,
+                  height: (MediaQuery.of(context).size.height) * .76,
                   decoration: const BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage("assets/images/smock_lock_bg.PNG"),
@@ -80,6 +80,15 @@ class _IntroState extends State<Intro> {
                       ),
                     ),
                   ],
+                ),
+                TextButton(
+                    onPressed: (){
+                      Navigator.pushNamed(
+                        context,
+                        '/ekey_login'
+                      );
+                    },
+                    child: Text("Have an ekey?")
                 )
               ],
             ),

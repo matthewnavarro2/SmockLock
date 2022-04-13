@@ -43,14 +43,15 @@ class Api {
     var jwt = await storage.read(key:"jwt");
     Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
     var name = decodedToken["firstName"];
+    var userId = decodedToken["userId"];
 
     var res = await http.post(
         Uri.parse('$SERVER_IP/addPic'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode(<String, String>{
-          'name': name,
+        body: jsonEncode({
+          'userId': userId.toString(),
           'pic': base64,
           'jwtToken': jwt,
           })
@@ -145,9 +146,19 @@ class Api {
 
   static Future startFingerEnrollment(String ip, String fingerId) async {
     String message = "";
-    message = " enrollFinger-" + fingerId +  "-";
+    message = "  enrollFinger-" + fingerId +  "-";
     var res = await http.post(
-      Uri.parse('http://$ip/body'),
+      Uri.parse('http://$ip:80/body'),
+      body: message,
+    );
+    return res;
+  }
+
+  static Future unlockDoor(String ip) async {
+    String message = "";
+    message = "  unlockDoor-";
+    var res = await http.post(
+      Uri.parse('http://$ip:80/body'),
       body: message,
     );
     return res;
@@ -157,8 +168,46 @@ class Api {
     String message = "";
     message = " enrollRFID-";
     var res = await http.post(
-      Uri.parse('http://$ip/body'),
+      Uri.parse('http://$ip:80/body'),
       body: message,
+    );
+    return res;
+  }
+
+  static Future enrollFinger(String macAdd, String fingerId) async {
+    var jwt = await storage.read(key: "jwt");
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
+    var userId = decodedToken["userId"];
+
+    var res = await http.post(
+        Uri.parse('$SERVER_IP/enrollFinger'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'macAdd': macAdd,
+          'fp' : fingerId,
+          'userId' : userId,
+        })
+    );
+    return res;
+  }
+
+  static Future enrollRFID(String macAdd, String rfid) async {
+    var jwt = await storage.read(key: "jwt");
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
+    var userId = decodedToken["userId"];
+
+    var res = await http.post(
+        Uri.parse('$SERVER_IP/enrollRFID'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'macAdd': macAdd,
+          'rfid' : rfid,
+          'userId' : userId,
+        })
     );
     return res;
   }

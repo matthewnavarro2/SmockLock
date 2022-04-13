@@ -21,60 +21,77 @@ class _ListEKeysState extends State<ListEKeys> {
     resultObjs = arguments['resultObjs'];
     return Scaffold(
         appBar: AppBar(),
-        body: Column(
+        body: Stack(
+          alignment: AlignmentDirectional.bottomEnd,
           children: [
-            SizedBox(
-              height: (MediaQuery.of(context).size.height) * .5,
-              child: ListView.builder(
-                  itemCount: resultObjs.length,
-                  itemBuilder: (context, index){
-                    return Card(
-                      child: ListTile(
-                        onTap: () {
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: (MediaQuery.of(context).size.height) * .84,
+                    child: ListView.builder(
+                        itemCount: resultObjs.length,
+                        itemBuilder: (context, index){
+                          return Card(
+                            child: ListTile(
+                              onTap: () {
 
-                        },
-                        tileColor: Colors.lightBlueAccent.shade700,
-                        minVerticalPadding: (MediaQuery.of(context).size.height) * .025,
-                        title:  FittedBox(
-                          fit: BoxFit.fill,
-                          child: Row(
-                            children: [
-                              Text('${resultObjs[index].guestId}    '),
-                              Text(resultObjs[index].tgo),
-                              Text(resultObjs[index].firstname),
-                              Text(resultObjs[index].lastname),
-                              Text(resultObjs[index].email),
-
-                            ],
-                          ),
-                        ),
-                        //leading: Text((index+1).toString(),style: const TextStyle(
-                        // fontSize: 30.0,
-                        // fontWeight: FontWeight.bold,
-                        // ),),
-                        trailing:  IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/editekeys',
-                              arguments: {
-                                'resultObjs' : resultObjs,
-                                'index' : index,
                               },
+                              tileColor: Colors.lightBlueAccent.shade700,
+                              minVerticalPadding: (MediaQuery.of(context).size.height) * .025,
+                              title:  FittedBox(
+                                fit: BoxFit.fill,
+                                child: Row(
+                                  children: [
+                                    Text('${resultObjs[index].guestId}    '),
+                                    Text(resultObjs[index].tgo),
+                                    Text(resultObjs[index].firstname),
+                                    Text(resultObjs[index].lastname),
+                                    Text(resultObjs[index].email),
 
-                            );
-                          },
+                                  ],
+                                ),
+                              ),
+                              //leading: Text((index+1).toString(),style: const TextStyle(
+                              // fontSize: 30.0,
+                              // fontWeight: FontWeight.bold,
+                              // ),),
+                              trailing:  IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    '/editekeys',
+                                    arguments: {
+                                      'resultObjs' : resultObjs,
+                                      'index' : index,
+                                    },
 
-                        ),
+                                  );
+                                },
+
+                              ),
 
 
-                      ),
-                    );
-                  }
+                            ),
+                          );
+                        }
+                    ),
+                  ),
+
+                ],
               ),
             ),
+            IconButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/ekey');
 
+                },
+                icon: const Icon(Icons.add),
+
+
+            ),
           ],
         ),
 

@@ -128,39 +128,30 @@ class _LoginState extends State<Login> {
                         await storage.write(key: 'jwt', value: jwt);
                         Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
                         var userId = decodedToken["userId"];
-                        //var jwt = await storage.read(key: 'jwt', value: jwt);
-                        //Map<String, dynamic> decodedToken = JwtDecoder.decode(jwt!);
-                        // var userId = decodedToken["userId"];
-                        // print(decodedToken["locks"]);
-                        // print(decodedToken["locks"][0]["masterLockId"]);
-                        /*
-                        // api call to get mac adress and store it based on userid
-                        var res2 = await Api.getLock();
-                        Map<String, dynamic> jsonObject2 = jsonDecode(res2.body);
+                        List<String> nameList = [];
 
-                        var masterLock = jsonObject2['result'];
-                        var masterMac = masterLock[0]['MACAddress'];
-
-                        var authorizedLocks = jsonObject2['result2'];
-                        List authorizedMacs = [];
-                        List authorizedLocksList = [];
-
-                        for(int i = 0; i < authorizedLocks.length; i++){
-                          authorizedMacs.add(authorizedLocks[i]['MACAddress']);
-                          authorizedLocksList.add(authorizedLocks[i]);
+                        for(int i = 0; i < decodedToken["locks"].length; i++){
+                          if(decodedToken["locks"][i]["access"] == "Master"){
+                            var name = decodedToken["firstName"] + " " + decodedToken["lastName"];
+                            nameList.add(name);
+                          }
+                          else if(decodedToken["locks"][i]["access"] == "aUser"){
+                            var masterLockId = decodedToken["locks"][i]["masterLockId"];
+                            var res1 = await Api.getUser(masterLockId);
+                            Map<String, dynamic> jsonObject2 = jsonDecode(res1.body);
+                            var name = jsonObject2["result"][0]["FullName"];
+                            nameList.add(name);
+                          }
                         }
 
-                        AuthorizedLocks.authorizedMacs = authorizedMacs;
-                        AuthorizedLocks.authorizedLocks = authorizedLocksList;
-                        AuthorizedLocks.masterLock = masterLock;
-                        AuthorizedLocks.masterMac = masterMac;
 
-                        */
+
+
                         isLoggedIn = true;
                         Navigator.pushNamed(
                             context,
                             '/home',
-                            arguments: {'jwt': jwt},
+                            arguments: {'jwt': jwt, 'nameList': nameList},
                         );
                       }
                       else if (res.statusCode != 200) { // fail // trying to figure out how to do a dialog popup saying what error it is
