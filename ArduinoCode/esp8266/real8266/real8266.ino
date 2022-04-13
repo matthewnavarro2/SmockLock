@@ -5,14 +5,11 @@
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>
-#include <SoftwareSerial.h>
+//#include <SoftwareSerial.h>
 #include <ArduinoJson.h>
 
 // Sets the local webserver port to 80
 ESP8266WebServer server(80);
-
-// Serial connection to the atmega328p
-//SoftwareSerial atm328(12,15);
 
 // Interrupt pin for atmega328p
 const byte atmIntPin = 14;
@@ -28,6 +25,7 @@ String request = "";
 String mac;
 char* functi;
 char* val;
+String localIp;
 
 // Setup Function
 void setup() {
@@ -44,10 +42,11 @@ void setup() {
     //Serial.println("Server listening");
     pinMode(13, OUTPUT);
     attachInterrupt(digitalPinToInterrupt(atmIntPin),interrupt_routine,RISING);
-
+    localIp = WiFi.localIP().toString().c_str();
     mac = WiFi.macAddress();
+    //Serial.println(localIp);
     //Serial.println(mac);
-    // need to add the api to send the macAddress to database
+    updateIp(mac, localIp);
 }
 
 // Main Loop Function
@@ -56,23 +55,25 @@ void loop() {
     // If the ESP8266 has been interrupted by atmega328
     if (atmState == HIGH)
     {
+      //Serial.flush();
       //Serial.println("Interrupted");
       // Grab the incomming message 
+      while(Serial.available()==0){}
       while(Serial.available())
       {
         char c = Serial.read();
         request.concat(c);
         if (c == '\n')
         {
-          request.trim();
-          Serial.println(request.length());
+          //request.trim();
         }
+        Serial.flush();
       }
       
       if(!request.equals(""))
       {
         // Break the message up into its function and values
-        char mes[1024];
+        char mes[150];
         request.toCharArray(mes, request.length());
         functi = strtok(mes,"-");
         val = strtok(NULL, "-");
@@ -82,21 +83,14 @@ void loop() {
         if (strcmp(functi, "sendFinger") == 0)
         {
           int fpResult = sendFinger(val);
-          //atm328.println(String(fpResult));
+          Serial.println(String(fpResult));
         }
   
         // If we are sending the RFID ID
         else if (strcmp(functi, "sendRFID") == 0)
         {
           int rfidResult = sendRFID(val);
-          //atm328.println(String(rfidResult));
-        }
-        
-        // If we are sending the RFID ID
-        else if (strcmp(functi, "sendRFID") == 0)
-        {
-          int rfidResult = sendRFID(val);
-          //atm328.println(String(rfidResult));
+          Serial.println(String(rfidResult));
         }
         
         // If an unrecognized command has been sent
@@ -140,78 +134,36 @@ void handleBody()
         server.send(200, "text/plain", "Body not received");
         return;
   }
-
   // Grabs the message from the request
   String message = server.arg("plain");
-  //Serial.println(message);
-  // Sends the response message back
-  server.send(200, "text/plain", "We done got them message");
 
   // Interrupts the atmega328p
   digitalWrite(13, HIGH);
-  // Sends the message to the atmega328p
-
-  Serial.println(message);
   
-
+  // Sends the message to the atmega328p
+  Serial.println(message);
+ 
   // Resets the interrupt signal for the atmega328p
   digitalWrite(13, LOW);
-  
+  delay(500);
+  while(!Serial.available()){}
+  while(Serial.available())
+  {
+    char c = Serial.read();
+    request.concat(c);
+    if (c == '\n')
+    {
+      //request.trim();
+      //digitalWrite(13, HIGH);
+    }
+    Serial.flush();
+  }
+
+  server.send(200, "text/plain", request);
+  request = "";
 }
 
-// Function to retrieve the tier level from the database
-int getTier()
-{
-  Serial.println(mac);
-  int tierLevel;
-  // Set the api path
-  const char *tierPath = "http://smocklock2.herokuapp.com/api/tierRequest";
 
-  // Creating the json document to be used in the POST request
-  String json;
-  DynamicJsonDocument doc(1024);
-  DynamicJsonDocument doc2(1024);
-  char mes[1024];
-  // Inputting the parameters for the document
-  doc["macAdd"] = mac;
-
-  // Serializeing the document into a JSON string
-  serializeJson(doc, json);
-  
-  // If WiFi is connected
-  if(WiFi.status()== WL_CONNECTED){
-    WiFiClient client;
-    HTTPClient http;
-
-    // Your Domain name with URL path or IP address with path
-    http.begin(client, tierPath);
-
-    // If you need an HTTP request with a content type: application/json, use the following:
-    http.addHeader("Content-Type", "application/json");
-    int httpResponseCode = http.POST(json);
-    String payload = http.getString();
-    if (httpResponseCode == 200)
-    {
-      payload.toCharArray(mes,payload.length());
-      deserializeJson(doc2,mes);
-      tierLevel = doc2["tier"].as<int>();
-    }
-    else
-    {
-      Serial.print("HTTP Response code: ");
-      Serial.println(httpResponseCode);
-    }
-    
-    // Free resources
-    http.end();
-  }
-  
-  // If we are not connected to WiFi
-  else {
-    Serial.println("WiFi Disconnected");
-  }
-  return tierLevel;
-}
 
 // Function to compare the fingerID to database
 int sendFinger(String id)
@@ -221,8 +173,8 @@ int sendFinger(String id)
 
   // Creating the json document to be used in the POST request
   String json;
-  DynamicJsonDocument doc(1024);
-  DynamicJsonDocument doc2(1024);
+  DynamicJsonDocument doc(100);
+  DynamicJsonDocument doc2(100);
   char mes[1024];
   
   // Inputting the parameters for the api
@@ -244,28 +196,29 @@ int sendFinger(String id)
     http.addHeader("Content-Type", "application/json");
     int httpResponseCode = http.POST(json);
     String payload = http.getString();
+    http.end();
     if (httpResponseCode == 200)
     {
       payload.toCharArray(mes, payload.length());
       deserializeJson(doc2, mes);
       int fpResult = doc2["userId"].as<int>();
-      Serial.println(String(fpResult));
+      //Serial.println(String(fpResult));
       return fpResult;
     }
     else
     {
-      Serial.print("HTTP Response code: ");
-      Serial.println(httpResponseCode);
+      //Serial.print("HTTP Response code: ");
+      //Serial.println(httpResponseCode);
       return -1;
     }
     
     // Free resources
-    http.end();
+    //http.end();
   }
   
   // If we are not connected to WiFi
   else {
-    Serial.println("WiFi Disconnected");
+    //Serial.println("WiFi Disconnected");
     return -1;
   }
 }
@@ -278,8 +231,8 @@ int sendRFID(String id)
 
   // Creating the json document to be used in the POST request
   String json;
-  DynamicJsonDocument doc(1024);
-  DynamicJsonDocument doc2(1024);
+  DynamicJsonDocument doc(100);
+  DynamicJsonDocument doc2(100);
   char mes[1024];
   
   // Inputting the parameters for the api
@@ -322,6 +275,63 @@ int sendRFID(String id)
   // If we are not connected to WiFi
   else {
     Serial.println("WiFi Disconnected");
+    return -1;
+  }
+}
+
+
+int updateIp(String mac, String Ip)
+{
+  // Set the api path
+  const char *ipPath = "http://smocklock2.herokuapp.com/api/updateIP";
+
+  // Creating the json document to be used in the POST request
+  String json;
+  DynamicJsonDocument doc(100);
+  DynamicJsonDocument doc2(100);
+  char mes[1024];
+  
+  // Inputting the parameters for the api
+  doc["macAdd"] = mac;
+  doc["ip"] = Ip;
+  
+  // Serializeing the document into a JSON string
+  serializeJson(doc, json);
+  
+  // If WiFi is connected
+  if(WiFi.status()== WL_CONNECTED){
+    WiFiClient client;
+    HTTPClient http;
+
+    // Your Domain name with URL path or IP address with path
+    http.begin(client, ipPath);
+
+    // If you need an HTTP request with a content type: application/json, use the following:
+    http.addHeader("Content-Type", "application/json");
+    int httpResponseCode = http.POST(json);
+    String payload = http.getString();
+    if (httpResponseCode == 200)
+    {
+      payload.toCharArray(mes, payload.length());
+      deserializeJson(doc2, mes);
+      String ipResult = doc2["error"].as<String>();
+      //Serial.println(ipResult);
+      return 1;
+    }
+    else
+    {
+      //Serial.print("HTTP Response code: ");
+      //Serial.println(httpResponseCode);
+      return -1;
+    }
+    
+    // Free resources
+    http.end();
+  }
+  
+  // If we are not connected to WiFi
+  else {
+    //Serial.println("WiFi Disconnected");
     return -1;
   }
 }

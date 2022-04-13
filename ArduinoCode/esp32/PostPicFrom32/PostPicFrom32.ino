@@ -37,8 +37,8 @@ int pictureNumber = 0;
 int counter = 0;
 int limit = 0;
 
-const char *ssid = "Coutostoyou";
-const char *password = "Chaos357-";
+const char *ssid = "TP-Link_DECC";
+const char *password = "9542584446";
 const char *post_url = "http://smocklock2.herokuapp.com/api/recievefromESP32"; // Location where images are POSTED
 const char *facial_rec_url = "http://face-rec751.herokuapp.com/doFacialRec";
 bool internet_connected = false;
