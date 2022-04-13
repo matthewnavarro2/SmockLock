@@ -43,6 +43,7 @@ const char *post_url = "http://smocklock2.herokuapp.com/api/recievefromESP32"; /
 const char *facial_rec_url = "http://face-rec751.herokuapp.com/doFacialRec";
 bool internet_connected = false;
 bool face_dec = false;
+String payloader = "7";
 //ESP32QRCodeReader reader(CAMERA_MODEL_WROVER_KIT);
 //struct QRCodeData qrCodeData;
 #include <ArduinoOTA.h>
@@ -129,11 +130,9 @@ void callFacialRec()
   if (httpCode > 0)
   {
     // HTTP header has been send and Server response header has been handled
-    Serial2.write("[HTTP Pass]");
     String payload = http.getString();
     Serial.println(payload);
-    delay(5000);
-    Serial2.print(payload);
+    payloader = payload;
   }
   else
   {
@@ -191,27 +190,26 @@ void takePic()
     // httpCode will be negative on error
     if (httpCode > 0)
     {
+      // HTTP header has been send and Server response header has been handled
+
       // file found at server
       if (httpCode == HTTP_CODE_OK)
       {
        String payload = http.getString();
        //Serial.println(payload);
       }
-
-      http.end(); 
-      delay(2000);
-      callFacialRec();
     }
     else
     {
       Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
-      Serial2.write("[HTTP Fail]");
     }
+   http.end(); 
+   delay(2000);
+   callFacialRec();
    }
    else
    {
       Serial.println("Camera failed to capture face");
-      Serial2.write("[Camera Fail]");
    }
 
   esp_camera_fb_return(fb);
@@ -219,12 +217,26 @@ void takePic()
 
 void loop()
 { 
-  if(Serial2.available())
+  face_dec = false;
+  while (Serial2.available())
   {
-    Serial.println("Im in");
-    takePic();
+    while(face_dec == false)
+    {
+      limit++;
+      takePic();
+      if(face_dec == true)
+      {
+        Serial2.write("S");
+      }
+      else
+      {
+        Serial.println("Move Person");
+        Serial2.write("L");
+      }
+      delay(8000);
+    }
   }
-  delay(7000);
+  delay(8000);
 }
 
 
