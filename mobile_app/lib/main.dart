@@ -5,6 +5,7 @@ import 'package:mobile_app/authorizeduserscreen/auth_users.dart';
 import 'package:mobile_app/ekeyscreen/ekey.dart';
 import 'package:mobile_app/ekeyscreen/listekey.dart';
 import 'package:mobile_app/facerec_setup/facerec.dart';
+import 'package:mobile_app/home/ekey_home.dart';
 import 'package:mobile_app/lock_setup/setup.dart';
 import 'package:mobile_app/lock_setup/setup2.dart';
 import 'package:mobile_app/lock_setup/setup2_2.dart';
@@ -62,6 +63,7 @@ Future<void> main() async {
             '/auth_users' : (context) => const AuthorizedUsers(),
             '/rfid' : (context) => const Rfid(),
             '/ekey_login' : (context) => const EKeyLogin(),
+            '/ekey_home' : (context) => const EkeyHome(),
           }
 
   ));

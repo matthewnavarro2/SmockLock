@@ -164,6 +164,19 @@ class Api {
     return res;
   }
 
+  static Future loginThruEkey(String code) async {
+    var res = await http.post(
+        Uri.parse('$SERVER_IP/loginEKey'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'code': code
+        })
+    );
+    return res;
+  }
+
   static Future startRfidEnrollment(String ip) async {
     String message = "";
     message = " enrollRFID-";

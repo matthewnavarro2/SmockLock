@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:mobile_app/API/api.dart';
+
+import '../main.dart';
 
 class EKeyLogin extends StatefulWidget {
   const EKeyLogin({Key? key}) : super(key: key);
@@ -76,7 +81,17 @@ class _EKeyLoginState extends State<EKeyLogin> {
                     SizedBox(height: (MediaQuery.of(context).size.height) * .02),
 
                     TextButton(
-                      onPressed: () async {},
+                      onPressed: () async {
+                        String code = ekeyController.text;
+                        var res = await Api.loginThruEkey(code);
+                        print(res.body);
+                        Map<String, dynamic> jsonObject = jsonDecode(res.body);
+                        var ip = jsonObject["result"];
+                        print(ip);
+                        await storage.write(key:"ip", value: ip);
+                        Navigator.pushNamed(context, '/ekey_home');
+
+                      },
                       child: Container(
                         alignment: AlignmentDirectional.center,
                         height: (MediaQuery.of(context).size.height) * .04,
