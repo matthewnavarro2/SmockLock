@@ -68,7 +68,63 @@ exports.setApp = function ( app, client )
      
     });
 
+    app.post('/api/loginEKey', async (req, res, next) => 
+    {
+        const {code} = req.body;
 
+
+        // Variable Declaration
+        var guestObj;
+        var error = '';
+        var identify;
+        var ip;
+        // Connecting to database and searching for Pictures associated with User.
+        try
+        {
+          const db = client.db();
+          const result = await db.collection('EKey').find({guestId:Number(code)}).toArray();
+          console.log(result);
+          if (result.length > 0)
+          {
+            identify = result[0].userId;
+            console.log(identify);
+            const ipResult = await db.collection('Lock').find({MasterUserId:identify}).toArray();
+            console.log(ipResult);
+            if (ipResult.length > 0)
+            {
+              ip = ipResult[0].IP;
+              
+            }
+            else
+            {
+              error = 'no Lock with registered ID cannot return IP';
+            }
+          }
+          else
+          {
+            error = 'could not find EKey with the same ID';
+          }
+        }
+
+
+        // Prints error if failed
+        catch(e)
+        {
+          
+          console.log(e.message);
+        }
+        
+        
+        
+      
+        // return
+        // return
+        var ret = {result:ip, error: error};
+        res.status(200).json(ret);
+        console.log(res);
+
+
+    });
 
     app.post('/api/deleteEKey', async (req, res, next) => 
     {
