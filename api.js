@@ -72,7 +72,7 @@ exports.setApp = function ( app, client )
 
     app.post('/api/deleteEKey', async (req, res, next) => 
     {
-        const {email, jwtToken} = req.body;
+        const {guestId, jwtToken} = req.body;
 
         try
         {
@@ -89,14 +89,14 @@ exports.setApp = function ( app, client )
         }
 
         // Variable Declaration
-        var emailObj = {email:email};
+        var guestObj = {guestId:guestId};
         var error = '';
 
         // Connecting to database and searching for Pictures associated with User.
         try
         {
           const db = client.db();
-          const result = await db.collection('EKey').deleteOne(emailObj).toArray();
+          const result = await db.collection('EKey').deleteOne(guestObj);
         }
 
         // Prints error if failed
@@ -118,7 +118,99 @@ exports.setApp = function ( app, client )
       
         // return
         // return
-        var ret = {Email:email, jwtToken: refreshedToken, error: error};
+        var ret = {result:guestObj, jwtToken: refreshedToken, error: error};
+        res.status(200).json(ret);
+        console.log(res);
+
+
+    });
+
+    app.post('/api/editEKey', async (req, res, next) => 
+    {
+        const {guestId, firstname, lastname, userId, email, tgo, jwtToken} = req.body;
+
+        try
+        {
+          if( token.isExpired(jwtToken))
+          {
+            var r = {error:'The JWT is no longer valid', jwtToken: ''};
+            res.status(200).json(r);
+            return;
+          }
+        }
+        catch(e)
+        {
+          console.log(e.message);
+        }
+
+        // Variable Declaration
+        var finalResult;
+        var guestObj = {guestId:guestId};
+        var error = '';
+
+        // Connecting to database and searching for Pictures associated with User.
+        try
+        {
+          const db = client.db();
+          const result = await db.collection('EKey').find(guestObj).toArray();
+          
+          if (result.length > 0)
+          {
+            if (firstname)
+            {
+              const fnResult = await db.collection('EKey').updateOne({guestId:guestId}, {firstname:firstname});
+              error = '';
+            }
+            if (lastname)
+            {
+              const lnResult = await db.collection('EKey').updateOne({guestId:guestId}, {lastname:lastname});
+              error = '';
+            }
+            if (userId)
+            {
+              const userResult = await db.colection('EKey').updateOne({guestId:guestId}, {userId:userId});
+              error = '';
+            }
+            if (email)
+            {
+              const emailResult = await db.colection('EKey').updateOne({guestId:guestId}, {email:email});
+              error = '';
+            }
+            if (tgo)
+            {
+              const tgoResult = await db.colection('EKey').updateOne({guestId:guestId}, {tgo:tgo});
+              error = '';
+            }
+            
+            finalResult = await db.collection('EKey').find(guestObj).toArray();
+            finalResult = finalResult[0];
+          }
+          else
+          {
+            error = 'Could not find EKey';
+          }
+        }
+
+        // Prints error if failed
+        catch(e)
+        {
+          
+          console.log(e.message);
+        }
+        
+        var refreshedToken = null;
+        try
+        {
+          refreshedToken = token.refresh(jwtToken).accessToken;
+        }
+        catch(e)
+        {
+          console.log(e.message);
+        }
+      
+        // return
+        // return
+        var ret = {result:finalResult, jwtToken: refreshedToken, error: error};
         res.status(200).json(ret);
         console.log(res);
 
@@ -513,6 +605,128 @@ exports.setApp = function ( app, client )
     // ************************************ AUTHORIZED USERS API ***********************************************
     //
     // *********************************************************************************************************
+    app.post('/api/deleteAUser', async (req, res, next) => 
+    {
+        const {aUserId, adminId, jwtToken} = req.body;
+
+        try
+        {
+          if( token.isExpired(jwtToken))
+          {
+            var r = {error:'The JWT is no longer valid', jwtToken: ''};
+            res.status(200).json(r);
+            return;
+          }
+        }
+        catch(e)
+        {
+          console.log(e.message);
+        }
+
+        // Variable Declaration
+        var guestObj = {RemovedId:aUserId};
+        var error = '';
+
+        // Connecting to database and searching for Pictures associated with User.
+        try
+        {
+          const db = client.db();
+          const result = await db.collection('Lock').updateOne({MasterUserId:adminId}, {$pull: {AuthorizedUsers:aUserId}});
+        }
+
+        // Prints error if failed
+        catch(e)
+        {
+          
+          console.log(e.message);
+        }
+        
+        var refreshedToken = null;
+        try
+        {
+          refreshedToken = token.refresh(jwtToken).accessToken;
+        }
+        catch(e)
+        {
+          console.log(e.message);
+        }
+      
+        // return
+        // return
+        var ret = {result:guestObj, jwtToken: refreshedToken, error: error};
+        res.status(200).json(ret);
+        console.log(res);
+
+
+    });
+
+    app.post('/api/addAUser', async (req, res, next) => 
+    {
+        const {code, aUserId, jwtToken} = req.body;
+
+        try
+        {
+          if( token.isExpired(jwtToken))
+          {
+            var r = {error:'The JWT is no longer valid', jwtToken: ''};
+            res.status(200).json(r);
+            return;
+          }
+        }
+        catch(e)
+        {
+          console.log(e.message);
+        }
+
+        // Variable Declaration
+        var aUserObj;
+        var error = '';
+
+        // Connecting to database and searching for Pictures associated with User.
+        try
+        {
+          const db = client.db();
+          const result = await db.collection('Users').find({code:code}).toArray();
+
+          if (result.length > 0)
+          {
+            const aUserResult = await db.collection('Lock').updateOne({MasterUserId:result[0].UserId}, {$push: {AuthorizedUsers:aUserId}});
+            aUserObj = aUserResult;
+
+          }
+          else
+          {
+            error = 'Could not find User'
+          }
+        }
+
+        // Prints error if failed
+        catch(e)
+        {
+          
+          console.log(e.message);
+        }
+        
+        var refreshedToken = null;
+        try
+        {
+          refreshedToken = token.refresh(jwtToken).accessToken;
+        }
+        catch(e)
+        {
+          console.log(e.message);
+        }
+      
+        // return
+        // return
+        var ret = {result:aUserObj, jwtToken: refreshedToken, error: error};
+        res.status(200).json(ret);
+        console.log(res);
+
+
+    });
+
+
     app.post('/api/addAuthorizedUser', async (req, res, next) => 
     {
       const {plainCode, userId} = req.body;
