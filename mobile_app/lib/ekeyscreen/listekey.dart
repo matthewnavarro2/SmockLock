@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_app/API/api.dart';
 import 'package:mobile_app/ekeyscreen/parse_json_ekey.dart';
@@ -19,6 +21,11 @@ class _ListEKeysState extends State<ListEKeys> {
 
     final arguments = ModalRoute.of(context)!.settings.arguments as Map;
     resultObjs = arguments['resultObjs'];
+
+
+
+
+
     return Scaffold(
         appBar: AppBar(
           title: Text('Ekeys'),
@@ -34,6 +41,31 @@ class _ListEKeysState extends State<ListEKeys> {
                     child: ListView.builder(
                         itemCount: resultObjs.length,
                         itemBuilder: (context, index){
+                          String date = resultObjs[index].tgo;
+                          String year = '';
+                          String month = '';
+                          String day = '';
+                          String hour = '';
+                          String minute = '';
+
+
+                          print(date[3]);
+                          for(int i = 0; i < 16; i++){
+                            if(i<4){
+                              year += date[i];
+                            }else if(i>4 && i<7){
+                              month += date[i];
+                            }else if(i>7 && i<10){
+                              day += date[i];
+                            }else if(i>10 && i<13){
+                              hour += date[i];
+                            }else if(i>13){
+                              minute += date[i];
+                            }
+
+                          }
+                          print(year + month + day + hour + minute);
+
                           return Card(
                             child: ListTile(
                               onTap: () {
@@ -43,14 +75,18 @@ class _ListEKeysState extends State<ListEKeys> {
                               minVerticalPadding: (MediaQuery.of(context).size.height) * .025,
                               title:  FittedBox(
                                 fit: BoxFit.fill,
-                                child: Row(
+                                child: Column(
                                   children: [
 
+                                    Row(
+                                      children: [
 
-                                    Text('${resultObjs[index].firstname} '),
-                                    Text('${resultObjs[index].lastname}    '),
-                                    Text(resultObjs[index].tgo),
+                                        Text('${resultObjs[index].firstname} '),
+                                        Text('${resultObjs[index].lastname}  '),
+                                        Text('Expires at $hour:$minute on $month/$day/$year'),
 
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ),
