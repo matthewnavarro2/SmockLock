@@ -154,9 +154,14 @@ class _LoginState extends State<Login> {
                             arguments: {'jwt': jwt, 'nameList': nameList},
                         );
                       }
-                      else if (res.statusCode != 200) { // fail // trying to figure out how to do a dialog popup saying what error it is
+                      else if (res.statusCode == 400) { // fail // trying to figure out how to do a dialog popup saying what error it is
+                        var errTitle = 'Error ${res.statusCode}';
+                        Map<String, dynamic> jsonObject = jsonDecode(res.body);
+                        var errMessage = '${jsonObject["error"]}';
+                        showAlertDialog(context, errTitle , errMessage).showDialog;
+                      }else{
                         var errTitle = 'Error';
-                        var errMessage = '${res.statusCode}';
+                        var errMessage = 'Something went wrong.';
                         showAlertDialog(context, errTitle , errMessage).showDialog;
                       }
                     },
