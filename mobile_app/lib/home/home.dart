@@ -191,7 +191,7 @@ class _HomeState extends State<Home> {
                       var ip = jsonObject["result"][0]["IP"];
                       var res1 = await Api.unlockDoor(ip);
                       var trimmed = res1.body.trim();
-                      if(trimmed == "Success" || trimmed == "Success\n"){
+                      if(trimmed == "success" || trimmed == "success\n" || trimmed == "Success" || trimmed == "Success\n"){
                         print("success");
                         var errTitle = 'Success';
                         var errMessage = 'Enrollment was succesful.';
