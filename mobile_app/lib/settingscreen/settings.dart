@@ -36,21 +36,11 @@ class _SettingsState extends State<Settings> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
-                Text('Edit Username'),
-                CircleAvatar(),
+                Text('Edit Account'),
               ],
             ),
           ),
-          TextButton(
-            onPressed: (){},
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text('Change Passowrd'),
-                CircleAvatar(),
-              ],
-            ),
-          ),
+
           TextButton(
             onPressed: (){
               Navigator.pushNamed(context, '/facerec');
@@ -59,49 +49,11 @@ class _SettingsState extends State<Settings> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
                 Text('Configure Facial Recognition'),
-                CircleAvatar(),
               ],
             ),
           ),
-          TextButton(
-            onPressed: (){
-              Navigator.pushNamed(context, '/finger');
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text('Configure Fingerprint'),
-                CircleAvatar(),
-              ],
-            ),
-          ),
-          TextButton(
-            onPressed: (){
-              Navigator.pushNamed(context, '/rfid');
 
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text('Configure RFID'),
-                CircleAvatar(),
-              ],
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              isLoggedIn = false;
-              await storage.deleteAll();
-              Navigator.popUntil(context, ModalRoute.withName('/'));
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text('Logout'),
-                CircleAvatar(),
-              ],
-            ),
-          ),
+
           Row(
             children: const [
               Icon(
@@ -123,42 +75,58 @@ class _SettingsState extends State<Settings> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
                 Text('Initial Lock Setup'),
-                CircleAvatar(),
               ],
             ),
           ),
           TextButton(
             onPressed: (){
-              Navigator.pushNamed(context, '/setup2_2');
+              Navigator.pushNamed(context, '/finger');
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                Text('Configure Fingerprint'),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: (){
+              Navigator.pushNamed(context, '/rfid');
 
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
-                Text('Edit Security Level'),
-                CircleAvatar(),
+                Text('Configure RFID'),
               ],
             ),
           ),
           Row(
             children: const [
               Icon(
-                Icons.mail,
+                Icons.exit_to_app,
                 //color: Colors.pink,
                 //size: 24.0,
                 //semanticLabel: 'Text to announce in accessibility modes',
               ),
-              Text('Notifications')
+              Text('Logout')
             ],
           ),
           const Divider(thickness: 2),
           TextButton(
-            onPressed: (){},
+            onPressed: () async {
+              isLoggedIn = false;
+              await storage.deleteAll();
+              Navigator.popUntil(context, ModalRoute.withName('/'));
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
-                Text('Notifications'),
-                CircleAvatar(),
+                Text('Logout',
+                style: TextStyle(
+                  color: Colors.red,
+                ),
+                ),
               ],
             ),
           ),

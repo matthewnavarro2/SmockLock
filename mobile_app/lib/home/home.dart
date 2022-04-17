@@ -84,8 +84,8 @@ class _HomeState extends State<Home> {
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
                 colors: [ // background gradient of the homepage
-                  Color.fromRGBO(234, 234, 234, 1),
-                  Color.fromRGBO(178, 229, 190, 1),
+                  Color.fromRGBO(0, 201, 255, 1),
+                  Color.fromRGBO(146, 254, 157, 1),
                 ]
             ),
           ),
@@ -148,7 +148,7 @@ class _HomeState extends State<Home> {
                       List authorizedUser = [];
                       for(int i = 0; i < authorizedUserId.length; i++){
 
-                        var user = await Api.getUser(int.parse(authorizedUserId[i]));
+                        var user = await Api.getUser(authorizedUserId[i]);
                         var result = jsonDecode(user.body);
                         var authUserId = result["result"][0]["UserId"];
                         var email = result["result"][0]["Email"];
@@ -322,8 +322,10 @@ class _HomeState extends State<Home> {
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
                 colors: [ // background gradient of the homepage
-                  Color.fromRGBO(234, 234, 234, 1),
-                  Color.fromRGBO(178, 229, 190, 1),
+                  Color.fromRGBO(41, 128, 185, .78),
+                  Color.fromRGBO(109, 213, 250, 1),
+
+                  Color.fromRGBO(255, 255, 255, 1),
                 ]
             ),
           ),
@@ -361,7 +363,7 @@ class _HomeState extends State<Home> {
               ),
               SizedBox(height: MediaQuery.of(context).size.height * .08),
               Text(
-                userName,
+                '$userName As: \nAuthorized User',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 25,
@@ -488,8 +490,8 @@ class _HomeState extends State<Home> {
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
                 colors: [ // background gradient of the homepage
-                  Color.fromRGBO(234, 234, 234, 1),
-                  Color.fromRGBO(178, 229, 190, 1),
+                  Color.fromRGBO(0, 65, 106, 1),
+                  Color.fromRGBO(255, 255, 255, .3),
                 ]
             ),
           ),
@@ -526,13 +528,11 @@ class _HomeState extends State<Home> {
                 ],
               ),
               SizedBox(height: MediaQuery.of(context).size.height * .08),
-              Card(
-                child: Text(
-                  "Welcome to the SMOCK Lock Application",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 25,
-                  ),
+              Text(
+                "Welcome to the SMOCK Lock Application",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 25,
                 ),
               ),
 
