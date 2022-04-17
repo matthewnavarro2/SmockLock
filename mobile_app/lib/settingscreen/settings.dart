@@ -43,7 +43,7 @@ class _SettingsState extends State<Settings> {
 
           TextButton(
             onPressed: (){
-              Navigator.pushNamed(context, '/facerec');
+              Navigator.pushNamed(context, '/picture');
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

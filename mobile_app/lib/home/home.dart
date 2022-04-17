@@ -148,7 +148,7 @@ class _HomeState extends State<Home> {
                       List authorizedUser = [];
                       for(int i = 0; i < authorizedUserId.length; i++){
 
-                        var user = await Api.getUser(authorizedUserId[i]);
+                        var user = await Api.getUser(int.parse(authorizedUserId[i]));
                         var result = jsonDecode(user.body);
                         var authUserId = result["result"][0]["UserId"];
                         var email = result["result"][0]["Email"];
@@ -189,7 +189,27 @@ class _HomeState extends State<Home> {
                       var res = await Api.getLockUI(userId);
                       Map<String, dynamic> jsonObject = jsonDecode(res.body);
                       var ip = jsonObject["result"][0]["IP"];
-                      var res1 = Api.unlockDoor(ip);
+                      var res1 = await Api.unlockDoor(ip);
+                      var trimmed = res1.body.trim();
+                      if(trimmed == "Success" || trimmed == "Success\n"){
+                        print("success");
+                        var errTitle = 'Success';
+                        var errMessage = 'Enrollment was succesful.';
+                        showAlertDialog(context, errTitle , errMessage).showDialog;
+                      }else if(trimmed == "Failed" || trimmed == "Failed\n"){
+                        print("Try again, enrollment failed.");
+                        var errTitle = 'Error';
+                        var errMessage = 'Try again, enrollment failed.';
+                        showAlertDialog(context, errTitle , errMessage).showDialog;
+
+                      }else{
+                        print(trimmed);
+                        print("this mega failed");
+                        var errTitle = 'Error';
+                        var errMessage = 'Try again, enrollment failed.';
+                        showAlertDialog(context, errTitle , errMessage).showDialog;
+                      }
+
                     },
                     child: const CircleAvatar(
                       radius: 50,
@@ -387,7 +407,26 @@ class _HomeState extends State<Home> {
                       var res = await Api.getLockUI(userId);
                       Map<String, dynamic> jsonObject = jsonDecode(res.body);
                       var ip = jsonObject["result"][0]["IP"];
-                      var res1 = Api.unlockDoor(ip);
+                      var res1 = await Api.unlockDoor(ip);
+                      var trimmed = res1.body.trim();
+                      if(trimmed == "Success" || trimmed == "Success\n"){
+                        print("success");
+                        var errTitle = 'Success';
+                        var errMessage = 'Enrollment was succesful.';
+                        showAlertDialog(context, errTitle , errMessage).showDialog;
+                      }else if(trimmed == "Failed" || trimmed == "Failed\n"){
+                        print("Try again, enrollment failed.");
+                        var errTitle = 'Error';
+                        var errMessage = 'Try again, enrollment failed.';
+                        showAlertDialog(context, errTitle , errMessage).showDialog;
+
+                      }else{
+                        print(trimmed);
+                        print("this mega failed");
+                        var errTitle = 'Error';
+                        var errMessage = 'Try again, enrollment failed.';
+                        showAlertDialog(context, errTitle , errMessage).showDialog;
+                      }
                     },
                     child: const CircleAvatar(
                       radius: 50,
@@ -872,6 +911,37 @@ class _HomeState extends State<Home> {
         ),
       );
     }
-
   }
+
+  showAlertDialog(BuildContext context, String title, String message) {
+
+    // set up the button
+    Widget okButton = TextButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+
+
+
 }

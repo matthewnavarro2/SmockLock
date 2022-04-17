@@ -16,7 +16,7 @@ class _AuthorizedUsersState extends State<AuthorizedUsers> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("authorized Users"),
+        title: Text("Authorized Users"),
       ),
       body: Column(
         children: [
@@ -34,9 +34,8 @@ class _AuthorizedUsersState extends State<AuthorizedUsers> {
                       minVerticalPadding: (MediaQuery.of(context).size.height) * .025,
                       title:  Row(
                         children: [
-                          Text('${authorizedUser[index].firstName}'),
+                          Text('${authorizedUser[index].firstName} '),
                           Text('${authorizedUser[index].lastName}'),
-                          Text('${authorizedUser[index].email}'),
 
                         ],
                       ),

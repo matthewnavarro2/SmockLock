@@ -20,7 +20,9 @@ class _ListEKeysState extends State<ListEKeys> {
     final arguments = ModalRoute.of(context)!.settings.arguments as Map;
     resultObjs = arguments['resultObjs'];
     return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          title: Text('Ekeys'),
+        ),
         body: Stack(
           alignment: AlignmentDirectional.bottomEnd,
           children: [
@@ -43,11 +45,11 @@ class _ListEKeysState extends State<ListEKeys> {
                                 fit: BoxFit.fill,
                                 child: Row(
                                   children: [
-                                    Text('${resultObjs[index].guestId}    '),
+
+
+                                    Text('${resultObjs[index].firstname} '),
+                                    Text('${resultObjs[index].lastname}    '),
                                     Text(resultObjs[index].tgo),
-                                    Text(resultObjs[index].firstname),
-                                    Text(resultObjs[index].lastname),
-                                    Text(resultObjs[index].email),
 
                                   ],
                                 ),
