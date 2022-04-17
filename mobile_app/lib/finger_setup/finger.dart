@@ -49,12 +49,22 @@ class _FingerState extends State<Finger> {
                 var trimmed = res3.body.trim();
                 if(trimmed == "Success" || trimmed == "Success\n"){
                   var res4 = await Api.enrollFinger(mac, fingerId.toString());
-                  print("enrollment successful");
+                  print("success");
+                  var errTitle = 'Success';
+                  var errMessage = 'Enrollment was succesful.';
+                  showAlertDialog(context, errTitle , errMessage).showDialog;
                 }else if(trimmed == "Failed" || trimmed == "Failed\n"){
                   print("Try again, enrollment failed.");
+                  var errTitle = 'Error';
+                  var errMessage = 'Try again, enrollment failed.';
+                  showAlertDialog(context, errTitle , errMessage).showDialog;
+
                 }else{
                   print(trimmed);
                   print("this mega failed");
+                  var errTitle = 'Error';
+                  var errMessage = 'Try again, enrollment failed.';
+                  showAlertDialog(context, errTitle , errMessage).showDialog;
                 }
 
               },
@@ -62,6 +72,34 @@ class _FingerState extends State<Finger> {
           ),
         ],
       )
+    );
+  }
+
+  showAlertDialog(BuildContext context, String title, String message) {
+
+    // set up the button
+    Widget okButton = TextButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 }

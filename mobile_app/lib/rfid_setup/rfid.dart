@@ -43,9 +43,15 @@ class _RfidState extends State<Rfid> {
                 var trimmed = res2.body;
 
                 if(trimmed == "Failed" ||trimmed == "" || res2.body == null){
+                  var errTitle = 'Error';
+                  var errMessage = 'Try again, enrollment failed.';
+                  showAlertDialog(context, errTitle , errMessage).showDialog;
                   print("Failure. Please try again");
                 }else{
                   var rfid = res2.body;
+                  var errTitle = 'Success';
+                  var errMessage = 'Enrollment was succesful.';
+                  showAlertDialog(context, errTitle , errMessage).showDialog;
                   var res1 = await Api.enrollRFID(mac, rfid.trim());
                 }
 
@@ -61,4 +67,33 @@ class _RfidState extends State<Rfid> {
         )
     );
   }
+
+  showAlertDialog(BuildContext context, String title, String message) {
+
+    // set up the button
+    Widget okButton = TextButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
 }
