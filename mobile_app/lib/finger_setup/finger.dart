@@ -46,14 +46,14 @@ class _FingerState extends State<Finger> {
                 var fingerId = jsonObject2['newFpUserId'];
                 
                 var res3 = await Api.startFingerEnrollment(ip, fingerId.toString());
-
-                if(res3.body == "Success"){
-                  var res4 = await Api.enrollFinger(mac, fingerId);
+                var trimmed = res3.body.trim();
+                if(trimmed == "Success" || trimmed == "Success\n"){
+                  var res4 = await Api.enrollFinger(mac, fingerId.toString());
                   print("enrollment successful");
-
-                }else if(res3.body == "Failed"){
+                }else if(trimmed == "Failed" || trimmed == "Failed\n"){
                   print("Try again, enrollment failed.");
                 }else{
+                  print(trimmed);
                   print("this mega failed");
                 }
 

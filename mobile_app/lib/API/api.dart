@@ -179,7 +179,7 @@ class Api {
 
   static Future startRfidEnrollment(String ip) async {
     String message = "";
-    message = " enrollRFID-";
+    message = "  enrollRFID-";
     var res = await http.post(
       Uri.parse('http://$ip:80/body'),
       body: message,

@@ -40,11 +40,13 @@ class _RfidState extends State<Rfid> {
                 var mac = jsonObject["result"][0]["MACAddress"];
                 var res2 = await Api.startRfidEnrollment(ip);
                 print(res2.body);
-                if(res2.body == "Failed" || res2.body == "" || res2 == null){
+                var trimmed = res2.body;
+
+                if(trimmed == "Failed" ||trimmed == "" || res2.body == null){
                   print("Failure. Please try again");
                 }else{
                   var rfid = res2.body;
-                  var res1 = await Api.enrollRFID(mac, rfid);
+                  var res1 = await Api.enrollRFID(mac, rfid.trim());
                 }
 
                 // print(decodedToken["locks"]);

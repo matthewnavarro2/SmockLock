@@ -1061,10 +1061,17 @@ exports.setApp = function ( app, client )
           const authCheck1 = await db.collection('Lock').find({MACAddress:macAdd, AuthorizedUsers:userId}).toArray();
           if (authCheck1.length < 1) 
           {
-            const finger1Result = await db.collection('Lock').updateOne(
-              { "MACAddress" : macAdd },
-              { $push: { "AuthorizedUsers" : userId } }
-              );
+            const authCheck2 = await db.collection('Lock').find({MACAddress:macAdd, MasterUserId:userId}).toArray();
+            if (authCheck2.length < 1)
+            {
+              const finger1Result = await db.collection('Lock').updateOne(
+                { "MACAddress" : macAdd },
+                { $push: { "AuthorizedUsers" : userId } }
+                );
+            }
+            else{
+              error = 'UserId is already an Authorized User no need to update'
+            }
           }
           else{
             error = 'UserId is already an Authorized User no need to update'
@@ -1194,13 +1201,21 @@ exports.setApp = function ( app, client )
             error = 'RFID already exists under lock no need to update'
           } 
           
-          const authCheck1 = await db.collection('Lock').find({MACAddress:macAdd, AuthorizedUsers:Number(userId)}).toArray();
+          const authCheck1 = await db.collection('Lock').find({MACAddress:macAdd, AuthorizedUsers:userId}).toArray();
           if (authCheck1.length < 1) 
           {
-            const finger1Result = await db.collection('Lock').updateOne(
-              { "MACAddress" : macAdd },
-              { $push: { "AuthorizedUsers" : Number(userId) } }
-              );
+            const authCheck2 = await db.collection('Lock').find({MACAddress:macAdd, MasterUserId:userId}).toArray();
+            if (authCheck2.length < 1)
+            {
+              const finger1Result = await db.collection('Lock').updateOne(
+                { "MACAddress" : macAdd },
+                { $push: { "AuthorizedUsers" : userId } }
+                );
+            }
+            else{
+              error = 'UserId is already an Authorized User no need to update'
+            }
+            
           }
           else{
             error = 'UserId is already an Authorized User no need to update'
